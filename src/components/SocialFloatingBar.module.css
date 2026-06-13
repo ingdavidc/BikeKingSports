@@ -1,0 +1,59 @@
+.floatingBar {
+  position: fixed;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 1000;
+}
+
+.socialIcon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+  position: relative;
+}
+
+/* Base states */
+.whatsapp { background-color: #25D366; }
+.facebook { background-color: #1877F2; }
+.instagram { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+.email { background-color: var(--color-primary); }
+
+/* Hover Animations */
+.socialIcon:hover {
+  transform: scale(1.15) translateX(-5px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+.whatsapp:hover { background-color: #128C7E; }
+.facebook:hover { background-color: #165ab5; }
+.email:hover { background-color: var(--color-primary-dark); }
+
+@media (max-width: 768px) {
+  .floatingBar {
+    right: 10px;
+    top: auto;
+    bottom: 20px;
+    transform: none;
+    flex-direction: row;
+  }
+  
+  .socialIcon {
+    width: 45px;
+    height: 45px;
+  }
+
+  .socialIcon:hover {
+    transform: scale(1.15) translateY(-5px);
+  }
+}

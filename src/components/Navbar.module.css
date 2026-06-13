@@ -1,0 +1,106 @@
+.topbar {
+  background-color: var(--color-primary-dark);
+  color: #fff;
+  font-size: 0.85rem;
+  padding: 8px 0;
+}
+
+.topbarContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.topbarLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.divider {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.socialLink {
+  color: #fff;
+  transition: color 0.3s ease;
+}
+
+.socialLink:hover {
+  color: var(--color-accent-blue);
+}
+
+.header {
+  background-color: var(--color-bg);
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 80px;
+}
+
+.logo {
+  font-size: 2rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -1px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.logoText {
+  color: var(--color-primary);
+  font-style: italic;
+}
+
+.logoHighlight {
+  color: var(--color-accent-blue);
+  font-style: italic;
+  position: relative;
+}
+
+.logoHighlight::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  width: 100%;
+  background: linear-gradient(to right, var(--color-accent-blue), var(--color-accent-red), var(--color-accent-black), var(--color-accent-yellow), var(--color-accent-green));
+}
+
+.nav {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.navLink {
+  font-weight: 600;
+  color: var(--color-text);
+  transition: var(--transition);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+}
+
+.navLink:hover {
+  color: var(--color-primary);
+  background-color: var(--color-bg-alt);
+}
+
+.cartBadge {
+  background-color: var(--color-accent-red);
+  color: white;
+  border-radius: var(--radius-full);
+  padding: 2px 8px;
+  font-size: 0.8rem;
+  margin-left: 6px;
+  font-weight: bold;
+}

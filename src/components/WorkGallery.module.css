@@ -1,0 +1,183 @@
+.gallerySection {
+  padding: 80px 0;
+  background-color: var(--color-bg);
+  overflow: hidden;
+}
+
+.galleryHeader {
+  text-align: left;
+  margin-bottom: 40px;
+  padding: 0 20px;
+}
+
+.headerText .title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+  margin-bottom: 8px;
+}
+
+.headerText .subtitle {
+  color: var(--color-text-muted);
+  font-size: 1.1rem;
+}
+
+/* Endless Marquee Animation */
+.carouselWrapper {
+  overflow: hidden;
+  width: 100%;
+  padding: 10px 0; /* Add some padding for the hover box-shadows */
+}
+
+.carouselTrack {
+  display: flex;
+  gap: 20px;
+  width: max-content;
+  /* El movimiento dura 30s. Al ser duplicado, -50% mueve exactamente la mitad (el array original completo) */
+  animation: scrollMarquee 35s linear infinite;
+  padding: 20px 20px 40px 20px;
+}
+
+.carouselTrack:hover {
+  animation-play-state: paused; /* Pausa el movimiento infinito al poner el ratón */
+}
+
+@keyframes scrollMarquee {
+  0% { transform: translateX(0); }
+  /* Usamos calc(-50% - 10px) para compensar exactamente el ancho del array original + su gap, para que el loop sea perfecto */
+  100% { transform: translateX(calc(-50% - 10px)); }
+}
+
+.galleryCard {
+  min-width: 320px;
+  max-width: 320px;
+  background-color: var(--color-bg);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 1px solid var(--color-border);
+  position: relative;
+  z-index: 1;
+}
+
+.galleryCard:hover {
+  transform: scale(1.08);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+  border-color: var(--color-accent-blue);
+  z-index: 10;
+}
+
+.imageWrapper {
+  position: relative;
+  height: 350px;
+  overflow: hidden;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: object-fit 0.4s ease, transform 0.4s ease;
+}
+
+.galleryCard:hover .image {
+  object-fit: contain;
+  background-color: #000;
+  transform: scale(1);
+}
+
+.ctaCard {
+  background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.ctaCard:hover {
+  border-color: var(--color-accent-yellow);
+}
+
+.ctaContent {
+  padding: 40px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  position: relative;
+}
+
+.ctaIcon {
+  font-size: 3.5rem;
+  margin-bottom: 20px;
+  animation: wave 2.5s infinite;
+  display: inline-block;
+  transform-origin: 70% 70%;
+}
+
+@keyframes wave {
+  0% { transform: rotate(0.0deg) }
+  10% { transform: rotate(14.0deg) }
+  20% { transform: rotate(-8.0deg) }
+  30% { transform: rotate(14.0deg) }
+  40% { transform: rotate(-4.0deg) }
+  50% { transform: rotate(10.0deg) }
+  60% { transform: rotate(0.0deg) }
+  100% { transform: rotate(0.0deg) }
+}
+
+.ctaContent h3 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+  color: var(--color-accent-yellow);
+}
+
+.ctaContent p {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  opacity: 0.95;
+  font-weight: 500;
+}
+
+.badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background-color: var(--color-accent-yellow);
+  color: #000;
+  font-weight: 800;
+  font-size: 0.8rem;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+.cardInfo {
+  padding: 16px 20px;
+  background-color: var(--color-bg);
+  border-top: 1px solid var(--color-border);
+}
+
+.cardInfo p {
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .galleryCard {
+    min-width: 260px;
+    max-width: 260px;
+  }
+  .imageWrapper {
+    height: 300px;
+  }
+}
