@@ -10,17 +10,8 @@ export default function AdminLayout({ children }) {
           <Link href="/admin" style={{ color: 'white', textDecoration: 'none', padding: '8px', borderRadius: '4px', backgroundColor: 'rgba(255,255,255,0.1)' }}>
             📊 Dashboard
           </Link>
-          <Link href="/admin/contenido" style={{ color: 'white', textDecoration: 'none', padding: '8px', borderRadius: '4px' }}>
-            📝 Gestor de Contenido
-          </Link>
-          <Link href="/admin/inventario" style={{ color: 'white', textDecoration: 'none', padding: '8px', borderRadius: '4px' }}>
-            🚲 Inventario & Tienda
-          </Link>
-          <Link href="/admin/servicios" style={{ color: 'white', textDecoration: 'none', padding: '8px', borderRadius: '4px' }}>
-            🔧 Taller & Servicios
-          </Link>
-          <Link href="/admin/eventos" style={{ color: 'white', textDecoration: 'none', padding: '8px', borderRadius: '4px' }}>
-            📅 Eventos & Galería
+          <Link href="/admin/sitio-web" style={{ color: 'white', textDecoration: 'none', padding: '8px', borderRadius: '4px' }}>
+            ⚙️ Administración Web
           </Link>
           <a href="/" target="_blank" style={{ color: '#94a3b8', textDecoration: 'none', padding: '8px', marginTop: '20px', borderTop: '1px solid #334155' }}>
             🌍 Ver Sitio Público
