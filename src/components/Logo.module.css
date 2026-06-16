@@ -1,128 +1,18 @@
 .logoContainer {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  position: relative;
-  transform: skewX(-10deg);
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  justify-content: center;
+  transition: transform 0.3s ease;
   cursor: pointer;
 }
 
 .logoContainer:hover {
-  transform: skewX(-15deg) scale(1.05);
+  transform: scale(1.05);
 }
 
-.logoBox {
-  display: flex;
-  align-items: baseline;
-  border: 3px solid white;
-  padding: 4px 12px;
-  border-radius: 4px;
-  position: relative;
-  overflow: hidden;
-  background-color: var(--color-primary); /* Original Blue Background */
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
-
-/* Light Sweep / Speed Reflection Animation */
-.logoBox::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
-  transform: skewX(-20deg);
-  animation: speedShine 3s infinite;
-}
-
-@keyframes speedShine {
-  0% { left: -100%; }
-  20% { left: 200%; }
-  100% { left: 200%; }
-}
-
-/* Wind Lines Animation */
-.windLines {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.line1, .line2, .line3 {
-  position: absolute;
-  height: 2px;
-  background: rgba(255, 255, 255, 0.6);
-  border-radius: 2px;
-  animation: windMove linear infinite;
-}
-
-.line1 { top: 20%; width: 20px; animation-duration: 0.8s; animation-delay: 0.1s; }
-.line2 { top: 50%; width: 40px; animation-duration: 1.2s; animation-delay: 0.5s; }
-.line3 { top: 80%; width: 15px; animation-duration: 0.6s; animation-delay: 0.3s; }
-
-@keyframes windMove {
-  0% { transform: translateX(-50px); opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { transform: translateX(200px); opacity: 0; }
-}
-
-.textBike {
-  font-family: 'Inter', sans-serif;
-  font-weight: 900;
-  font-size: 28px;
-  color: white;
-  letter-spacing: -1px;
-  position: relative;
-  z-index: 2;
-}
-
-.textKing {
-  font-family: 'Inter', sans-serif;
-  font-weight: 900;
-  font-size: 28px;
-  color: white;
-  letter-spacing: -1px;
-  margin-left: 6px;
-  display: flex;
-  position: relative;
-  z-index: 2;
-}
-
-.letterG {
-  position: relative;
-  display: inline-block;
-}
-
-.uciStripes {
-  position: absolute;
-  right: 2px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  height: 14px;
-  width: 8px;
-}
-
-.stripe {
-  flex: 1;
-  width: 100%;
-}
-
-.tagline {
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 10px;
-  color: white;
-  letter-spacing: 2px;
-  margin-top: 4px;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-  transform: skewX(10deg); /* Counter-skew to keep it upright or leave it slanted */
+.logoImage {
+  height: 60px; /* Adjust as necessary for Navbar/Footer */
+  width: auto;
+  object-fit: contain;
+  border-radius: 8px; /* Optional, softens the edges if it's a JPG on a dark background */
 }
