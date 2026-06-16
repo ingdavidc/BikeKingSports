@@ -40,50 +40,54 @@ export async function POST(request) {
       return Response.json({ error: 'Faltan credenciales' }, { status: 400 });
     }
 
-    // Buscar al usuario por email
-    const user = await DB.prepare("SELECT * FROM users WHERE email = ?").bind(email).first();
+    // SECURITY: Mensaje genérico para evitar enumeración de usuarios
+    const GENERIC_ERROR = 'Credenciales inválidas';
+
+    const user = await DB.prepare("SELECT * FROM users WHERE email = ?").bind(email.toLowerCase().trim()).first();
 
     if (!user) {
-      return Response.json({ error: 'Usuario no encontrado' }, { status: 401 });
+      return Response.json({ error: GENERIC_ERROR }, { status: 401 });
     }
 
     if (user.status !== 'activo') {
-      return Response.json({ error: 'Cuenta inactiva' }, { status: 403 });
+      return Response.json({ error: 'Cuenta inactiva. Contacta al administrador.' }, { status: 403 });
     }
 
-    // Verificar la contraseña
     const isValid = await compare(password, user.password_hash);
 
     if (!isValid) {
-      return Response.json({ error: 'Contraseña incorrecta' }, { status: 401 });
+      return Response.json({ error: GENERIC_ERROR }, { status: 401 });
     }
 
-    // Crear el token JWT nativamente
     const payloadInfo = {
-      id: user.id, 
-      name: user.name, 
-      email: user.email, 
+      id: user.id,
+      name: user.name,
+      email: user.email,
       role: user.role,
       iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) // 24 hours
+      exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24),
     };
 
     const token = await signJWT(payloadInfo, SECRET);
 
-    // Crear la respuesta y configurar la cookie de sesión
-    const response = Response.json({ 
-      success: true, 
-      user: { id: user.id, name: user.name, role: user.role } 
+    const isProduction = request.url.startsWith('https://');
+    const secureCookie = isProduction ? '; Secure' : '';
+
+    const response = Response.json({
+      success: true,
+      user: { id: user.id, name: user.name, role: user.role },
     });
 
     response.headers.append(
-      'Set-Cookie', 
-      `auth_token=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${60 * 60 * 24}`
+      'Set-Cookie',
+      `auth_token=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${60 * 60 * 24}${secureCookie}`
     );
 
     return response;
 
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    // No exponer detalles internos al cliente
+    console.error('Login error:', error);
+    return Response.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }

@@ -1,8 +1,26 @@
 import { getRequestContext } from '@cloudflare/next-on-pages';
+import { verifyAuthHeader, unauthorized } from '@/lib/auth';
 
 export const runtime = 'edge';
 
+// Tipos MIME permitidos para subir archivos
+const ALLOWED_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+  'video/mp4',
+  'video/webm',
+];
+
+// Tamaño máximo: 10MB
+const MAX_SIZE_BYTES = 10 * 1024 * 1024;
+
 export async function POST(request) {
+  // SECURITY: Solo usuarios autenticados pueden subir archivos
+  const authPayload = await verifyAuthHeader(request);
+  if (!authPayload) return unauthorized();
+
   try {
     const MEDIA = getRequestContext().env.MEDIA;
     if (!MEDIA) {
@@ -13,26 +31,34 @@ export async function POST(request) {
     const file = formData.get('file');
 
     if (!file) {
-      return Response.json({ error: 'No file uploaded' }, { status: 400 });
+      return Response.json({ error: 'No se recibió ningún archivo' }, { status: 400 });
     }
 
-    const filename = `${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
-    const arrayBuffer = await file.arrayBuffer();
+    // Validar tipo de archivo
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      return Response.json({ error: `Tipo de archivo no permitido. Tipos aceptados: JPG, PNG, WEBP, GIF, MP4, WEBM` }, { status: 400 });
+    }
 
-    // Guardar en Cloudflare R2
-    await MEDIA.put(filename, arrayBuffer, {
+    // Validar tamaño
+    const arrayBuffer = await file.arrayBuffer();
+    if (arrayBuffer.byteLength > MAX_SIZE_BYTES) {
+      return Response.json({ error: 'El archivo supera el límite de 10MB' }, { status: 400 });
+    }
+
+    // Sanitizar nombre: solo letras, números, guiones y el punto de extensión
+    const extension = file.name.split('.').pop().toLowerCase();
+    const safeName = `${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${extension}`;
+
+    await MEDIA.put(safeName, arrayBuffer, {
       httpMetadata: { contentType: file.type },
     });
 
-    // Construir la URL pública.
-    // OJO: Cloudflare R2 necesita que actives un subdominio público en el panel para que las imágenes sean accesibles.
-    // Por ahora, asumiremos que se activa un "Custom Domain" o "R2.dev" para el bucket.
-    // Reemplazaremos PUBLIC_URL más adelante cuando sepamos la URL pública de R2.
-    const url = `https://pub-bikekingmedia.r2.dev/${filename}`; // Placeholder
+    const url = `https://pub-bikekingmedia.r2.dev/${safeName}`;
 
-    return Response.json({ success: true, url, filename });
+    return Response.json({ success: true, url, filename: safeName });
 
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error('POST /api/upload error:', error);
+    return Response.json({ error: 'Error al subir el archivo' }, { status: 500 });
   }
 }
