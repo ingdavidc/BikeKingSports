@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { headers } from 'next/headers';
 
+export const runtime = 'edge';
+
 export default async function AdminLayout({ children }) {
   const headersList = await headers();
   const userRole = headersList.get('x-user-role') || 'admin';
