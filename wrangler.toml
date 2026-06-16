@@ -1,0 +1,13 @@
+name = "bikeking"
+compatibility_date = "2024-03-20"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".vercel/output/static"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "bikeking-db"
+database_id = "42bcb27d-dfd6-4ee7-8cd3-7cd5f5150c2b"
+
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "bikeking-media"
