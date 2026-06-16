@@ -35,6 +35,17 @@ CREATE TABLE IF NOT EXISTS events (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Users / Staff Authentication
+CREATE TABLE IF NOT EXISTS users (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    role TEXT NOT NULL,
+    status TEXT DEFAULT 'activo',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Insert some default settings for the Home Page
 INSERT OR IGNORE INTO site_settings (key, value) VALUES ('home_hero_title', 'BIKE KING SPORTS');
 INSERT OR IGNORE INTO site_settings (key, value) VALUES ('home_hero_subtitle', 'Taller Especializado y Tienda de Bicicletas');
