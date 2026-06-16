@@ -14,7 +14,13 @@ export default function AdminLayout({ children }) {
             📝 Gestor de Contenido
           </Link>
           <Link href="/admin/inventario" style={{ color: 'white', textDecoration: 'none', padding: '8px', borderRadius: '4px' }}>
-            🚲 Inventario
+            🚲 Inventario & Tienda
+          </Link>
+          <Link href="/admin/servicios" style={{ color: 'white', textDecoration: 'none', padding: '8px', borderRadius: '4px' }}>
+            🔧 Taller & Servicios
+          </Link>
+          <Link href="/admin/eventos" style={{ color: 'white', textDecoration: 'none', padding: '8px', borderRadius: '4px' }}>
+            📅 Eventos & Galería
           </Link>
           <a href="/" target="_blank" style={{ color: '#94a3b8', textDecoration: 'none', padding: '8px', marginTop: '20px', borderTop: '1px solid #334155' }}>
             🌍 Ver Sitio Público

@@ -32,6 +32,11 @@ export async function GET(request) {
       return Response.json(results);
     }
 
+    if (type === 'events') {
+      const { results } = await DB.prepare("SELECT * FROM events ORDER BY date DESC").all();
+      return Response.json(results);
+    }
+
     return Response.json({ error: 'Invalid type parameter' }, { status: 400 });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
@@ -61,6 +66,32 @@ export async function POST(request) {
 
     if (action === 'delete_product') {
       await DB.prepare("DELETE FROM products WHERE id = ?").bind(payload.id).run();
+      return Response.json({ success: true });
+    }
+
+    if (action === 'add_service') {
+      const id = crypto.randomUUID();
+      await DB.prepare("INSERT INTO services (id, name, description, price, video_url) VALUES (?, ?, ?, ?, ?)")
+        .bind(id, payload.name, payload.description, payload.price, payload.video_url || '')
+        .run();
+      return Response.json({ success: true, id });
+    }
+
+    if (action === 'delete_service') {
+      await DB.prepare("DELETE FROM services WHERE id = ?").bind(payload.id).run();
+      return Response.json({ success: true });
+    }
+
+    if (action === 'add_event') {
+      const id = crypto.randomUUID();
+      await DB.prepare("INSERT INTO events (id, title, date, description, image_url) VALUES (?, ?, ?, ?, ?)")
+        .bind(id, payload.title, payload.date, payload.description, payload.image_url || '')
+        .run();
+      return Response.json({ success: true, id });
+    }
+
+    if (action === 'delete_event') {
+      await DB.prepare("DELETE FROM events WHERE id = ?").bind(payload.id).run();
       return Response.json({ success: true });
     }
 
