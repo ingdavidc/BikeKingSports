@@ -38,7 +38,7 @@ async function verifyJWT(token, secret) {
 }
 
 export async function middleware(request) {
-  const SECRET = process.env.JWT_SECRET || 'bikeking-super-secret-key-2026';
+  const SECRET = 'bikeking-super-secret-key-2026';
   const path = request.nextUrl.pathname;
 
   // Solo proteger las rutas que empiezan con /admin

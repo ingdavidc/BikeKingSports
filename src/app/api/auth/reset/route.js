@@ -1,7 +1,5 @@
 import { getRequestContext } from '@cloudflare/next-on-pages';
 
-export const runtime = 'edge';
-
 export async function GET(request) {
   try {
     const DB = getRequestContext().env.DB;

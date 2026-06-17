@@ -1,7 +1,5 @@
 import { getRequestContext } from '@cloudflare/next-on-pages';
 
-export const runtime = 'edge';
-
 async function hashPassword(password) {
   const encoder = new TextEncoder();
   const data = encoder.encode(password + "bikeking_salt_123");
@@ -37,7 +35,7 @@ async function signJWT(payload, secret) {
 }
 
 export async function POST(request) {
-  const SECRET = process.env.JWT_SECRET || 'bikeking-super-secret-key-2026';
+  const SECRET = 'bikeking-super-secret-key-2026';
   try {
     const DB = getRequestContext().env.DB;
     const { email, password } = await request.json();

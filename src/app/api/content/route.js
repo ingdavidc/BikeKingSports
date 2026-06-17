@@ -1,9 +1,7 @@
 import { getRequestContext } from '@cloudflare/next-on-pages';
-import { verifyAuthHeader, unauthorized } from '@/lib/auth';
+import { verifyAuthHeader, unauthorized, forbidden } from '@/lib/auth';
 
-export const runtime = 'edge';
-
-// GET: Público (productos, servicios, eventos visibles en la web)
+// SECURITY: Solo admins o ventas pueden gestionar el contenidos visibles en la web)
 // POST: Requiere autenticación (solo admins pueden modificar contenido)
 export async function GET(request) {
   try {

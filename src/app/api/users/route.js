@@ -9,8 +9,6 @@ async function hashPassword(password) {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-export const runtime = 'edge';
-
 // SECURITY: Solo admins pueden ver y modificar usuarios
 async function requireAdmin(request) {
   const payload = await verifyAuthHeader(request);
