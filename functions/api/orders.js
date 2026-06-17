@@ -22,16 +22,22 @@ export async function onRequestGet(context) {
     const DB = context.env.DB;
     const { searchParams } = new URL(context.request.url);
     const filter = searchParams.get('status'); // filtrar por estado
+    const serial = searchParams.get('serial'); // historial por serial
 
     let query = 'SELECT * FROM work_orders';
     let params = [];
 
-    if (filter && VALID_STATUSES.includes(filter)) {
+    if (serial) {
+      query += ' WHERE bike_serial = ?';
+      params = [serial];
+      query += ' ORDER BY created_at DESC';
+    } else if (filter && VALID_STATUSES.includes(filter)) {
       query += ' WHERE status = ?';
       params = [filter];
+      query += ' ORDER BY CASE priority WHEN \'urgente\' THEN 1 WHEN \'normal\' THEN 2 ELSE 3 END, created_at DESC';
+    } else {
+      query += ' ORDER BY CASE priority WHEN \'urgente\' THEN 1 WHEN \'normal\' THEN 2 ELSE 3 END, created_at DESC';
     }
-
-    query += ' ORDER BY CASE priority WHEN \'urgente\' THEN 1 WHEN \'normal\' THEN 2 ELSE 3 END, created_at DESC';
 
     const { results } = params.length
       ? await DB.prepare(query).bind(...params).all()
@@ -49,8 +55,6 @@ export async function onRequestPost(context) {
   const user = context.data?.user;
   if (!role) return Response.json({ error: 'No autorizado' }, { status: 401 });
 
-  // Solo mecánicos y admins pueden crear/actualizar órdenes
-  // Ventas solo puede leer (GET), no POST
   if (role === 'ventas') {
     return Response.json({ error: 'Acceso denegado' }, { status: 403 });
   }
@@ -73,6 +77,7 @@ export async function onRequestPost(context) {
       const customer_phone = s(payload.customer_phone, 20);
       const bike_brand = s(payload.bike_brand, 100);
       const bike_model = s(payload.bike_model, 100);
+      const bike_serial = s(payload.bike_serial, 100);
       const problem_description = s(payload.problem_description);
       const priority = VALID_PRIORITIES.includes(payload.priority) ? payload.priority : 'normal';
       const estimated_price = parseFloat(payload.estimated_price) || 0;
@@ -85,27 +90,36 @@ export async function onRequestPost(context) {
       const now = new Date().toISOString();
 
       await DB.prepare(
-        `INSERT INTO work_orders (id, customer_name, customer_phone, bike_brand, bike_model,
+        `INSERT INTO work_orders (id, customer_name, customer_phone, bike_brand, bike_model, bike_serial,
          problem_description, status, priority, assigned_to, estimated_price, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, 'recibida', ?, ?, ?, ?, ?)`
-      ).bind(id, customer_name, customer_phone, bike_brand, bike_model,
+         VALUES (?, ?, ?, ?, ?, ?, ?, 'recibida', ?, ?, ?, ?, ?)`
+      ).bind(id, customer_name, customer_phone, bike_brand, bike_model, bike_serial,
              problem_description, priority, user?.name || '', estimated_price, now, now).run();
 
       return Response.json({ success: true, id });
     }
 
-    // ─── Actualizar estado ────────────────────────────────────
+    // ─── Actualizar estado y diagnósticos (checklist/photos) ──
     if (action === 'update_status') {
-      const { id, status, service_notes } = payload;
+      const { id, status, service_notes, checklist, photos } = payload;
       if (!id || typeof id !== 'string') return Response.json({ error: 'ID requerido' }, { status: 400 });
       if (!VALID_STATUSES.includes(status)) return Response.json({ error: 'Estado inválido' }, { status: 400 });
 
       const notes = s(service_notes);
+      const cl = checklist ? JSON.stringify(checklist) : undefined;
+      const ph = photos ? JSON.stringify(photos) : undefined;
       const now = new Date().toISOString();
 
-      await DB.prepare(
-        'UPDATE work_orders SET status = ?, service_notes = ?, updated_at = ? WHERE id = ?'
-      ).bind(status, notes, now, id).run();
+      let query = 'UPDATE work_orders SET status = ?, service_notes = ?, updated_at = ?';
+      let binds = [status, notes, now];
+
+      if (cl !== undefined) { query += ', checklist = ?'; binds.push(cl); }
+      if (ph !== undefined) { query += ', photos = ?'; binds.push(ph); }
+
+      query += ' WHERE id = ?';
+      binds.push(id);
+
+      await DB.prepare(query).bind(...binds).run();
 
       return Response.json({ success: true });
     }
@@ -122,6 +136,7 @@ export async function onRequestPost(context) {
       const customer_phone = s(payload.customer_phone, 20);
       const bike_brand = s(payload.bike_brand, 100);
       const bike_model = s(payload.bike_model, 100);
+      const bike_serial = s(payload.bike_serial, 100);
       const problem_description = s(payload.problem_description);
       const priority = VALID_PRIORITIES.includes(payload.priority) ? payload.priority : 'normal';
       const estimated_price = parseFloat(payload.estimated_price) || 0;
@@ -133,9 +148,9 @@ export async function onRequestPost(context) {
       }
 
       await DB.prepare(
-        `UPDATE work_orders SET customer_name=?, customer_phone=?, bike_brand=?, bike_model=?,
+        `UPDATE work_orders SET customer_name=?, customer_phone=?, bike_brand=?, bike_model=?, bike_serial=?,
          problem_description=?, priority=?, estimated_price=?, service_notes=?, updated_at=? WHERE id=?`
-      ).bind(customer_name, customer_phone, bike_brand, bike_model,
+      ).bind(customer_name, customer_phone, bike_brand, bike_model, bike_serial,
              problem_description, priority, estimated_price, service_notes, now, id).run();
 
       return Response.json({ success: true });
