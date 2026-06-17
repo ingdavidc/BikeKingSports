@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+const SECRET = 'bikeking-super-secret-key-2026';
 
 // Edge-compatible JWT verifier using Web Crypto API
 async function verifyJWT(token, secret) {
@@ -37,51 +37,39 @@ async function verifyJWT(token, secret) {
   return payload;
 }
 
-export async function middleware(request) {
-  const SECRET = 'bikeking-super-secret-key-2026';
-  const path = request.nextUrl.pathname;
+export async function onRequest(context) {
+  const url = new URL(context.request.url);
+  const path = url.pathname;
 
-  // Solo proteger las rutas que empiezan con /admin
-  if (path.startsWith('/admin')) {
-    const token = request.cookies.get('auth_token')?.value;
+  // Solo interceptamos las llamadas a la API que requieren protección
+  if (path.startsWith('/api/content') || path.startsWith('/api/upload') || path.startsWith('/api/users') || path.startsWith('/api/auth/me')) {
+    const cookieHeader = context.request.headers.get('cookie') || '';
+    const tokenMatch = cookieHeader.match(/auth_token=([^;]+)/);
+    const token = tokenMatch ? tokenMatch[1] : null;
 
     if (!token) {
-      // No hay token, redirigir al login
-      return NextResponse.redirect(new URL('/login', request.url));
+      return Response.json({ error: 'No autorizado' }, { status: 401 });
     }
 
     try {
-      // Verificar el token nativamente
       const payload = await verifyJWT(token, SECRET);
-      
-      // Control de acceso por Roles
       const role = payload.role;
 
-      // Un técnico NO puede acceder a gestión de personal ni administración web
-      if (role === 'tecnico' && (path.startsWith('/admin/personal') || path.startsWith('/admin/sitio-web'))) {
-        return NextResponse.redirect(new URL('/admin', request.url)); // Mandarlo al dashboard
+      // Inyectar datos en el contexto de la función de Cloudflare para que los siguientes handlers puedan usarlo
+      context.data = {
+        user: payload,
+        role: role
+      };
+
+      // Si es un técnico y trata de acceder a usuarios, bloquear
+      if (role === 'tecnico' && path.startsWith('/api/users')) {
+        return Response.json({ error: 'Acceso denegado' }, { status: 403 });
       }
 
-      // Añadir headers con la info del usuario
-      const requestHeaders = new Headers(request.headers);
-      requestHeaders.set('x-user-role', role);
-      requestHeaders.set('x-user-name', payload.name);
-
-      return NextResponse.next({
-        request: {
-          headers: requestHeaders,
-        },
-      });
-
-    } catch (error) {
-      // Token inválido o expirado
-      return NextResponse.redirect(new URL('/login', request.url));
+    } catch (e) {
+      return Response.json({ error: 'Token inválido o expirado' }, { status: 401 });
     }
   }
 
-  return NextResponse.next();
+  return await context.next();
 }
-
-export const config = {
-  matcher: ['/admin/:path*'],
-};

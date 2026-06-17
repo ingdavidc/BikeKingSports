@@ -1,5 +1,4 @@
-export const runtime = 'edge';
-export async function POST(request) {
+export async function onRequestPost(context) {
   const response = Response.json({ success: true });
   
   // Limpiar la cookie de sesión
@@ -10,4 +9,3 @@ export async function POST(request) {
 
   return response;
 }
-

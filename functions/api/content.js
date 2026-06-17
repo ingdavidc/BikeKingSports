@@ -1,17 +1,11 @@
-import { getRequestContext } from '@cloudflare/next-on-pages';
-import { verifyAuthHeader, unauthorized, forbidden } from '@/lib/auth';
-export const runtime = 'edge';
-
-// SECURITY: Solo admins o ventas pueden gestionar el contenidos visibles en la web)
-// POST: Requiere autenticación (solo admins pueden modificar contenido)
-export async function GET(request) {
+export async function onRequestGet(context) {
   try {
-    const DB = getRequestContext().env.DB;
+    const DB = context.env.DB;
     if (!DB) {
       return Response.json({ error: 'DB binding not found' }, { status: 500 });
     }
 
-    const { searchParams } = new URL(request.url);
+    const { searchParams } = new URL(context.request.url);
     const type = searchParams.get('type');
 
     if (type === 'settings') {
@@ -45,14 +39,16 @@ export async function GET(request) {
   }
 }
 
-export async function POST(request) {
-  // SECURITY: Verificar que el usuario está autenticado antes de permitir cambios
-  const authPayload = await verifyAuthHeader(request);
-  if (!authPayload) return unauthorized();
+export async function onRequestPost(context) {
+  // SECURITY: _middleware.js ya verificó que está autenticado
+  const role = context.data?.role;
+  if (!role) {
+    return Response.json({ error: 'No autorizado' }, { status: 401 });
+  }
 
   try {
-    const DB = getRequestContext().env.DB;
-    const body = await request.json();
+    const DB = context.env.DB;
+    const body = await context.request.json();
     const { action, payload } = body;
 
     if (!action || !payload) {
@@ -120,4 +116,3 @@ export async function POST(request) {
     return Response.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }
-

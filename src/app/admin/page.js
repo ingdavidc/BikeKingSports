@@ -1,4 +1,4 @@
-export const runtime = 'edge';
+// Pure client component or static component
 
 
 export default function AdminDashboard() {

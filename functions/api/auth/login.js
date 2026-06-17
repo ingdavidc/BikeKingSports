@@ -1,5 +1,4 @@
-import { getRequestContext } from '@cloudflare/next-on-pages';
-export const runtime = 'edge';
+const SECRET = 'bikeking-super-secret-key-2026';
 
 async function hashPassword(password) {
   const encoder = new TextEncoder();
@@ -9,7 +8,6 @@ async function hashPassword(password) {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-// Edge-compatible JWT signer using Web Crypto API
 async function signJWT(payload, secret) {
   const encoder = new TextEncoder();
   const header = { alg: 'HS256', typ: 'JWT' };
@@ -35,19 +33,17 @@ async function signJWT(payload, secret) {
   return `${headerB64}.${payloadB64}.${signatureB64}`;
 }
 
-export async function POST(request) {
-  const SECRET = 'bikeking-super-secret-key-2026';
+export async function onRequestPost(context) {
   try {
-    const DB = getRequestContext().env.DB;
-    const { email, password } = await request.json();
+    const DB = context.env.DB;
+    const body = await context.request.json();
+    const { email, password } = body;
 
     if (!email || !password) {
       return Response.json({ error: 'Faltan credenciales' }, { status: 400 });
     }
 
-    // SECURITY: Mensaje genérico para evitar enumeración de usuarios
     const GENERIC_ERROR = 'Credenciales inválidas';
-
     const user = await DB.prepare("SELECT * FROM users WHERE email = ?").bind(email.toLowerCase().trim()).first();
 
     if (!user) {
@@ -76,7 +72,7 @@ export async function POST(request) {
 
     const token = await signJWT(payloadInfo, SECRET);
 
-    const isProduction = request.url.startsWith('https://');
+    const isProduction = context.request.url.startsWith('https://');
     const secureCookie = isProduction ? '; Secure' : '';
 
     const response = Response.json({
@@ -92,9 +88,7 @@ export async function POST(request) {
     return response;
 
   } catch (error) {
-    // No exponer detalles internos al cliente
     console.error('Login error:', error);
     return Response.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }
-

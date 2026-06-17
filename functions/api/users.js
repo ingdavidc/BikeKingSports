@@ -1,7 +1,3 @@
-import { getRequestContext } from '@cloudflare/next-on-pages';
-import { verifyAuthHeader, unauthorized, forbidden } from '@/lib/auth';
-export const runtime = 'edge';
-
 async function hashPassword(password) {
   const encoder = new TextEncoder();
   const data = encoder.encode(password + "bikeking_salt_123");
@@ -10,20 +6,15 @@ async function hashPassword(password) {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-// SECURITY: Solo admins pueden ver y modificar usuarios
-async function requireAdmin(request) {
-  const payload = await verifyAuthHeader(request);
-  if (!payload) return unauthorized();
-  if (payload.role !== 'admin') return forbidden();
-  return null; // Sin error
-}
-
-export async function GET(request) {
-  const authError = await requireAdmin(request);
-  if (authError) return authError;
+export async function onRequestGet(context) {
+  // SECURITY: _middleware.js ya verificó autenticación
+  const role = context.data?.role;
+  if (role !== 'admin') {
+    return Response.json({ error: 'Acceso denegado' }, { status: 403 });
+  }
 
   try {
-    const DB = getRequestContext().env.DB;
+    const DB = context.env.DB;
     const { results } = await DB.prepare(
       "SELECT id, name, email, role, status, created_at FROM users ORDER BY created_at DESC"
     ).all();
@@ -34,13 +25,15 @@ export async function GET(request) {
   }
 }
 
-export async function POST(request) {
-  const authError = await requireAdmin(request);
-  if (authError) return authError;
+export async function onRequestPost(context) {
+  const role = context.data?.role;
+  if (role !== 'admin') {
+    return Response.json({ error: 'Acceso denegado' }, { status: 403 });
+  }
 
   try {
-    const DB = getRequestContext().env.DB;
-    const body = await request.json();
+    const DB = context.env.DB;
+    const body = await context.request.json();
     const { action, payload } = body;
 
     if (!action || !payload) {
@@ -50,7 +43,6 @@ export async function POST(request) {
     if (action === 'add_user') {
       const { name, email, password, role } = payload;
 
-      // Validaciones básicas
       if (!name || !email || !password || !role) {
         return Response.json({ error: 'Todos los campos son requeridos' }, { status: 400 });
       }
@@ -99,4 +91,3 @@ export async function POST(request) {
     return Response.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }
-

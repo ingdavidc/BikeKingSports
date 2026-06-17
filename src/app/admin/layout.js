@@ -1,67 +1,79 @@
+'use client';
+
 import Link from 'next/link';
-import { headers } from 'next/headers';
+import { useRouter, usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import LogoutButton from '@/components/admin/LogoutButton';
-export const runtime = 'edge';
 
+export default function AdminLayout({ children }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch('/api/auth/me');
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data.user);
+          
+          // Role-based redirect logic
+          if (data.user.role === 'tecnico' && (pathname.startsWith('/admin/personal') || pathname.startsWith('/admin/sitio-web'))) {
+            router.push('/admin');
+          }
+        } else {
+          router.push('/login');
+        }
+      } catch (err) {
+        router.push('/login');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    checkAuth();
+  }, [pathname, router]);
 
-export default async function AdminLayout({ children }) {
-  const headersList = await headers();
-  // El middleware garantiza que x-user-role siempre estará presente para usuarios autenticados.
-  // Si por algún motivo no existe, lo tratamos como el rol más restrictivo (no admin).
-  const userRole = headersList.get('x-user-role') || '';
-  const userName = headersList.get('x-user-name') || 'Usuario';
-  const isAdmin = userRole === 'admin';
+  if (loading) {
+    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#0f172a', color: 'white' }}>Cargando panel...</div>;
+  }
+
+  if (!user) return null;
+
+  const isAdmin = user.role === 'admin';
+  const userName = user.name;
+  const userRole = user.role;
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f1f5f9', color: '#0f172a' }}>
       {/* Sidebar */}
-      <aside style={{
-        width: '260px',
-        minWidth: '260px',
-        backgroundColor: '#0f172a',
-        color: 'white',
-        display: 'flex',
-        flexDirection: 'column',
-        boxShadow: '4px 0 15px rgba(0,0,0,0.3)',
-      }}>
-        {/* Logo area */}
-        <div style={{ padding: '24px 20px', borderBottom: '1px solid #1e293b' }}>
-          <h2 style={{ margin: 0, fontSize: '1.1rem', color: '#38bdf8', letterSpacing: '1px', textTransform: 'uppercase' }}>
-            🚲 Bike King
-          </h2>
-          <p style={{ margin: '6px 0 0', fontSize: '0.75rem', color: '#94a3b8' }}>
-            Panel Administrativo
-          </p>
-          <p style={{ margin: '4px 0 0', fontSize: '0.8rem', color: '#cbd5e1', fontWeight: '600' }}>
-            {userName}
-            <span style={{ marginLeft: '6px', fontSize: '0.7rem', color: '#38bdf8', backgroundColor: '#0f2d4a', padding: '1px 6px', borderRadius: '10px' }}>
-              {userRole || 'sin rol'}
-            </span>
-          </p>
+      <aside style={{ width: '250px', backgroundColor: '#0f172a', color: 'white', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ padding: '20px', borderBottom: '1px solid #1e293b' }}>
+          <h2 style={{ margin: '0 0 5px 0', fontSize: '1.2rem', color: '#38bdf8' }}>Bike King Admin</h2>
+          <div style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
+            <span style={{ display: 'block', fontWeight: 'bold', color: 'white' }}>{userName}</span>
+            <span style={{ textTransform: 'capitalize' }}>Rol: {userRole}</span>
+          </div>
         </div>
+        
+        <nav style={{ flex: 1, padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <Link href="/admin" style={{ color: '#cbd5e1', textDecoration: 'none', padding: '10px', borderRadius: '6px', transition: 'background 0.2s', backgroundColor: 'rgba(255,255,255,0.05)' }}>
+            📊 Dashboard
+          </Link>
 
-        {/* Navigation */}
-        <nav style={{ padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-          <NavLink href="/admin" icon="📊" label="Dashboard" />
-
-          {/* Solo Admins ven estas secciones */}
-          {isAdmin && (
+          {(isAdmin || userRole === 'ventas') && (
             <>
-              <div style={{ marginTop: '16px', marginBottom: '4px', padding: '0 8px', fontSize: '0.65rem', color: '#475569', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                Gestión
-              </div>
-              <NavLink href="/admin/personal" icon="👥" label="Personal y Roles" />
-              <NavLink href="/admin/sitio-web" icon="⚙️" label="Sitio Web" />
+              <Link href="/admin/sitio-web" style={{ color: '#cbd5e1', textDecoration: 'none', padding: '10px', borderRadius: '6px', transition: 'background 0.2s' }}>
+                📝 Sitio Web
+              </Link>
+              <Link href="/admin/inventario" style={{ color: '#cbd5e1', textDecoration: 'none', padding: '10px', borderRadius: '6px', transition: 'background 0.2s' }}>
+                🚲 Inventario
+              </Link>
             </>
           )}
 
-          {/* Secciones para todos los roles autenticados */}
-          <div style={{ marginTop: '16px', marginBottom: '4px', padding: '0 8px', fontSize: '0.65rem', color: '#475569', textTransform: 'uppercase', letterSpacing: '1px' }}>
-            Accesos Rápidos
-          </div>
-          <a
-            href="/"
             target="_blank"
             rel="noopener noreferrer"
             style={{ color: '#94a3b8', textDecoration: 'none', padding: '8px 10px', borderRadius: '6px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}
