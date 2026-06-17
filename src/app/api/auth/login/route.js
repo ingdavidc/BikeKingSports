@@ -3,8 +3,6 @@ import { compare } from 'bcrypt-ts';
 
 export const runtime = 'edge';
 
-const SECRET = process.env.JWT_SECRET || 'bikeking-super-secret-key-2026';
-
 // Edge-compatible JWT signer using Web Crypto API
 async function signJWT(payload, secret) {
   const encoder = new TextEncoder();
@@ -32,6 +30,7 @@ async function signJWT(payload, secret) {
 }
 
 export async function POST(request) {
+  const SECRET = process.env.JWT_SECRET || 'bikeking-super-secret-key-2026';
   try {
     const DB = getRequestContext().env.DB;
     const { email, password } = await request.json();

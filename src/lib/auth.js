@@ -3,9 +3,8 @@
  * Uses the Web Crypto API — no external dependencies needed.
  */
 
-const SECRET = process.env.JWT_SECRET || 'bikeking-super-secret-key-2026';
-
 export async function verifyAuthHeader(request) {
+  const SECRET = process.env.JWT_SECRET || 'bikeking-super-secret-key-2026';
   const cookieHeader = request.headers.get('cookie') || '';
   const tokenMatch = cookieHeader.match(/auth_token=([^;]+)/);
   const token = tokenMatch ? tokenMatch[1] : null;

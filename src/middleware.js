@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
 
-const SECRET = process.env.JWT_SECRET || 'bikeking-super-secret-key-2026';
-
 // Edge-compatible JWT verifier using Web Crypto API
 async function verifyJWT(token, secret) {
   const parts = token.split('.');
@@ -12,7 +10,7 @@ async function verifyJWT(token, secret) {
   const data = encoder.encode(`${headerB64}.${payloadB64}`);
   
   // Base64Url decode signature
-  const sigRaw = atob(signatureB64.replace(/-/g, '+').replace(/_/g, '/'));
+  const sigRaw = atob(signatureB64.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(signatureB64.length / 4) * 4, '='));
   const signature = new Uint8Array(sigRaw.length);
   for (let i = 0; i < sigRaw.length; i++) {
     signature[i] = sigRaw.charCodeAt(i);
@@ -29,7 +27,7 @@ async function verifyJWT(token, secret) {
   const isValid = await crypto.subtle.verify('HMAC', key, signature, data);
   if (!isValid) throw new Error('Invalid signature');
 
-  const payloadStr = atob(payloadB64.replace(/-/g, '+').replace(/_/g, '/'));
+  const payloadStr = atob(payloadB64.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(payloadB64.length / 4) * 4, '='));
   const payload = JSON.parse(payloadStr);
   
   if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) {
@@ -40,6 +38,7 @@ async function verifyJWT(token, secret) {
 }
 
 export async function middleware(request) {
+  const SECRET = process.env.JWT_SECRET || 'bikeking-super-secret-key-2026';
   const path = request.nextUrl.pathname;
 
   // Solo proteger las rutas que empiezan con /admin
