@@ -1,7 +1,5 @@
-export const runtime = 'edge';
-
-
 import LoginClient from './LoginClient';
+export const runtime = 'edge';
 
 export default function Page() {
   return <LoginClient />;

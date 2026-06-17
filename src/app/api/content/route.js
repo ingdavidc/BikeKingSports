@@ -1,6 +1,6 @@
-export const runtime = 'edge';
 import { getRequestContext } from '@cloudflare/next-on-pages';
 import { verifyAuthHeader, unauthorized, forbidden } from '@/lib/auth';
+export const runtime = 'edge';
 
 // SECURITY: Solo admins o ventas pueden gestionar el contenidos visibles en la web)
 // POST: Requiere autenticación (solo admins pueden modificar contenido)

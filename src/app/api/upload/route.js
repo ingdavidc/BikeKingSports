@@ -1,6 +1,6 @@
-export const runtime = 'edge';
 import { getRequestContext } from '@cloudflare/next-on-pages';
 import { verifyAuthHeader, unauthorized } from '@/lib/auth';
+export const runtime = 'edge';
 
 // Tipos MIME permitidos para subir archivos
 const ALLOWED_TYPES = [

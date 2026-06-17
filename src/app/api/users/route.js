@@ -1,6 +1,6 @@
-export const runtime = 'edge';
 import { getRequestContext } from '@cloudflare/next-on-pages';
 import { verifyAuthHeader, unauthorized, forbidden } from '@/lib/auth';
+export const runtime = 'edge';
 
 async function hashPassword(password) {
   const encoder = new TextEncoder();

@@ -1,7 +1,7 @@
-export const runtime = 'edge';
 import Link from 'next/link';
 import { headers } from 'next/headers';
 import LogoutButton from '@/components/admin/LogoutButton';
+export const runtime = 'edge';
 
 
 
