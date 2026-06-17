@@ -1,17 +1,23 @@
+// ============================================================
+// functions/api/auth/me.js
+// Devuelve el perfil del usuario autenticado.
+// El middleware ya verificó el token antes de llegar aquí.
+// ============================================================
+
 export async function onRequestGet(context) {
-  // El _middleware.js ya verificó el token y pobló context.data
   const user = context.data?.user;
-  
+
   if (!user) {
     return Response.json({ authenticated: false }, { status: 401 });
   }
 
+  // Solo devolver campos seguros del payload — nunca exponer id interno completo
   return Response.json({
     authenticated: true,
     user: {
       name: user.name,
       email: user.email,
-      role: user.role
-    }
+      role: user.role,
+    },
   });
 }
