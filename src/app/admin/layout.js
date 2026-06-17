@@ -20,7 +20,7 @@ export default function AdminLayout({ children }) {
           setUser(data.user);
           
           // Role-based redirect logic
-          if (data.user.role === 'tecnico' && (pathname.startsWith('/admin/personal') || pathname.startsWith('/admin/sitio-web'))) {
+          if (data.user.role === 'mecanico' && (pathname.startsWith('/admin/usuarios') || pathname.startsWith('/admin/sitio-web'))) {
             router.push('/admin');
           }
         } else {

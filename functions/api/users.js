@@ -47,7 +47,7 @@ export async function onRequestPost(context) {
         return Response.json({ error: 'Todos los campos son requeridos' }, { status: 400 });
       }
 
-      const validRoles = ['admin', 'ventas', 'tecnico'];
+      const validRoles = ['admin', 'ventas', 'mecanico'];
       if (!validRoles.includes(role)) {
         return Response.json({ error: 'Rol inválido' }, { status: 400 });
       }
@@ -69,6 +69,26 @@ export async function onRequestPost(context) {
       ).bind(id, name.trim(), email.toLowerCase().trim(), password_hash, role, 'activo').run();
 
       return Response.json({ success: true, id });
+    }
+
+    if (action === 'update_user') {
+      const { id, name, role, password } = payload;
+      if (!id || !name || !role) {
+        return Response.json({ error: 'Campos requeridos incompletos' }, { status: 400 });
+      }
+      const validRoles = ['admin', 'ventas', 'mecanico'];
+      if (!validRoles.includes(role)) {
+        return Response.json({ error: 'Rol inválido' }, { status: 400 });
+      }
+
+      if (password) {
+        if (password.length < 6) return Response.json({ error: 'La contraseña debe tener al menos 6 caracteres' }, { status: 400 });
+        const password_hash = await hashPassword(password);
+        await DB.prepare("UPDATE users SET name = ?, role = ?, password_hash = ? WHERE id = ?").bind(name.trim(), role, password_hash, id).run();
+      } else {
+        await DB.prepare("UPDATE users SET name = ?, role = ? WHERE id = ?").bind(name.trim(), role, id).run();
+      }
+      return Response.json({ success: true });
     }
 
     if (action === 'update_status') {

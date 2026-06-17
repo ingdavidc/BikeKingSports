@@ -61,8 +61,8 @@ export async function onRequest(context) {
         role: role
       };
 
-      // Si es un técnico y trata de acceder a usuarios, bloquear
-      if (role === 'tecnico' && path.startsWith('/api/users')) {
+      // Si es un mecanico y trata de acceder a usuarios, bloquear
+      if (role === 'mecanico' && path.startsWith('/api/users')) {
         return Response.json({ error: 'Acceso denegado' }, { status: 403 });
       }
 
