@@ -8,6 +8,7 @@ const PROTECTED_PREFIXES = [
   '/api/content',
   '/api/upload',
   '/api/users',
+  '/api/orders',
   '/api/auth/me',
 ];
 
