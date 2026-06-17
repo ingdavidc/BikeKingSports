@@ -97,10 +97,7 @@ function NavLink({ href, icon, label }) {
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
-        transition: 'background 0.15s',
       }}
-      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'}
-      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
     >
       <span>{icon}</span> {label}
     </Link>
