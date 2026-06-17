@@ -1,3 +1,4 @@
+export const runtime = 'edge';
 
 
 export default function AdminDashboard() {
@@ -13,3 +14,4 @@ export default function AdminDashboard() {
     </div>
   );
 }
+

@@ -1,3 +1,4 @@
+export const runtime = 'edge';
 export async function POST(request) {
   const response = Response.json({ success: true });
   
@@ -9,3 +10,4 @@ export async function POST(request) {
 
   return response;
 }
+

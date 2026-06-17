@@ -1,3 +1,4 @@
+export const runtime = 'edge';
 import Link from 'next/link';
 import { headers } from 'next/headers';
 import LogoutButton from '@/components/admin/LogoutButton';
@@ -103,3 +104,4 @@ function NavLink({ href, icon, label }) {
     </Link>
   );
 }
+

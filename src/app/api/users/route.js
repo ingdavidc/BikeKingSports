@@ -1,3 +1,4 @@
+export const runtime = 'edge';
 import { getRequestContext } from '@cloudflare/next-on-pages';
 import { verifyAuthHeader, unauthorized, forbidden } from '@/lib/auth';
 
@@ -98,3 +99,4 @@ export async function POST(request) {
     return Response.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }
+

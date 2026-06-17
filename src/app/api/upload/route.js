@@ -1,3 +1,4 @@
+export const runtime = 'edge';
 import { getRequestContext } from '@cloudflare/next-on-pages';
 import { verifyAuthHeader, unauthorized } from '@/lib/auth';
 
@@ -60,3 +61,4 @@ export async function POST(request) {
     return Response.json({ error: 'Error al subir el archivo' }, { status: 500 });
   }
 }
+
