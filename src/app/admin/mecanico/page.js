@@ -40,13 +40,13 @@ export default function MecanicoPanel() {
   const [services, setServices]     = useState([]);
   const [inventory, setInventory]   = useState([]);
   const [loading, setLoading]       = useState(true);
-  const [activeTab, setActiveTab]   = useState('taller');   // taller | nueva | servicios | inventario | historial
+  const [activeTab, setActiveTab]   = useState('taller');
   
   // Detalle de orden (Drawer)
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [statusNote, setStatusNote] = useState('');
-  const [checklist, setChecklist]   = useState({});
-  const [photos, setPhotos]         = useState([]);
+  const [drawerChecklist, setDrawerChecklist]   = useState({});
+  const [drawerPhotos, setDrawerPhotos]         = useState([]);
   const [savingStatus, setSavingStatus] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
@@ -56,6 +56,8 @@ export default function MecanicoPanel() {
     customer_name: '', customer_phone: '', bike_brand: '',
     bike_model: '', bike_serial: '', problem_description: '', priority: 'normal', estimated_price: '',
   });
+  const [formChecklist, setFormChecklist] = useState({});
+  const [formPhotos, setFormPhotos] = useState([]);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState('');
 
@@ -95,11 +97,11 @@ export default function MecanicoPanel() {
     setSelectedOrder(order);
     setStatusNote(order.service_notes || '');
     try {
-      setChecklist(order.checklist ? JSON.parse(order.checklist) : {});
-      setPhotos(order.photos ? JSON.parse(order.photos) : []);
+      setDrawerChecklist(order.checklist ? JSON.parse(order.checklist) : {});
+      setDrawerPhotos(order.photos ? JSON.parse(order.photos) : []);
     } catch {
-      setChecklist({});
-      setPhotos([]);
+      setDrawerChecklist({});
+      setDrawerPhotos([]);
     }
   };
 
@@ -115,8 +117,8 @@ export default function MecanicoPanel() {
             id: selectedOrder.id, 
             status: newStatus, 
             service_notes: statusNote,
-            checklist: checklist,
-            photos: photos
+            checklist: drawerChecklist,
+            photos: drawerPhotos
           },
         }),
       });
@@ -131,7 +133,7 @@ export default function MecanicoPanel() {
   };
 
   // Subir foto al tocar recuadro (cámara)
-  const handlePhotoUpload = async (e, index) => {
+  const handlePhotoUpload = async (e, index, isForm = false) => {
     const file = e.target.files[0];
     if (!file) return;
     setUploading(true);
@@ -141,9 +143,15 @@ export default function MecanicoPanel() {
       const res = await fetch('/api/upload', { method: 'POST', body: fd });
       const data = await res.json();
       if (data.url) {
-        const newPhotos = [...photos];
-        newPhotos[index] = data.url;
-        setPhotos(newPhotos);
+        if (isForm) {
+          const newPhotos = [...formPhotos];
+          newPhotos[index] = data.url;
+          setFormPhotos(newPhotos);
+        } else {
+          const newPhotos = [...drawerPhotos];
+          newPhotos[index] = data.url;
+          setDrawerPhotos(newPhotos);
+        }
       } else {
         alert('Error al subir foto');
       }
@@ -164,13 +172,22 @@ export default function MecanicoPanel() {
       const res = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'create_order', payload: form }),
+        body: JSON.stringify({ 
+          action: 'create_order', 
+          payload: {
+            ...form,
+            checklist: formChecklist,
+            photos: formPhotos
+          } 
+        }),
       });
       const data = await res.json();
       if (res.ok) {
         setSuccessMsg('¡Orden creada correctamente!');
         setTimeout(() => setSuccessMsg(''), 3000);
         setForm({ customer_name: '', customer_phone: '', bike_brand: '', bike_model: '', bike_serial: '', problem_description: '', priority: 'normal', estimated_price: '' });
+        setFormChecklist({});
+        setFormPhotos([]);
         setActiveTab('taller');
         loadOrders();
       } else {
@@ -200,7 +217,7 @@ export default function MecanicoPanel() {
 
   /* ─── Render ──────────────────────────────────────────── */
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#0f172a', color: 'white', fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#0f172a', color: 'white', fontFamily: "'Inter', 'Segoe UI', sans-serif", paddingBottom: '40px' }}>
 
       {/* ── Barra superior ── */}
       <header style={{ backgroundColor: '#1e293b', padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #334155', position: 'sticky', top: 0, zIndex: 50 }}>
@@ -299,38 +316,84 @@ export default function MecanicoPanel() {
       {/* ─────────────── TAB: NUEVA ORDEN ─────────────────── */}
       {activeTab === 'nueva' && (
         <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
-          <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '6px' }}>➕ Registrar Orden</h2>
+          <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '6px' }}>➕ Registrar Orden y Diagnóstico</h2>
           
           {formError && <div style={{ backgroundColor: '#450a0a', border: '1px solid #ef4444', color: '#fca5a5', padding: '12px 16px', borderRadius: '8px', marginBottom: '16px' }}>{formError}</div>}
 
-          <form onSubmit={handleCreateOrder} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div>
-              <label style={lbl}>Prioridad</label>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                {PRIORITIES.map(p => (
-                  <button key={p.key} type="button" onClick={() => setForm(f => ({ ...f, priority: p.key }))}
-                    style={{ flex: 1, padding: '16px 8px', borderRadius: '10px', fontWeight: 700, fontSize: '1rem', border: `2px solid ${form.priority === p.key ? p.color : '#334155'}`, backgroundColor: form.priority === p.key ? p.color + '22' : '#1e293b', color: form.priority === p.key ? p.color : '#64748b' }}>
-                    {p.label}
+          <form onSubmit={handleCreateOrder} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            
+            {/* ── DATOS DEL CLIENTE Y BICI ── */}
+            <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#38bdf8' }}>1. Datos de Ingreso</h3>
+              <div>
+                <label style={lbl}>Prioridad</label>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  {PRIORITIES.map(p => (
+                    <button key={p.key} type="button" onClick={() => setForm(f => ({ ...f, priority: p.key }))}
+                      style={{ flex: 1, padding: '16px 8px', borderRadius: '10px', fontWeight: 700, fontSize: '1rem', border: `2px solid ${form.priority === p.key ? p.color : '#334155'}`, backgroundColor: form.priority === p.key ? p.color + '22' : '#0f172a', color: form.priority === p.key ? p.color : '#64748b' }}>
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div><label style={lbl}>Nombre del Cliente *</label><input required value={form.customer_name} onChange={e => setForm(f => ({ ...f, customer_name: e.target.value }))} style={inp} placeholder="Ej: Carlos Rodríguez" /></div>
+              <div><label style={lbl}>Teléfono del Cliente 📞</label><input type="tel" value={form.customer_phone} onChange={e => setForm(f => ({ ...f, customer_phone: e.target.value }))} style={inp} placeholder="300 123 4567" /></div>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div><label style={lbl}>Marca Bici</label><input value={form.bike_brand} onChange={e => setForm(f => ({ ...f, bike_brand: e.target.value }))} style={inp} placeholder="Trek, GW..." /></div>
+                <div><label style={lbl}>Modelo</label><input value={form.bike_model} onChange={e => setForm(f => ({ ...f, bike_model: e.target.value }))} style={inp} placeholder="Marlin 5..." /></div>
+              </div>
+              
+              <div><label style={lbl}>Serial Bici (Opcional - Hoja de vida)</label><input value={form.bike_serial} onChange={e => setForm(f => ({ ...f, bike_serial: e.target.value }))} style={inp} placeholder="Ej: WTU123456" /></div>
+              
+              <div><label style={lbl}>Problema Reportado / Trabajo *</label><textarea required rows={3} value={form.problem_description} onChange={e => setForm(f => ({ ...f, problem_description: e.target.value }))} style={{ ...inp, resize: 'vertical' }} /></div>
+              <div><label style={lbl}>Precio Estimado Inicial ($)</label><input type="number" min="0" value={form.estimated_price} onChange={e => setForm(f => ({ ...f, estimated_price: e.target.value }))} style={inp} /></div>
+            </div>
+
+            {/* ── CHECKLIST INICIAL M-CHECK ── */}
+            <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px' }}>
+              <h3 style={{ margin: '0 0 16px', fontSize: '1.1rem', color: '#38bdf8' }}>2. Inspección Visual (M-Check)</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {CHECKLIST_ITEMS.map(item => (
+                  <button key={item.id} type="button" 
+                    onClick={() => setFormChecklist(c => ({ ...c, [item.id]: !c[item.id] }))}
+                    style={{ 
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px', 
+                      backgroundColor: formChecklist[item.id] ? '#052e16' : '#0f172a', 
+                      border: `1px solid ${formChecklist[item.id] ? '#16a34a' : '#334155'}`, 
+                      borderRadius: '8px', color: 'white', cursor: 'pointer', textAlign: 'left'
+                    }}>
+                    <span style={{ fontSize: '0.9rem' }}>{item.label}</span>
+                    <span style={{ fontSize: '1.2rem', filter: formChecklist[item.id] ? 'none' : 'grayscale(1) opacity(0.3)' }}>✅</span>
                   </button>
                 ))}
               </div>
             </div>
 
-            <div><label style={lbl}>Nombre del Cliente *</label><input required value={form.customer_name} onChange={e => setForm(f => ({ ...f, customer_name: e.target.value }))} style={inp} placeholder="Ej: Carlos Rodríguez" /></div>
-            <div><label style={lbl}>Teléfono del Cliente 📞</label><input type="tel" value={form.customer_phone} onChange={e => setForm(f => ({ ...f, customer_phone: e.target.value }))} style={inp} placeholder="300 123 4567" /></div>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-              <div><label style={lbl}>Marca Bici</label><input value={form.bike_brand} onChange={e => setForm(f => ({ ...f, bike_brand: e.target.value }))} style={inp} placeholder="Trek, GW..." /></div>
-              <div><label style={lbl}>Modelo</label><input value={form.bike_model} onChange={e => setForm(f => ({ ...f, bike_model: e.target.value }))} style={inp} placeholder="Marlin 5..." /></div>
+            {/* ── FOTOS DE INGRESO ── */}
+            <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px' }}>
+              <h3 style={{ margin: '0 0 16px', fontSize: '1.1rem', color: '#38bdf8' }}>3. Fotos de Evidencia (Max 3)</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                {[0, 1, 2].map(i => (
+                  <label key={i} style={{ 
+                    position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', 
+                    height: '100px', backgroundColor: '#0f172a', border: '2px dashed #334155', borderRadius: '8px', cursor: 'pointer', overflow: 'hidden'
+                  }}>
+                    {formPhotos[i] ? (
+                      <img src={formPhotos[i]} alt="Evidencia" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <span style={{ fontSize: '1.5rem', color: '#475569' }}>+</span>
+                    )}
+                    <input type="file" accept="image/*" capture="environment" style={{ display: 'none' }} onChange={(e) => handlePhotoUpload(e, i, true)} disabled={uploading} />
+                  </label>
+                ))}
+              </div>
+              {uploading && <div style={{ fontSize: '0.8rem', color: '#38bdf8', marginTop: '10px', textAlign: 'center' }}>Subiendo foto...</div>}
             </div>
-            
-            <div><label style={lbl}>Serial Bici (Opcional - Hoja de vida)</label><input value={form.bike_serial} onChange={e => setForm(f => ({ ...f, bike_serial: e.target.value }))} style={inp} placeholder="Ej: WTU123456" /></div>
-            
-            <div><label style={lbl}>Problema / Trabajo *</label><textarea required rows={3} value={form.problem_description} onChange={e => setForm(f => ({ ...f, problem_description: e.target.value }))} style={{ ...inp, resize: 'vertical' }} /></div>
-            <div><label style={lbl}>Precio Estimado ($)</label><input type="number" min="0" value={form.estimated_price} onChange={e => setForm(f => ({ ...f, estimated_price: e.target.value }))} style={inp} /></div>
 
-            <button type="submit" disabled={saving} style={{ padding: '18px', backgroundColor: saving ? '#334155' : '#0284c7', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 700, fontSize: '1.1rem', marginTop: '8px' }}>
-              {saving ? 'Guardando...' : '✅ Registrar Orden'}
+            <button type="submit" disabled={saving || uploading} style={{ padding: '18px', backgroundColor: (saving || uploading) ? '#334155' : '#0284c7', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 700, fontSize: '1.1rem', marginTop: '8px' }}>
+              {(saving || uploading) ? 'Procesando...' : '✅ Registrar Orden y Diagnóstico'}
             </button>
           </form>
         </div>
@@ -343,7 +406,7 @@ export default function MecanicoPanel() {
           <p style={{ color: '#64748b', marginBottom: '24px', fontSize: '0.9rem' }}>Busca el historial de servicios por número de serial.</p>
 
           <form onSubmit={handleSearchHistory} style={{ display: 'flex', gap: '10px', marginBottom: '30px' }}>
-            <input value={searchSerial} onChange={e => setSearchSerial(e.target.value)} placeholder="Ej: WTU123456" style={{ ...inp, flex: 1 }} />
+            <input value={searchSerial} onChange={e => setSearchSerial(e.target.value)} placeholder="Ej: WTU123456" style={{ ...inp, flex: 1, backgroundColor: '#1e293b' }} />
             <button type="submit" disabled={loadingHistory} style={{ padding: '0 20px', backgroundColor: '#38bdf8', color: '#0f172a', border: 'none', borderRadius: '8px', fontWeight: 700 }}>
               {loadingHistory ? '...' : '🔍 Buscar'}
             </button>
@@ -441,15 +504,15 @@ export default function MecanicoPanel() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {CHECKLIST_ITEMS.map(item => (
                   <button key={item.id} type="button" 
-                    onClick={() => setChecklist(c => ({ ...c, [item.id]: !c[item.id] }))}
+                    onClick={() => setDrawerChecklist(c => ({ ...c, [item.id]: !c[item.id] }))}
                     style={{ 
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px', 
-                      backgroundColor: checklist[item.id] ? '#052e16' : '#0f172a', 
-                      border: `1px solid ${checklist[item.id] ? '#16a34a' : '#334155'}`, 
+                      backgroundColor: drawerChecklist[item.id] ? '#052e16' : '#0f172a', 
+                      border: `1px solid ${drawerChecklist[item.id] ? '#16a34a' : '#334155'}`, 
                       borderRadius: '8px', color: 'white', cursor: 'pointer', textAlign: 'left'
                     }}>
                     <span style={{ fontSize: '0.9rem' }}>{item.label}</span>
-                    <span style={{ fontSize: '1.2rem', filter: checklist[item.id] ? 'none' : 'grayscale(1) opacity(0.3)' }}>✅</span>
+                    <span style={{ fontSize: '1.2rem', filter: drawerChecklist[item.id] ? 'none' : 'grayscale(1) opacity(0.3)' }}>✅</span>
                   </button>
                 ))}
               </div>
@@ -458,7 +521,7 @@ export default function MecanicoPanel() {
             {/* ── FOTOS ── */}
             <div style={{ marginBottom: '24px' }}>
               <h4 style={{ fontSize: '1rem', color: '#cbd5e1', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span>📷</span> Fotos del Trabajo (Max 3)
+                <span>📷</span> Fotos del Trabajo / Evidencia
               </h4>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
                 {[0, 1, 2].map(i => (
@@ -466,12 +529,12 @@ export default function MecanicoPanel() {
                     position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', 
                     height: '100px', backgroundColor: '#0f172a', border: '2px dashed #334155', borderRadius: '8px', cursor: 'pointer', overflow: 'hidden'
                   }}>
-                    {photos[i] ? (
-                      <img src={photos[i]} alt="Evidencia" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    {drawerPhotos[i] ? (
+                      <img src={drawerPhotos[i]} alt="Evidencia" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     ) : (
                       <span style={{ fontSize: '1.5rem', color: '#475569' }}>+</span>
                     )}
-                    <input type="file" accept="image/*" capture="environment" style={{ display: 'none' }} onChange={(e) => handlePhotoUpload(e, i)} disabled={uploading} />
+                    <input type="file" accept="image/*" capture="environment" style={{ display: 'none' }} onChange={(e) => handlePhotoUpload(e, i, false)} disabled={uploading} />
                   </label>
                 ))}
               </div>
@@ -508,4 +571,4 @@ export default function MecanicoPanel() {
 }
 
 const lbl = { display: 'block', marginBottom: '6px', fontWeight: 600, fontSize: '0.85rem', color: '#94a3b8', textTransform: 'uppercase' };
-const inp = { width: '100%', padding: '14px', borderRadius: '8px', border: '1px solid #334155', backgroundColor: '#1e293b', color: 'white', fontSize: '1rem', boxSizing: 'border-box', outline: 'none' };
+const inp = { width: '100%', padding: '14px', borderRadius: '8px', border: '1px solid #334155', backgroundColor: '#0f172a', color: 'white', fontSize: '1rem', boxSizing: 'border-box', outline: 'none' };

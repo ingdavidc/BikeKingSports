@@ -81,6 +81,8 @@ export async function onRequestPost(context) {
       const problem_description = s(payload.problem_description);
       const priority = VALID_PRIORITIES.includes(payload.priority) ? payload.priority : 'normal';
       const estimated_price = parseFloat(payload.estimated_price) || 0;
+      const cl = payload.checklist ? JSON.stringify(payload.checklist) : '{}';
+      const ph = payload.photos ? JSON.stringify(payload.photos) : '[]';
 
       if (!customer_name || !problem_description) {
         return Response.json({ error: 'Cliente y descripción del problema son requeridos' }, { status: 400 });
@@ -91,10 +93,10 @@ export async function onRequestPost(context) {
 
       await DB.prepare(
         `INSERT INTO work_orders (id, customer_name, customer_phone, bike_brand, bike_model, bike_serial,
-         problem_description, status, priority, assigned_to, estimated_price, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, 'recibida', ?, ?, ?, ?, ?)`
+         problem_description, status, priority, assigned_to, estimated_price, checklist, photos, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, 'recibida', ?, ?, ?, ?, ?, ?, ?)`
       ).bind(id, customer_name, customer_phone, bike_brand, bike_model, bike_serial,
-             problem_description, priority, user?.name || '', estimated_price, now, now).run();
+             problem_description, priority, user?.name || '', estimated_price, cl, ph, now, now).run();
 
       return Response.json({ success: true, id });
     }
