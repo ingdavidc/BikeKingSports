@@ -1,6 +1,13 @@
 import { getRequestContext } from '@cloudflare/next-on-pages';
-import { hash } from 'bcrypt-ts';
 import { verifyAuthHeader, unauthorized, forbidden } from '@/lib/auth';
+
+async function hashPassword(password) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password + "bikeking_salt_123");
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 export const runtime = 'edge';
 
@@ -64,7 +71,7 @@ export async function POST(request) {
       }
 
       const id = crypto.randomUUID();
-      const password_hash = await hash(password, 10);
+      const password_hash = await hashPassword(password);
 
       await DB.prepare(
         "INSERT INTO users (id, name, email, password_hash, role, status) VALUES (?, ?, ?, ?, ?, ?)"

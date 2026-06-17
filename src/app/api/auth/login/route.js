@@ -1,7 +1,14 @@
 import { getRequestContext } from '@cloudflare/next-on-pages';
-import { compare } from 'bcrypt-ts';
 
 export const runtime = 'edge';
+
+async function hashPassword(password) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password + "bikeking_salt_123");
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 // Edge-compatible JWT signer using Web Crypto API
 async function signJWT(payload, secret) {
@@ -52,7 +59,8 @@ export async function POST(request) {
       return Response.json({ error: 'Cuenta inactiva. Contacta al administrador.' }, { status: 403 });
     }
 
-    const isValid = await compare(password, user.password_hash);
+    const inputHash = await hashPassword(password);
+    const isValid = (inputHash === user.password_hash);
 
     if (!isValid) {
       return Response.json({ error: GENERIC_ERROR }, { status: 401 });
