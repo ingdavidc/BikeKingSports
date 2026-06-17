@@ -74,6 +74,12 @@ export default function AdminLayout({ children }) {
             </>
           )}
 
+          {isAdmin && (
+            <Link href="/admin/usuarios" style={{ color: '#cbd5e1', textDecoration: 'none', padding: '10px', borderRadius: '6px', transition: 'background 0.2s' }}>
+              👥 Usuarios
+            </Link>
+          )}
+
           <a href="/" target="_blank" rel="noopener noreferrer" style={{ display: 'block', color: '#94a3b8', textDecoration: 'none', padding: '10px', marginBottom: '10px' }}>
             🌍 Ver Tienda Pública
           </a>
