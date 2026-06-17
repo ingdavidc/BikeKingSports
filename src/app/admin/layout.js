@@ -74,11 +74,8 @@ export default function AdminLayout({ children }) {
             </>
           )}
 
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: '#94a3b8', textDecoration: 'none', padding: '8px 10px', borderRadius: '6px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}
-          >
-            🌍 Ver Sitio Público
+          <a href="/" target="_blank" rel="noopener noreferrer" style={{ display: 'block', color: '#94a3b8', textDecoration: 'none', padding: '10px', marginBottom: '10px' }}>
+            🌍 Ver Tienda Pública
           </a>
         </nav>
 

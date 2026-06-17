@@ -1,4 +1,4 @@
-export const runtime = 'edge';
+
 
 import SitioWebClient from './SitioWebClient';
 
