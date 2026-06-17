@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { headers } from 'next/headers';
 import LogoutButton from '@/components/admin/LogoutButton';
 
-export const runtime = 'edge';
+
 
 export default async function AdminLayout({ children }) {
   const headersList = await headers();
