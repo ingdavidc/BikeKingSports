@@ -26,7 +26,7 @@ export async function onRequestPost(context) {
   try { body = await context.request.json(); }
   catch { return Response.json({ error: 'Cuerpo inválido' }, { status: 400 }); }
 
-  const { items, payment_method, work_order_id, total } = body;
+  const { items, payment_method, work_order_id, total, customer } = body;
   
   if (!items || !Array.isArray(items) || items.length === 0) {
     return Response.json({ error: 'La venta debe contener artículos' }, { status: 400 });
@@ -38,19 +38,33 @@ export async function onRequestPost(context) {
   const DB = context.env.DB;
   const saleId = crypto.randomUUID();
   const itemsJson = JSON.stringify(items);
+  let customerDoc = null;
 
   try {
-    // 1. Deducir stock del inventario
-    // Cloudflare D1 batching allows us to execute multiple statements in one roundtrip
     const stmts = [];
+
+    // 0. Si hay cliente, insertarlo o actualizarlo
+    if (customer && customer.document) {
+      customerDoc = customer.document;
+      stmts.push(
+        DB.prepare(`
+          INSERT INTO customers (document, name, email, phone) 
+          VALUES (?, ?, ?, ?)
+          ON CONFLICT(document) DO UPDATE SET 
+            name = excluded.name, 
+            email = excluded.email, 
+            phone = excluded.phone
+        `).bind(customerDoc, customer.name || '', customer.email || '', customer.phone || '')
+      );
+    }
     
-    // Crear el registro de la venta
+    // 1. Crear el registro de la venta
     stmts.push(
-      DB.prepare('INSERT INTO sales (id, total, payment_method, work_order_id, items) VALUES (?, ?, ?, ?, ?)')
-        .bind(saleId, total, payment_method, work_order_id || null, itemsJson)
+      DB.prepare('INSERT INTO sales (id, total, payment_method, work_order_id, customer_document, items) VALUES (?, ?, ?, ?, ?, ?)')
+        .bind(saleId, total, payment_method, work_order_id || null, customerDoc, itemsJson)
     );
 
-    // Deducir stock para cada item
+    // 2. Deducir stock para cada item
     for (const item of items) {
       if (item.sku && item.quantity) {
         stmts.push(
@@ -60,7 +74,7 @@ export async function onRequestPost(context) {
       }
     }
 
-    // 2. Si hay work_order_id, sumamos el total al estimated_price de la orden de taller
+    // 3. Si hay work_order_id, sumamos el total al estimated_price de la orden de taller
     if (work_order_id) {
       stmts.push(
         DB.prepare('UPDATE work_orders SET estimated_price = estimated_price + ? WHERE id = ?')

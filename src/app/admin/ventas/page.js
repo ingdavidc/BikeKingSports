@@ -15,10 +15,27 @@ export default function VentasPage() {
   const [selectedOrderId, setSelectedOrderId] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // Customer state
+  const [customerDoc, setCustomerDoc] = useState('');
+  const [customerName, setCustomerName] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
+  const [isSearchingCustomer, setIsSearchingCustomer] = useState(false);
+
   useEffect(() => {
     fetchProducts();
     fetchActiveOrders();
   }, []);
+
+  // Debounce customer search
+  useEffect(() => {
+    if (customerDoc.length >= 4) {
+      const timer = setTimeout(() => {
+        searchCustomer(customerDoc);
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, [customerDoc]);
 
   const fetchProducts = async () => {
     try {
@@ -37,13 +54,28 @@ export default function VentasPage() {
     try {
       const res = await fetch('/api/orders');
       const data = await res.json();
-      // Filtrar órdenes que no estén entregadas para poder asignarles repuestos
       if (Array.isArray(data)) {
         setActiveOrders(data.filter(o => o.status !== 'entregada'));
       }
     } catch (err) {
       console.error('Error fetching orders:', err);
     }
+  };
+
+  const searchCustomer = async (doc) => {
+    setIsSearchingCustomer(true);
+    try {
+      const res = await fetch(`/api/customers?document=${doc}`);
+      const data = await res.json();
+      if (data.success && data.data) {
+        setCustomerName(data.data.name || '');
+        setCustomerEmail(data.data.email || '');
+        setCustomerPhone(data.data.phone || '');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    setIsSearchingCustomer(false);
   };
 
   const filteredProducts = useMemo(() => {
@@ -56,15 +88,12 @@ export default function VentasPage() {
   }, [products, search]);
 
   const addToCart = (product) => {
-    if (product.stock <= 0) return; // No stock
-    
+    if (product.stock <= 0) return;
     setCart(prev => {
       const existing = prev.find(item => item.id === product.id);
       if (existing) {
-        if (existing.quantity >= product.stock) return prev; // Cannot exceed stock
-        return prev.map(item => 
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-        );
+        if (existing.quantity >= product.stock) return prev;
+        return prev.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item);
       }
       return [...prev, { ...product, quantity: 1 }];
     });
@@ -74,8 +103,8 @@ export default function VentasPage() {
     setCart(prev => prev.map(item => {
       if (item.id === id) {
         const newQty = item.quantity + delta;
-        if (newQty <= 0) return null; // Remove if 0
-        if (newQty > item.stock) return item; // Cannot exceed stock
+        if (newQty <= 0) return null;
+        if (newQty > item.stock) return item;
         return { ...item, quantity: newQty };
       }
       return item;
@@ -94,7 +123,13 @@ export default function VentasPage() {
         items: cart.map(i => ({ id: i.id, sku: i.sku, name: i.name, quantity: i.quantity, price: i.price })),
         payment_method: paymentMethod,
         total: cartTotal,
-        work_order_id: selectedOrderId || null
+        work_order_id: selectedOrderId || null,
+        customer: customerDoc ? {
+          document: customerDoc,
+          name: customerName,
+          email: customerEmail,
+          phone: customerPhone
+        } : null
       };
 
       const res = await fetch('/api/sales', {
@@ -105,12 +140,24 @@ export default function VentasPage() {
       const data = await res.json();
 
       if (data.success) {
-        // Venta completada
+        // Enviar WhatsApp si hay teléfono
+        if (customerPhone) {
+          const itemsText = cart.map(i => `${i.quantity}x ${i.name} ($${i.price})`).join('%0A');
+          const msg = `Hola${customerName ? ' ' + customerName : ''}, gracias por tu compra en BIKE KING SPORTS.%0A%0A*Detalle de Venta:*%0A${itemsText}%0A%0A*Total:* $${cartTotal.toLocaleString()}%0AMétodo: ${paymentMethod}%0A%0A¡Te esperamos pronto!`;
+          const phone = customerPhone.replace(/\D/g, ''); // Solo números
+          window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+        }
+
+        // Limpiar formulario
         setCart([]);
         setIsCheckoutModalOpen(false);
         setPaymentMethod('Efectivo');
         setSelectedOrderId('');
-        fetchProducts(); // Refrescar inventario
+        setCustomerDoc('');
+        setCustomerName('');
+        setCustomerEmail('');
+        setCustomerPhone('');
+        fetchProducts();
         alert('✅ Venta registrada exitosamente.');
       } else {
         alert('Error: ' + data.error);
@@ -125,10 +172,9 @@ export default function VentasPage() {
   return (
     <div style={{ height: 'calc(100vh - 80px)', display: 'flex', gap: '20px', flexDirection: 'row' }}>
       
-      {/* LEFT COLUMN: PRODUCT CATALOG (65%) */}
+      {/* LEFT COLUMN: PRODUCT CATALOG */}
       <div style={{ flex: '6.5', display: 'flex', flexDirection: 'column', backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
         
-        {/* Header & Search */}
         <div style={{ padding: '20px', borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
           <h2 style={{ margin: '0 0 15px 0', color: '#0f172a', fontSize: '1.5rem' }}>Punto de Venta</h2>
           <input 
@@ -140,7 +186,6 @@ export default function VentasPage() {
           />
         </div>
 
-        {/* Product Grid */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '20px', backgroundColor: '#f1f5f9' }}>
           {loading ? (
             <p>Cargando inventario...</p>
@@ -153,17 +198,10 @@ export default function VentasPage() {
                     key={product.id}
                     onClick={() => addToCart(product)}
                     style={{ 
-                      backgroundColor: 'white', 
-                      borderRadius: '8px', 
-                      padding: '15px', 
-                      border: '1px solid #e2e8f0',
-                      cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-                      opacity: isOutOfStock ? 0.6 : 1,
-                      transition: 'transform 0.1s',
-                      boxShadow: '0 1px 3px 0 rgba(0,0,0,0.1)',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between'
+                      backgroundColor: 'white', borderRadius: '8px', padding: '15px', border: '1px solid #e2e8f0',
+                      cursor: isOutOfStock ? 'not-allowed' : 'pointer', opacity: isOutOfStock ? 0.6 : 1,
+                      transition: 'transform 0.1s', boxShadow: '0 1px 3px 0 rgba(0,0,0,0.1)',
+                      display: 'flex', flexDirection: 'column', justifyContent: 'space-between'
                     }}
                     onMouseDown={e => { if(!isOutOfStock) e.currentTarget.style.transform = 'scale(0.97)'; }}
                     onMouseUp={e => { if(!isOutOfStock) e.currentTarget.style.transform = 'scale(1)'; }}
@@ -171,14 +209,10 @@ export default function VentasPage() {
                   >
                     <div>
                       <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '5px' }}>{product.sku || 'N/A'}</div>
-                      <div style={{ fontWeight: 600, color: '#1e293b', marginBottom: '10px', fontSize: '0.95rem', lineHeight: '1.3' }}>
-                        {product.name}
-                      </div>
+                      <div style={{ fontWeight: 600, color: '#1e293b', marginBottom: '10px', fontSize: '0.95rem', lineHeight: '1.3' }}>{product.name}</div>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '10px' }}>
-                      <div style={{ fontWeight: 'bold', color: '#0ea5e9', fontSize: '1.2rem' }}>
-                        ${product.price.toLocaleString()}
-                      </div>
+                      <div style={{ fontWeight: 'bold', color: '#0ea5e9', fontSize: '1.2rem' }}>${product.price.toLocaleString()}</div>
                       <div style={{ fontSize: '0.8rem', fontWeight: 600, color: isOutOfStock ? '#ef4444' : '#10b981', backgroundColor: isOutOfStock ? '#fee2e2' : '#d1fae5', padding: '2px 6px', borderRadius: '4px' }}>
                         Stock: {product.stock}
                       </div>
@@ -192,7 +226,7 @@ export default function VentasPage() {
         </div>
       </div>
 
-      {/* RIGHT COLUMN: CART (35%) */}
+      {/* RIGHT COLUMN: CART */}
       <div style={{ flex: '3.5', display: 'flex', flexDirection: 'column', backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>
         <div style={{ padding: '20px', borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
           <h2 style={{ margin: 0, color: '#0f172a', fontSize: '1.5rem', display: 'flex', justifyContent: 'space-between' }}>
@@ -201,7 +235,6 @@ export default function VentasPage() {
           </h2>
         </div>
 
-        {/* Cart Items */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
           {cart.length === 0 ? (
             <div style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#94a3b8' }}>
@@ -217,17 +250,10 @@ export default function VentasPage() {
                     <div style={{ color: '#0ea5e9', fontWeight: 'bold' }}>${(item.price * item.quantity).toLocaleString()}</div>
                   </div>
                   
-                  {/* Controls */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '15px', backgroundColor: '#f1f5f9', borderRadius: '8px', padding: '5px' }}>
-                    <button 
-                      onClick={() => updateQuantity(item.id, -1)}
-                      style={{ width: '35px', height: '35px', border: 'none', backgroundColor: 'white', borderRadius: '6px', fontSize: '1.2rem', cursor: 'pointer', boxShadow: '0 1px 2px rgba(0,0,0,0.1)' }}
-                    >-</button>
+                    <button onClick={() => updateQuantity(item.id, -1)} style={{ width: '35px', height: '35px', border: 'none', backgroundColor: 'white', borderRadius: '6px', fontSize: '1.2rem', cursor: 'pointer', boxShadow: '0 1px 2px rgba(0,0,0,0.1)' }}>-</button>
                     <span style={{ fontWeight: 'bold', fontSize: '1.1rem', minWidth: '20px', textAlign: 'center', color: '#334155' }}>{item.quantity}</span>
-                    <button 
-                      onClick={() => updateQuantity(item.id, 1)}
-                      style={{ width: '35px', height: '35px', border: 'none', backgroundColor: 'white', borderRadius: '6px', fontSize: '1.2rem', cursor: 'pointer', boxShadow: '0 1px 2px rgba(0,0,0,0.1)' }}
-                    >+</button>
+                    <button onClick={() => updateQuantity(item.id, 1)} style={{ width: '35px', height: '35px', border: 'none', backgroundColor: 'white', borderRadius: '6px', fontSize: '1.2rem', cursor: 'pointer', boxShadow: '0 1px 2px rgba(0,0,0,0.1)' }}>+</button>
                   </div>
                 </div>
               ))}
@@ -235,7 +261,6 @@ export default function VentasPage() {
           )}
         </div>
 
-        {/* Cart Footer / Checkout Button */}
         <div style={{ padding: '20px', borderTop: '1px solid #e2e8f0', backgroundColor: '#f8fafc', borderBottomLeftRadius: '12px', borderBottomRightRadius: '12px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', fontSize: '1.1rem', color: '#475569' }}>
             <span>Subtotal</span>
@@ -252,9 +277,7 @@ export default function VentasPage() {
             style={{ 
               width: '100%', padding: '20px', backgroundColor: cart.length === 0 ? '#cbd5e1' : '#10b981', 
               color: 'white', border: 'none', borderRadius: '8px', fontSize: '1.5rem', fontWeight: 'bold', 
-              cursor: cart.length === 0 ? 'not-allowed' : 'pointer',
-              transition: 'background-color 0.2s',
-              boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
+              cursor: cart.length === 0 ? 'not-allowed' : 'pointer', transition: 'background-color 0.2s', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
             }}
           >
             💳 COBRAR
@@ -265,73 +288,142 @@ export default function VentasPage() {
       {/* MODAL DE PAGO */}
       {isCheckoutModalOpen && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-          <div style={{ backgroundColor: 'white', width: '90%', maxWidth: '600px', borderRadius: '16px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', overflow: 'hidden' }}>
-            <div style={{ padding: '25px', borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ backgroundColor: 'white', width: '95%', maxWidth: '900px', borderRadius: '16px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', overflow: 'hidden', display: 'flex', flexDirection: 'column', maxHeight: '90vh' }}>
+            <div style={{ padding: '20px', borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h2 style={{ margin: 0, color: '#0f172a', fontSize: '1.5rem' }}>Finalizar Venta</h2>
               <button onClick={() => setIsCheckoutModalOpen(false)} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#64748b' }}>×</button>
             </div>
             
-            <form onSubmit={handleCheckout} style={{ padding: '25px' }}>
-              <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-                <div style={{ color: '#64748b', fontSize: '1.1rem', marginBottom: '5px' }}>Total a Pagar</div>
-                <div style={{ fontSize: '3.5rem', fontWeight: 'bold', color: '#0ea5e9' }}>${cartTotal.toLocaleString()}</div>
-              </div>
-
-              {/* Métodos de Pago */}
-              <div style={{ marginBottom: '25px' }}>
-                <label style={{ display: 'block', marginBottom: '10px', fontWeight: 600, color: '#334155' }}>Método de Pago</label>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '15px' }}>
-                  {['Efectivo', 'Tarjeta', 'Transferencia'].map(method => (
-                    <div 
-                      key={method}
-                      onClick={() => setPaymentMethod(method)}
-                      style={{
-                        padding: '15px 10px', textAlign: 'center', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold',
-                        border: paymentMethod === method ? '2px solid #38bdf8' : '2px solid #e2e8f0',
-                        backgroundColor: paymentMethod === method ? '#f0f9ff' : 'white',
-                        color: paymentMethod === method ? '#0284c7' : '#64748b',
-                        transition: 'all 0.2s'
-                      }}
-                    >
-                      {method}
+            <form onSubmit={handleCheckout} style={{ display: 'flex', flexDirection: 'row', flex: 1, overflow: 'hidden' }}>
+              
+              {/* Left Side: Customer & Order */}
+              <div style={{ flex: 1, padding: '25px', borderRight: '1px solid #e2e8f0', overflowY: 'auto' }}>
+                
+                {/* Datos del Cliente */}
+                <div style={{ marginBottom: '25px' }}>
+                  <h3 style={{ margin: '0 0 15px 0', color: '#334155', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>👤 Datos del Cliente (Opcional)</span>
+                    {isSearchingCustomer && <span style={{ fontSize: '0.8rem', color: '#38bdf8' }}>Buscando...</span>}
+                  </h3>
+                  
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                    <div style={{ gridColumn: '1 / -1' }}>
+                      <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem', color: '#64748b' }}>Documento (Cédula/NIT)</label>
+                      <input 
+                        type="text" 
+                        value={customerDoc} 
+                        onChange={e => setCustomerDoc(e.target.value)} 
+                        placeholder="Ej. 1020304050"
+                        style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
+                      />
                     </div>
-                  ))}
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem', color: '#64748b' }}>Nombre Completo</label>
+                      <input 
+                        type="text" 
+                        value={customerName} 
+                        onChange={e => setCustomerName(e.target.value)}
+                        style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem', color: '#64748b' }}>Teléfono (Para WhatsApp)</label>
+                      <input 
+                        type="text" 
+                        value={customerPhone} 
+                        onChange={e => setCustomerPhone(e.target.value)}
+                        placeholder="Ej. 3001234567"
+                        style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
+                      />
+                    </div>
+                    <div style={{ gridColumn: '1 / -1' }}>
+                      <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem', color: '#64748b' }}>Correo Electrónico</label>
+                      <input 
+                        type="email" 
+                        value={customerEmail} 
+                        onChange={e => setCustomerEmail(e.target.value)}
+                        style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', boxSizing: 'border-box' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <hr style={{ border: 'none', borderTop: '1px solid #e2e8f0', margin: '25px 0' }} />
+
+                {/* Vincular a Orden de Taller */}
+                <div style={{ backgroundColor: '#f8fafc', padding: '15px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <label style={{ display: 'block', marginBottom: '10px', fontWeight: 600, color: '#334155' }}>
+                    🔧 Vincular a Orden de Taller (Opcional)
+                  </label>
+                  <p style={{ fontSize: '0.85rem', color: '#64748b', margin: '0 0 10px 0' }}>
+                    Suma el costo de estos repuestos a la deuda del taller.
+                  </p>
+                  <select 
+                    value={selectedOrderId}
+                    onChange={(e) => setSelectedOrderId(e.target.value)}
+                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.95rem', boxSizing: 'border-box' }}
+                  >
+                    <option value="">-- No vincular a ninguna orden --</option>
+                    {activeOrders.map(order => (
+                      <option key={order.id} value={order.id}>
+                        {order.bike_model} - {order.customer_name} ({order.status})
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
-              {/* Vincular a Orden de Taller */}
-              <div style={{ marginBottom: '30px', backgroundColor: '#f8fafc', padding: '15px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                <label style={{ display: 'block', marginBottom: '10px', fontWeight: 600, color: '#334155' }}>
-                  🔧 Vincular a Orden de Taller (Opcional)
-                </label>
-                <p style={{ fontSize: '0.85rem', color: '#64748b', margin: '0 0 10px 0' }}>
-                  Si seleccionas una orden, el total de esta venta se sumará automáticamente al precio final que debe pagar el cliente por el mantenimiento.
-                </p>
-                <select 
-                  value={selectedOrderId}
-                  onChange={(e) => setSelectedOrderId(e.target.value)}
-                  style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '1rem', color: '#0f172a' }}
-                >
-                  <option value="">-- No vincular a ninguna orden --</option>
-                  {activeOrders.map(order => (
-                    <option key={order.id} value={order.id}>
-                      {order.bike_model} - {order.customer_name} ({order.status})
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {/* Right Side: Payment & Confirm */}
+              <div style={{ flex: '0 0 350px', padding: '25px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', backgroundColor: '#fafafa' }}>
+                
+                <div>
+                  <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+                    <div style={{ color: '#64748b', fontSize: '1.1rem', marginBottom: '5px' }}>Total a Pagar</div>
+                    <div style={{ fontSize: '3rem', fontWeight: 'bold', color: '#0ea5e9' }}>${cartTotal.toLocaleString()}</div>
+                  </div>
 
-              {/* Botón Final */}
-              <button 
-                type="submit"
-                disabled={isProcessing}
-                style={{
-                  width: '100%', padding: '18px', backgroundColor: isProcessing ? '#94a3b8' : '#1e293b', 
-                  color: 'white', border: 'none', borderRadius: '8px', fontSize: '1.2rem', fontWeight: 'bold', cursor: isProcessing ? 'wait' : 'pointer'
-                }}
-              >
-                {isProcessing ? 'PROCESANDO...' : 'CONFIRMAR Y GUARDAR VENTA'}
-              </button>
+                  {/* Métodos de Pago */}
+                  <div style={{ marginBottom: '25px' }}>
+                    <label style={{ display: 'block', marginBottom: '15px', fontWeight: 600, color: '#334155' }}>Método de Pago</label>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      {['Efectivo', 'Tarjeta', 'Transferencia'].map(method => (
+                        <div 
+                          key={method}
+                          onClick={() => setPaymentMethod(method)}
+                          style={{
+                            padding: '15px', textAlign: 'center', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold',
+                            border: paymentMethod === method ? '2px solid #38bdf8' : '2px solid #e2e8f0',
+                            backgroundColor: paymentMethod === method ? '#f0f9ff' : 'white',
+                            color: paymentMethod === method ? '#0284c7' : '#64748b',
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          {method}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Botón Final */}
+                <div>
+                  {customerPhone && (
+                    <div style={{ textAlign: 'center', marginBottom: '10px', fontSize: '0.85rem', color: '#10b981', fontWeight: 'bold' }}>
+                      <span style={{ fontSize: '1.2rem', verticalAlign: 'middle' }}>💬</span> Se abrirá WhatsApp al finalizar
+                    </div>
+                  )}
+                  <button 
+                    type="submit"
+                    disabled={isProcessing}
+                    style={{
+                      width: '100%', padding: '18px', backgroundColor: isProcessing ? '#94a3b8' : '#1e293b', 
+                      color: 'white', border: 'none', borderRadius: '8px', fontSize: '1.1rem', fontWeight: 'bold', cursor: isProcessing ? 'wait' : 'pointer'
+                    }}
+                  >
+                    {isProcessing ? 'PROCESANDO...' : 'CONFIRMAR VENTA'}
+                  </button>
+                </div>
+              </div>
             </form>
           </div>
         </div>
