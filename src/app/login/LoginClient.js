@@ -66,13 +66,22 @@ export default function Login() {
           </div>
           
           <div>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#334155' }}>Contraseña</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+              <label style={{ fontWeight: 'bold', color: '#334155' }}>Contraseña</label>
+              <button 
+                type="button" 
+                onClick={() => alert('Para restablecer tu contraseña, por favor contacta al administrador del sistema o gerente de la tienda.')}
+                style={{ background: 'none', border: 'none', color: '#2563eb', fontSize: '0.85rem', cursor: 'pointer', padding: 0 }}
+              >
+                ¿Olvidaste tu contraseña?
+              </button>
+            </div>
             <input 
               type="password" 
               required 
               value={password}
               onChange={e => setPassword(e.target.value)}
-              style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '1rem' }}
+              style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '1rem', boxSizing: 'border-box' }}
               placeholder="••••••••"
             />
           </div>
