@@ -7,10 +7,9 @@ export default function InventarioPage() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [editingId, setEditingId] = useState(null);
-  const [editForm, setEditForm] = useState({});
-
-  const [isAdding, setIsAdding] = useState(false);
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalData, setModalData] = useState(null); // null means adding, object means editing
 
   const fetchInventory = async () => {
     setLoading(true);
@@ -31,32 +30,24 @@ export default function InventarioPage() {
   }, [search]);
 
   const handleEditClick = (item) => {
-    setEditingId(item.id);
-    setEditForm(item);
+    setModalData(item);
+    setIsModalOpen(true);
   };
 
-  const handleSaveEdit = async (id) => {
-    try {
-      await fetch('/api/inventory', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editForm),
-      });
-      setEditingId(null);
-      fetchInventory();
-    } catch (err) {
-      console.error(err);
-    }
+  const handleAddClick = () => {
+    setModalData(null);
+    setIsModalOpen(true);
   };
 
   const handleSaveModal = async (formData) => {
+    const isEditing = !!formData.id;
     try {
       await fetch('/api/inventory', {
-        method: 'POST',
+        method: isEditing ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
-      setIsAdding(false);
+      setIsModalOpen(false);
       fetchInventory();
     } catch (err) {
       console.error(err);
@@ -86,7 +77,7 @@ export default function InventarioPage() {
             style={{ padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', width: '250px' }}
           />
           <button 
-            onClick={() => setIsAdding(true)}
+            onClick={handleAddClick}
             style={{ padding: '10px 16px', backgroundColor: '#38bdf8', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}
           >
             + Añadir Producto
@@ -94,10 +85,11 @@ export default function InventarioPage() {
         </div>
       </div>
 
-      {isAdding && (
+      {isModalOpen && (
         <ProductModal 
-          onClose={() => setIsAdding(false)} 
-          onSave={handleSaveModal} 
+          onClose={() => setIsModalOpen(false)} 
+          onSave={handleSaveModal}
+          initialData={modalData}
         />
       )}
 
@@ -119,59 +111,22 @@ export default function InventarioPage() {
               {items.map(item => (
                 <tr key={item.id} style={{ borderBottom: '1px solid #e2e8f0', color: '#334155' }}>
                   <td style={{ padding: '12px 16px', fontWeight: 500 }}>
-                    {editingId === item.id ? (
-                      <input 
-                        value={editForm.sku} 
-                        onChange={e => setEditForm({...editForm, sku: e.target.value})} 
-                        style={{ width: '80px', padding: '4px', color: '#0f172a' }}
-                      />
-                    ) : (item.sku || '-')}
+                    {item.sku || '-'}
                   </td>
                   <td style={{ padding: '12px 16px', color: '#0f172a' }}>
-                    {editingId === item.id ? (
-                      <input 
-                        value={editForm.name} 
-                        onChange={e => setEditForm({...editForm, name: e.target.value})}
-                        style={{ width: '100%', padding: '4px', color: '#0f172a' }}
-                      />
-                    ) : item.name}
+                    {item.name}
                   </td>
                   <td style={{ padding: '12px 16px' }}>
-                    {editingId === item.id ? (
-                      <input 
-                        type="number" 
-                        value={editForm.stock} 
-                        onChange={e => setEditForm({...editForm, stock: parseInt(e.target.value)})}
-                        style={{ width: '60px', padding: '4px', color: '#0f172a' }}
-                      />
-                    ) : (
-                      <span style={{ fontWeight: 'bold', color: item.stock <= 3 ? '#ef4444' : '#10b981' }}>
-                        {item.stock}
-                      </span>
-                    )}
+                    <span style={{ fontWeight: 'bold', color: item.stock <= 3 ? '#ef4444' : '#10b981' }}>
+                      {item.stock}
+                    </span>
                   </td>
                   <td style={{ padding: '12px 16px', color: '#0f172a' }}>
-                    {editingId === item.id ? (
-                      <input 
-                        type="number" 
-                        value={editForm.price} 
-                        onChange={e => setEditForm({...editForm, price: parseFloat(e.target.value)})}
-                        style={{ width: '80px', padding: '4px', color: '#0f172a' }}
-                      />
-                    ) : `$${item.price.toLocaleString()}`}
+                    ${item.price.toLocaleString()}
                   </td>
                   <td style={{ padding: '12px 16px', display: 'flex', gap: '8px' }}>
-                    {editingId === item.id ? (
-                      <>
-                        <button onClick={() => handleSaveEdit(item.id)} style={{ padding: '6px 12px', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Guardar</button>
-                        <button onClick={() => setEditingId(null)} style={{ padding: '6px 12px', backgroundColor: '#cbd5e1', color: '#334155', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Cancelar</button>
-                      </>
-                    ) : (
-                      <>
-                        <button onClick={() => handleEditClick(item)} style={{ padding: '6px 12px', backgroundColor: '#38bdf8', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Editar</button>
-                        <button onClick={() => handleDelete(item.id)} style={{ padding: '6px 12px', backgroundColor: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Eliminar</button>
-                      </>
-                    )}
+                    <button onClick={() => handleEditClick(item)} style={{ padding: '6px 12px', backgroundColor: '#38bdf8', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Editar</button>
+                    <button onClick={() => handleDelete(item.id)} style={{ padding: '6px 12px', backgroundColor: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Eliminar</button>
                   </td>
                 </tr>
               ))}

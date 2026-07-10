@@ -2,29 +2,31 @@
 
 import { useState } from 'react';
 
-export default function ProductModal({ onClose, onSave }) {
+export default function ProductModal({ onClose, onSave, initialData }) {
   const [activeTab, setActiveTab] = useState(1);
   const [formData, setFormData] = useState({
     // Tab 1
-    name: '',
-    sku: '',
-    category: '',
-    brand: '',
+    name: initialData?.name || '',
+    sku: initialData?.sku || '',
+    category: initialData?.category || '',
+    brand: initialData?.brand || '',
     // Tab 2
-    stock: 0,
-    unit: 'Unidad (Und)',
-    minLimit: 10,
-    maxLimit: 100,
-    location: '',
+    stock: initialData?.stock || 0,
+    unit: initialData?.unit || 'Unidad (Und)',
+    minLimit: initialData?.minLimit || 10,
+    maxLimit: initialData?.maxLimit || 100,
+    location: initialData?.location || '',
     // Tab 3
-    cost: 0,
-    utilityPercent: 30,
-    tax_rate: 19,
-    price: 0,
+    cost: initialData?.cost || 0,
+    utilityPercent: initialData?.utilityPercent || 30,
+    tax_rate: initialData?.tax_rate || 19,
+    price: initialData?.price || 0,
     // Tab 4
-    provider: '',
-    altProvider: '',
-    image: null
+    provider: initialData?.provider || '',
+    altProvider: initialData?.altProvider || '',
+    image: initialData?.image || null,
+    // Add id for editing
+    id: initialData?.id || null
   });
 
   const handleChange = (e) => {
