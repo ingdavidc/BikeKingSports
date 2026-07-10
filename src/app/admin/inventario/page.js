@@ -9,6 +9,9 @@ export default function InventarioPage() {
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({});
 
+  const [isAdding, setIsAdding] = useState(false);
+  const [addForm, setAddForm] = useState({ sku: '', name: '', stock: 0, price: 0 });
+
   const fetchInventory = async () => {
     setLoading(true);
     try {
@@ -46,6 +49,22 @@ export default function InventarioPage() {
     }
   };
 
+  const handleAdd = async (e) => {
+    e.preventDefault();
+    try {
+      await fetch('/api/inventory', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(addForm),
+      });
+      setIsAdding(false);
+      setAddForm({ sku: '', name: '', stock: 0, price: 0 });
+      fetchInventory();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleDelete = async (id) => {
     if (!confirm('¿Seguro que deseas eliminar este producto del inventario?')) return;
     try {
@@ -60,16 +79,50 @@ export default function InventarioPage() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h1 style={{ fontSize: '1.8rem', color: '#0f172a', margin: 0 }}>Gestión de Inventario</h1>
-        <div>
+        <div style={{ display: 'flex', gap: '10px' }}>
           <input
             type="text"
             placeholder="Buscar por código o nombre..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{ padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', width: '250px', marginRight: '10px' }}
+            style={{ padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', width: '250px' }}
           />
+          <button 
+            onClick={() => setIsAdding(true)}
+            style={{ padding: '10px 16px', backgroundColor: '#38bdf8', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}
+          >
+            + Añadir Producto
+          </button>
         </div>
       </div>
+
+      {isAdding && (
+        <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>
+          <h3 style={{ marginTop: 0, color: '#0f172a' }}>Nuevo Producto</h3>
+          <form onSubmit={handleAdd} style={{ display: 'flex', gap: '15px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+            <div style={{ flex: '1', minWidth: '120px' }}>
+              <label style={{ display: 'block', fontSize: '0.85rem', color: '#64748b', marginBottom: '5px' }}>Código (SKU)</label>
+              <input required value={addForm.sku} onChange={e => setAddForm({...addForm, sku: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
+            </div>
+            <div style={{ flex: '2', minWidth: '200px' }}>
+              <label style={{ display: 'block', fontSize: '0.85rem', color: '#64748b', marginBottom: '5px' }}>Descripción</label>
+              <input required value={addForm.name} onChange={e => setAddForm({...addForm, name: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
+            </div>
+            <div style={{ flex: '1', minWidth: '100px' }}>
+              <label style={{ display: 'block', fontSize: '0.85rem', color: '#64748b', marginBottom: '5px' }}>Stock Inicial</label>
+              <input type="number" required value={addForm.stock} onChange={e => setAddForm({...addForm, stock: parseInt(e.target.value)})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
+            </div>
+            <div style={{ flex: '1', minWidth: '100px' }}>
+              <label style={{ display: 'block', fontSize: '0.85rem', color: '#64748b', marginBottom: '5px' }}>Precio (VR Unit)</label>
+              <input type="number" required value={addForm.price} onChange={e => setAddForm({...addForm, price: parseFloat(e.target.value)})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
+            </div>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button type="submit" style={{ padding: '8px 16px', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Guardar</button>
+              <button type="button" onClick={() => setIsAdding(false)} style={{ padding: '8px 16px', backgroundColor: '#f1f5f9', color: '#334155', border: '1px solid #cbd5e1', borderRadius: '4px', cursor: 'pointer' }}>Cancelar</button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {loading ? (
         <p>Cargando inventario...</p>
