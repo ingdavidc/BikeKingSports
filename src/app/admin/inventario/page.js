@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import ProductModal from '@/components/admin/ProductModal';
 
 export default function InventarioPage() {
   const [items, setItems] = useState([]);
@@ -10,7 +11,6 @@ export default function InventarioPage() {
   const [editForm, setEditForm] = useState({});
 
   const [isAdding, setIsAdding] = useState(false);
-  const [addForm, setAddForm] = useState({ sku: '', name: '', stock: 0, price: 0 });
 
   const fetchInventory = async () => {
     setLoading(true);
@@ -35,7 +35,7 @@ export default function InventarioPage() {
     setEditForm(item);
   };
 
-  const handleSave = async (id) => {
+  const handleSaveEdit = async (id) => {
     try {
       await fetch('/api/inventory', {
         method: 'PUT',
@@ -49,16 +49,14 @@ export default function InventarioPage() {
     }
   };
 
-  const handleAdd = async (e) => {
-    e.preventDefault();
+  const handleSaveModal = async (formData) => {
     try {
       await fetch('/api/inventory', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(addForm),
+        body: JSON.stringify(formData),
       });
       setIsAdding(false);
-      setAddForm({ sku: '', name: '', stock: 0, price: 0 });
       fetchInventory();
     } catch (err) {
       console.error(err);
@@ -97,31 +95,10 @@ export default function InventarioPage() {
       </div>
 
       {isAdding && (
-        <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>
-          <h3 style={{ marginTop: 0, color: '#0f172a' }}>Nuevo Producto</h3>
-          <form onSubmit={handleAdd} style={{ display: 'flex', gap: '15px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
-            <div style={{ flex: '1', minWidth: '120px' }}>
-              <label style={{ display: 'block', fontSize: '0.85rem', color: '#64748b', marginBottom: '5px' }}>Código (SKU)</label>
-              <input required value={addForm.sku} onChange={e => setAddForm({...addForm, sku: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
-            </div>
-            <div style={{ flex: '2', minWidth: '200px' }}>
-              <label style={{ display: 'block', fontSize: '0.85rem', color: '#64748b', marginBottom: '5px' }}>Descripción</label>
-              <input required value={addForm.name} onChange={e => setAddForm({...addForm, name: e.target.value})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
-            </div>
-            <div style={{ flex: '1', minWidth: '100px' }}>
-              <label style={{ display: 'block', fontSize: '0.85rem', color: '#64748b', marginBottom: '5px' }}>Stock Inicial</label>
-              <input type="number" required value={addForm.stock} onChange={e => setAddForm({...addForm, stock: parseInt(e.target.value)})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
-            </div>
-            <div style={{ flex: '1', minWidth: '100px' }}>
-              <label style={{ display: 'block', fontSize: '0.85rem', color: '#64748b', marginBottom: '5px' }}>Precio (VR Unit)</label>
-              <input type="number" required value={addForm.price} onChange={e => setAddForm({...addForm, price: parseFloat(e.target.value)})} style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
-            </div>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button type="submit" style={{ padding: '8px 16px', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Guardar</button>
-              <button type="button" onClick={() => setIsAdding(false)} style={{ padding: '8px 16px', backgroundColor: '#f1f5f9', color: '#334155', border: '1px solid #cbd5e1', borderRadius: '4px', cursor: 'pointer' }}>Cancelar</button>
-            </div>
-          </form>
-        </div>
+        <ProductModal 
+          onClose={() => setIsAdding(false)} 
+          onSave={handleSaveModal} 
+        />
       )}
 
       {loading ? (
@@ -186,7 +163,7 @@ export default function InventarioPage() {
                   <td style={{ padding: '12px 16px', display: 'flex', gap: '8px' }}>
                     {editingId === item.id ? (
                       <>
-                        <button onClick={() => handleSave(item.id)} style={{ padding: '6px 12px', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Guardar</button>
+                        <button onClick={() => handleSaveEdit(item.id)} style={{ padding: '6px 12px', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Guardar</button>
                         <button onClick={() => setEditingId(null)} style={{ padding: '6px 12px', backgroundColor: '#cbd5e1', color: '#334155', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Cancelar</button>
                       </>
                     ) : (
