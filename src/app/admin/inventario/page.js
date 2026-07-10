@@ -140,22 +140,22 @@ export default function InventarioPage() {
             </thead>
             <tbody>
               {items.map(item => (
-                <tr key={item.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                <tr key={item.id} style={{ borderBottom: '1px solid #e2e8f0', color: '#334155' }}>
                   <td style={{ padding: '12px 16px', fontWeight: 500 }}>
                     {editingId === item.id ? (
                       <input 
                         value={editForm.sku} 
                         onChange={e => setEditForm({...editForm, sku: e.target.value})} 
-                        style={{ width: '80px', padding: '4px' }}
+                        style={{ width: '80px', padding: '4px', color: '#0f172a' }}
                       />
                     ) : (item.sku || '-')}
                   </td>
-                  <td style={{ padding: '12px 16px' }}>
+                  <td style={{ padding: '12px 16px', color: '#0f172a' }}>
                     {editingId === item.id ? (
                       <input 
                         value={editForm.name} 
                         onChange={e => setEditForm({...editForm, name: e.target.value})}
-                        style={{ width: '100%', padding: '4px' }}
+                        style={{ width: '100%', padding: '4px', color: '#0f172a' }}
                       />
                     ) : item.name}
                   </td>
@@ -165,7 +165,7 @@ export default function InventarioPage() {
                         type="number" 
                         value={editForm.stock} 
                         onChange={e => setEditForm({...editForm, stock: parseInt(e.target.value)})}
-                        style={{ width: '60px', padding: '4px' }}
+                        style={{ width: '60px', padding: '4px', color: '#0f172a' }}
                       />
                     ) : (
                       <span style={{ fontWeight: 'bold', color: item.stock <= 3 ? '#ef4444' : '#10b981' }}>
@@ -173,13 +173,13 @@ export default function InventarioPage() {
                       </span>
                     )}
                   </td>
-                  <td style={{ padding: '12px 16px' }}>
+                  <td style={{ padding: '12px 16px', color: '#0f172a' }}>
                     {editingId === item.id ? (
                       <input 
                         type="number" 
                         value={editForm.price} 
                         onChange={e => setEditForm({...editForm, price: parseFloat(e.target.value)})}
-                        style={{ width: '80px', padding: '4px' }}
+                        style={{ width: '80px', padding: '4px', color: '#0f172a' }}
                       />
                     ) : `$${item.price.toLocaleString()}`}
                   </td>
