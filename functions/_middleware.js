@@ -10,6 +10,8 @@ const PROTECTED_PREFIXES = [
   '/api/users',
   '/api/orders',
   '/api/auth/me',
+  '/api/sales',
+  '/api/customers',
 ];
 
 // Base64Url → ArrayBuffer para verificación HMAC
