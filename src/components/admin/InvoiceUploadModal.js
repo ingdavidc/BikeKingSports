@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Bot } from 'lucide-react';
 
 export default function InvoiceUploadModal({ onClose, onComplete }) {
   const [step, setStep] = useState(1); // 1: upload, 2: processing, 3: review
@@ -122,8 +123,23 @@ export default function InvoiceUploadModal({ onClose, onComplete }) {
         {/* STEP 2: PROCESSING */}
         {step === 2 && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '60px 0', gap: '20px' }}>
-            <div style={{ fontSize: '3rem' }}>🤖</div>
-            <h3 style={{ margin: 0 }}>La Inteligencia Artificial está leyendo la factura...</h3>
+            <style>{`
+              @keyframes bounceBot {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-12px); }
+              }
+              @keyframes scanLine {
+                0% { top: 0%; opacity: 0; }
+                10% { opacity: 1; }
+                90% { opacity: 1; }
+                100% { top: 100%; opacity: 0; }
+              }
+            `}</style>
+            <div style={{ position: 'relative', width: '70px', height: '70px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+               <Bot size={64} color="#1964a6" style={{ animation: 'bounceBot 2s ease-in-out infinite' }} />
+               <div style={{ position: 'absolute', left: '-10%', width: '120%', height: '3px', backgroundColor: '#10b981', boxShadow: '0 0 10px #10b981', animation: 'scanLine 1.5s linear infinite', borderRadius: '4px', zIndex: 2 }}></div>
+            </div>
+            <h3 style={{ margin: 0, color: '#0f172a' }}>La Inteligencia Artificial está leyendo la factura...</h3>
             <p style={{ color: '#64748b' }}>Esto puede tomar entre 5 y 15 segundos.</p>
           </div>
         )}
