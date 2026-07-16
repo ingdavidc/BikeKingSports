@@ -154,7 +154,7 @@ export default function InvoiceUploadModal({ onClose, onComplete }) {
           <div>
             <div style={{ backgroundColor: '#f8fafc', padding: '15px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '20px' }}>
               <h3 style={{ margin: '0 0 15px 0', fontSize: '1.1rem' }}>Datos del Proveedor</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
                 <div>
                   <label style={labelStyle}>Nombre Comercial</label>
                   <input type="text" value={providerData.name || ''} onChange={e => setProviderData({...providerData, name: e.target.value})} style={inputStyle} />
@@ -228,21 +228,21 @@ export default function InvoiceUploadModal({ onClose, onComplete }) {
                             )}
                           </td>
                           <td style={{ padding: '8px' }}>
-                            <input type="text" value={prod.name || ''} onChange={e => handleProductChange(idx, 'name', e.target.value)} style={inputStyle} />
+                            <input type="text" value={prod.name || ''} onChange={e => handleProductChange(idx, 'name', e.target.value)} style={{ ...inputStyle, minWidth: '150px' }} />
                           </td>
                           <td style={{ padding: '8px' }}>
-                            <input type="text" value={prod.category || ''} onChange={e => handleProductChange(idx, 'category', e.target.value)} style={inputStyle} placeholder="Ej. Repuestos" />
+                            <input type="text" value={prod.category || ''} onChange={e => handleProductChange(idx, 'category', e.target.value)} style={{ ...inputStyle, minWidth: '120px' }} placeholder="Ej. Repuestos" />
                           </td>
                           <td style={{ padding: '8px' }}>
-                            <input type="text" value={prod.sku || ''} onChange={e => handleProductChange(idx, 'sku', e.target.value)} style={inputStyle} />
+                            <input type="text" value={prod.sku || ''} onChange={e => handleProductChange(idx, 'sku', e.target.value)} style={{ ...inputStyle, minWidth: '100px' }} />
                           </td>
                           <td style={{ padding: '8px' }}>
-                            <input type="number" value={prod.quantity || 0} onChange={e => handleProductChange(idx, 'quantity', e.target.value)} style={inputStyle} />
+                            <input type="number" value={prod.quantity || 0} onChange={e => handleProductChange(idx, 'quantity', e.target.value)} style={{ ...inputStyle, minWidth: '80px' }} />
                           </td>
                           <td style={{ padding: '8px' }}>
-                            <input type="number" value={prod.price || 0} onChange={e => handleProductChange(idx, 'price', e.target.value)} style={inputStyle} />
+                            <input type="number" value={prod.price || 0} onChange={e => handleProductChange(idx, 'price', e.target.value)} style={{ ...inputStyle, minWidth: '100px' }} />
                           </td>
-                          <td style={{ padding: '8px' }}>
+                          <td style={{ padding: '8px', minWidth: '180px' }}>
                             {prod.status === 'EXISTENTE' && Number(prod.price) !== Number(prod.existing_price) ? (
                               <select 
                                 value={prod.priceAction || 'keep'} 
