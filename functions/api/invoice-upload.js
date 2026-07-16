@@ -1,4 +1,5 @@
 import { PDFDocument } from 'pdf-lib';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export async function onRequest(context) {
   const { request, env } = context;
@@ -42,8 +43,8 @@ export async function onRequest(context) {
     }
     const base64Data = btoa(binary);
 
-    // Call Gemini API (1.5 Flash) via standard fetch
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     
     const prompt = `
       Eres un asistente experto en contabilidad e inventarios. 
@@ -71,41 +72,17 @@ export async function onRequest(context) {
       }
     `;
 
-    const bodyData = {
-      contents: [
-        {
-          parts: [
-            { text: prompt },
-            {
-              inlineData: {
-                mimeType: file.type || 'application/pdf',
-                data: base64Data
-              }
-            }
-          ]
+    const result = await model.generateContent([
+      prompt,
+      {
+        inlineData: {
+          mimeType: file.type || 'application/pdf',
+          data: base64Data
         }
-      ],
-      generationConfig: {
-        temperature: 0.1
       }
-    };
+    ]);
 
-    const response = await fetch(geminiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(bodyData)
-    });
-
-    const geminiData = await response.json();
-
-    if (!response.ok) {
-      throw new Error(geminiData.error?.message || 'Error al comunicarse con Gemini');
-    }
-
-    // Extract text from Gemini response
-    let extractedText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    let extractedText = result.response.text();
     
     // Clean potential markdown blocks
     extractedText = extractedText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
