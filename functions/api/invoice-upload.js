@@ -1,3 +1,5 @@
+import { PDFDocument } from 'pdf-lib';
+
 export async function onRequest(context) {
   const { request, env } = context;
 
@@ -18,12 +20,25 @@ export async function onRequest(context) {
       return Response.json({ success: false, error: 'Falta la API Key de Gemini en el entorno (.dev.vars o entorno remoto).' }, { status: 500 });
     }
 
-    // Convert file to base64
+    // Read original file bytes
     const arrayBuffer = await file.arrayBuffer();
-    const bytes = new Uint8Array(arrayBuffer);
+    
+    // Attempt to strip PDF restrictions using pdf-lib
+    let finalBytes = new Uint8Array(arrayBuffer);
+    try {
+      if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+        const pdfDoc = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
+        // By saving it without setting a password, pdf-lib strips standard restrictions (like copy/print protections)
+        finalBytes = await pdfDoc.save();
+      }
+    } catch (pdfError) {
+      console.warn('Advertencia: No se pudo procesar/quitar restricciones del PDF (puede estar muy encriptado o dañado). Se enviará el original.', pdfError);
+    }
+
+    // Convert file to base64
     let binary = '';
-    for (let i = 0; i < bytes.byteLength; i++) {
-      binary += String.fromCharCode(bytes[i]);
+    for (let i = 0; i < finalBytes.byteLength; i++) {
+      binary += String.fromCharCode(finalBytes[i]);
     }
     const base64Data = btoa(binary);
 
