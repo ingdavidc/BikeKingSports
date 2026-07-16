@@ -58,7 +58,10 @@ export async function onRequest(context) {
           "name": "Nombre de la Empresa",
           "document": "NIT o RUT",
           "email": "correo@ejemplo.com",
-          "phone": "telefono"
+          "phone": "telefono",
+          "contact_person": "Nombre del vendedor o asesor (si aparece)",
+          "website": "Página web (si aparece)",
+          "address": "Dirección y ciudad (si aparece)"
         },
         "products": [
           {

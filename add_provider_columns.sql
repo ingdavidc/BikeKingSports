@@ -1,0 +1,7 @@
+ALTER TABLE providers ADD COLUMN contact_person TEXT DEFAULT '';
+ALTER TABLE providers ADD COLUMN brands TEXT DEFAULT '';
+ALTER TABLE providers ADD COLUMN category TEXT DEFAULT '';
+ALTER TABLE providers ADD COLUMN website TEXT DEFAULT '';
+ALTER TABLE providers ADD COLUMN address TEXT DEFAULT '';
+ALTER TABLE providers ADD COLUMN payment_terms TEXT DEFAULT '';
+ALTER TABLE providers ADD COLUMN notes TEXT DEFAULT '';

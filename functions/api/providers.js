@@ -28,18 +28,44 @@ async function handlePost(request, env) {
     if (action === 'add') {
       const id = crypto.randomUUID();
       await env.DB.prepare(
-        'INSERT INTO providers (id, name, document, email, phone) VALUES (?, ?, ?, ?, ?)'
+        'INSERT INTO providers (id, name, document, email, phone, contact_person, brands, category, website, address, payment_terms, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
       )
-        .bind(id, payload.name, payload.document || '', payload.email || '', payload.phone || '')
+        .bind(
+          id, 
+          payload.name, 
+          payload.document || '', 
+          payload.email || '', 
+          payload.phone || '',
+          payload.contact_person || '',
+          payload.brands || '',
+          payload.category || '',
+          payload.website || '',
+          payload.address || '',
+          payload.payment_terms || '',
+          payload.notes || ''
+        )
         .run();
       return Response.json({ success: true, id });
     }
 
     if (action === 'update') {
       await env.DB.prepare(
-        'UPDATE providers SET name = ?, document = ?, email = ?, phone = ? WHERE id = ?'
+        'UPDATE providers SET name = ?, document = ?, email = ?, phone = ?, contact_person = ?, brands = ?, category = ?, website = ?, address = ?, payment_terms = ?, notes = ? WHERE id = ?'
       )
-        .bind(payload.name, payload.document || '', payload.email || '', payload.phone || '', payload.id)
+        .bind(
+          payload.name, 
+          payload.document || '', 
+          payload.email || '', 
+          payload.phone || '',
+          payload.contact_person || '',
+          payload.brands || '',
+          payload.category || '',
+          payload.website || '',
+          payload.address || '',
+          payload.payment_terms || '',
+          payload.notes || '',
+          payload.id
+        )
         .run();
       return Response.json({ success: true });
     }
