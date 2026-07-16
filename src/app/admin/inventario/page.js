@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import ProductModal from '@/components/admin/ProductModal';
+import ProviderModal from '@/components/admin/ProviderModal';
+import InvoiceUploadModal from '@/components/admin/InvoiceUploadModal';
 
 export default function InventarioPage() {
   const [items, setItems] = useState([]);
@@ -10,6 +12,9 @@ export default function InventarioPage() {
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState(null); // null means adding, object means editing
+  
+  const [isProviderModalOpen, setIsProviderModalOpen] = useState(false);
+  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
 
   const fetchInventory = async () => {
     setLoading(true);
@@ -54,6 +59,20 @@ export default function InventarioPage() {
     }
   };
 
+  const handleSaveProvider = async (formData) => {
+    try {
+      await fetch('/api/providers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: formData.id ? 'update' : 'add', payload: formData }),
+      });
+      setIsProviderModalOpen(false);
+      alert('Proveedor guardado exitosamente.');
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleDelete = async (id) => {
     if (!confirm('¿Seguro que deseas eliminar este producto del inventario?')) return;
     try {
@@ -77,6 +96,18 @@ export default function InventarioPage() {
             style={{ padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', width: '250px' }}
           />
           <button 
+            onClick={() => setIsProviderModalOpen(true)}
+            style={{ padding: '10px 16px', backgroundColor: 'white', color: '#1964a6', border: '1px solid #1964a6', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', transition: 'background-color 0.2s' }}
+          >
+            + Añadir Proveedor
+          </button>
+          <button 
+            onClick={() => setIsInvoiceModalOpen(true)}
+            style={{ padding: '10px 16px', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 2px 4px rgba(16,185,129,0.2)' }}
+          >
+            📄 Cargar Factura (IA)
+          </button>
+          <button 
             onClick={handleAddClick}
             style={{ padding: '10px 16px', backgroundColor: '#1964a6', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 2px 4px rgba(25,100,166,0.2)', transition: 'background-color 0.2s' }}
           >
@@ -90,6 +121,24 @@ export default function InventarioPage() {
           onClose={() => setIsModalOpen(false)} 
           onSave={handleSaveModal}
           initialData={modalData}
+        />
+      )}
+
+      {isProviderModalOpen && (
+        <ProviderModal 
+          onClose={() => setIsProviderModalOpen(false)}
+          onSave={handleSaveProvider}
+        />
+      )}
+
+      {isInvoiceModalOpen && (
+        <InvoiceUploadModal 
+          onClose={() => setIsInvoiceModalOpen(false)}
+          onComplete={() => {
+            setIsInvoiceModalOpen(false);
+            alert('Inventario actualizado masivamente con éxito.');
+            fetchInventory();
+          }}
         />
       )}
 
