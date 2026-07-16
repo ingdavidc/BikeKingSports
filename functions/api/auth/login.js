@@ -95,10 +95,10 @@ export async function onRequestPost(context) {
 
     const normalizedEmail = email.toLowerCase().trim();
 
-    // Buscar usuario — seleccionar solo columnas necesarias
+    // Buscar usuario por correo o identificación
     const user = await DB.prepare(
-      'SELECT id, name, email, role, status, password_hash FROM users WHERE email = ?'
-    ).bind(normalizedEmail).first();
+      'SELECT id, name, email, role, status, password_hash, identification, phone FROM users WHERE email = ? OR identification = ?'
+    ).bind(normalizedEmail, normalizedEmail).first();
 
     // Usar error genérico siempre para evitar user enumeration
     const GENERIC_ERROR = 'Credenciales inválidas';

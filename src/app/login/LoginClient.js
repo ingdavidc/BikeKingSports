@@ -54,14 +54,14 @@ export default function Login() {
 
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#334155' }}>Correo Electrónico</label>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#334155' }}>Correo o Documento de Identidad</label>
             <input 
-              type="email" 
+              type="text" 
               required 
               value={email}
               onChange={e => setEmail(e.target.value)}
               style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '1rem' }}
-              placeholder="tu@correo.com"
+              placeholder="tu@correo.com o documento"
             />
           </div>
           

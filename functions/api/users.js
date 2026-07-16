@@ -43,7 +43,7 @@ export async function onRequestGet(context) {
   try {
     const DB = context.env.DB;
     const { results } = await DB.prepare(
-      'SELECT id, name, email, role, status, created_at FROM users ORDER BY created_at DESC'
+      'SELECT id, name, email, role, status, created_at, identification, phone FROM users ORDER BY created_at DESC'
     ).all();
     return Response.json(results);
   } catch (error) {
@@ -80,9 +80,11 @@ export async function onRequestPost(context) {
       const email = sanitizeString(payload.email, 254).toLowerCase();
       const password = typeof payload.password === 'string' ? payload.password : '';
       const newRole = sanitizeString(payload.role, 20);
+      const identification = sanitizeString(payload.identification, 50);
+      const phone = sanitizeString(payload.phone, 50);
 
       if (!name || !email || !password || !newRole) {
-        return Response.json({ error: 'Todos los campos son requeridos' }, { status: 400 });
+        return Response.json({ error: 'Todos los campos básicos son requeridos' }, { status: 400 });
       }
       if (!VALID_ROLES.includes(newRole)) {
         return Response.json({ error: 'Rol inválido' }, { status: 400 });
@@ -90,20 +92,24 @@ export async function onRequestPost(context) {
       if (password.length < 8) {
         return Response.json({ error: 'La contraseña debe tener al menos 8 caracteres' }, { status: 400 });
       }
-      if (password.length > MAX_PASSWORD_LENGTH) {
-        return Response.json({ error: 'Contraseña demasiado larga' }, { status: 400 });
-      }
 
       const existing = await DB.prepare('SELECT id FROM users WHERE email = ?').bind(email).first();
       if (existing) {
         return Response.json({ error: 'El correo ya está registrado' }, { status: 409 });
       }
 
+      if (identification) {
+        const existingDoc = await DB.prepare('SELECT id FROM users WHERE identification = ?').bind(identification).first();
+        if (existingDoc) {
+          return Response.json({ error: 'El documento de identificación ya está registrado' }, { status: 409 });
+        }
+      }
+
       const id = crypto.randomUUID();
       const password_hash = await hashPassword(password, PBKDF2_SALT);
       await DB.prepare(
-        'INSERT INTO users (id, name, email, password_hash, role, status) VALUES (?, ?, ?, ?, ?, ?)'
-      ).bind(id, name, email, password_hash, newRole, 'activo').run();
+        'INSERT INTO users (id, name, email, password_hash, role, status, identification, phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+      ).bind(id, name, email, password_hash, newRole, 'activo', identification || null, phone || null).run();
 
       return Response.json({ success: true, id });
     }
@@ -113,41 +119,46 @@ export async function onRequestPost(context) {
       const { id } = payload;
       const name = sanitizeString(payload.name, MAX_NAME_LENGTH);
       const newRole = sanitizeString(payload.role, 20);
+      const identification = sanitizeString(payload.identification, 50);
+      const phone = sanitizeString(payload.phone, 50);
       const password = typeof payload.password === 'string' ? payload.password : '';
 
       if (!id || typeof id !== 'string' || !name || !newRole) {
         return Response.json({ error: 'Campos requeridos incompletos' }, { status: 400 });
       }
-      if (!VALID_ROLES.includes(newRole)) {
-        return Response.json({ error: 'Rol inválido' }, { status: 400 });
+      
+      const targetUser = await DB.prepare('SELECT email, role FROM users WHERE id = ?').bind(id).first();
+      if (!targetUser) return Response.json({ error: 'Usuario no encontrado' }, { status: 404 });
+      
+      if (targetUser.email === 'admin@bikekingsports.com' && newRole !== 'admin') {
+         return Response.json({ error: 'No puedes degradar al superusuario principal' }, { status: 400 });
+      }
+
+      if (identification) {
+        const existingDoc = await DB.prepare('SELECT id FROM users WHERE identification = ? AND id != ?').bind(identification, id).first();
+        if (existingDoc) {
+          return Response.json({ error: 'El documento de identificación ya está registrado por otro usuario' }, { status: 409 });
+        }
       }
 
       // Prevenir que el último admin sea degradado
-      if (newRole !== 'admin') {
-        const currentUser = await DB.prepare('SELECT role FROM users WHERE id = ?').bind(id).first();
-        if (currentUser?.role === 'admin') {
-          const { results: admins } = await DB.prepare(
-            "SELECT id FROM users WHERE role = 'admin' AND status = 'activo'"
-          ).all();
-          if (admins.length <= 1) {
-            return Response.json({ error: 'No puedes cambiar el rol del único administrador activo' }, { status: 400 });
-          }
+      if (newRole !== 'admin' && targetUser.role === 'admin') {
+        const { results: admins } = await DB.prepare(
+          "SELECT id FROM users WHERE role = 'admin' AND status = 'activo'"
+        ).all();
+        if (admins.length <= 1) {
+          return Response.json({ error: 'No puedes cambiar el rol del único administrador activo' }, { status: 400 });
         }
       }
 
       if (password) {
-        if (password.length < 8) {
-          return Response.json({ error: 'La contraseña debe tener al menos 8 caracteres' }, { status: 400 });
-        }
-        if (password.length > MAX_PASSWORD_LENGTH) {
-          return Response.json({ error: 'Contraseña demasiado larga' }, { status: 400 });
-        }
+        if (password.length < 8) return Response.json({ error: 'Contraseña muy corta' }, { status: 400 });
         const password_hash = await hashPassword(password, PBKDF2_SALT);
-        await DB.prepare('UPDATE users SET name = ?, role = ?, password_hash = ? WHERE id = ?')
-          .bind(name, newRole, password_hash, id).run();
+        await DB.prepare('UPDATE users SET name = ?, role = ?, password_hash = ?, identification = ?, phone = ? WHERE id = ?')
+          .bind(name, newRole, password_hash, identification || null, phone || null, id).run();
       } else {
-        await DB.prepare('UPDATE users SET name = ?, role = ? WHERE id = ?')
-          .bind(name, newRole, id).run();
+        await DB.prepare('UPDATE users SET name = ?, role = ?, identification = ?, phone = ? WHERE id = ?')
+          .bind(name, newRole, identification || null, phone || null, id).run();
       }
       return Response.json({ success: true });
     }
@@ -155,24 +166,19 @@ export async function onRequestPost(context) {
     // ─── Cambiar estado activo/inactivo ────────────────────────
     if (action === 'update_status') {
       const { id, status } = payload;
-      if (!id || typeof id !== 'string') {
-        return Response.json({ error: 'ID de usuario requerido' }, { status: 400 });
-      }
-      const validStatuses = ['activo', 'inactivo'];
-      if (!validStatuses.includes(status)) {
-        return Response.json({ error: 'Estado inválido' }, { status: 400 });
+      if (!id || typeof id !== 'string') return Response.json({ error: 'ID requerido' }, { status: 400 });
+
+      const targetUser = await DB.prepare('SELECT email, role FROM users WHERE id = ?').bind(id).first();
+      if (!targetUser) return Response.json({ error: 'Usuario no encontrado' }, { status: 404 });
+
+      if (targetUser.email === 'admin@bikekingsports.com' && status === 'inactivo') {
+        return Response.json({ error: 'No puedes desactivar al superusuario principal' }, { status: 400 });
       }
 
-      // Prevenir desactivar el último admin
-      if (status === 'inactivo') {
-        const targetUser = await DB.prepare('SELECT role FROM users WHERE id = ?').bind(id).first();
-        if (targetUser?.role === 'admin') {
-          const { results: admins } = await DB.prepare(
-            "SELECT id FROM users WHERE role = 'admin' AND status = 'activo'"
-          ).all();
-          if (admins.length <= 1) {
-            return Response.json({ error: 'No puedes desactivar al único administrador activo' }, { status: 400 });
-          }
+      if (status === 'inactivo' && targetUser.role === 'admin') {
+        const { results: admins } = await DB.prepare("SELECT id FROM users WHERE role = 'admin' AND status = 'activo'").all();
+        if (admins.length <= 1) {
+          return Response.json({ error: 'No puedes desactivar al único administrador activo' }, { status: 400 });
         }
       }
 
@@ -183,18 +189,17 @@ export async function onRequestPost(context) {
     // ─── Eliminar usuario ─────────────────────────────────────
     if (action === 'delete_user') {
       const { id } = payload;
-      if (!id || typeof id !== 'string') {
-        return Response.json({ error: 'ID de usuario requerido' }, { status: 400 });
-      }
+      if (!id || typeof id !== 'string') return Response.json({ error: 'ID requerido' }, { status: 400 });
 
-      // Prevenir eliminar el último admin
-      const targetUser = await DB.prepare('SELECT role FROM users WHERE id = ?').bind(id).first();
+      const targetUser = await DB.prepare('SELECT email, role FROM users WHERE id = ?').bind(id).first();
       if (!targetUser) return Response.json({ error: 'Usuario no encontrado' }, { status: 404 });
 
+      if (targetUser.email === 'admin@bikekingsports.com') {
+        return Response.json({ error: 'ACCESO DENEGADO: El superusuario principal es imborrable' }, { status: 403 });
+      }
+
       if (targetUser.role === 'admin') {
-        const { results: admins } = await DB.prepare(
-          "SELECT id FROM users WHERE role = 'admin' AND status = 'activo'"
-        ).all();
+        const { results: admins } = await DB.prepare("SELECT id FROM users WHERE role = 'admin' AND status = 'activo'").all();
         if (admins.length <= 1) {
           return Response.json({ error: 'No puedes eliminar al único administrador activo' }, { status: 400 });
         }
