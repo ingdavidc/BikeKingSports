@@ -49,9 +49,14 @@ export default function InvoiceUploadModal({ onClose, onComplete }) {
   };
 
   const handleProductChange = (index, field, value) => {
-    const newProducts = [...productsData];
-    newProducts[index][field] = value;
-    setProductsData(newProducts);
+    const updated = [...productsData];
+    updated[index][field] = value;
+    setProductsData(updated);
+  };
+
+  const handleRemoveProduct = (index) => {
+    const updated = productsData.filter((_, i) => i !== index);
+    setProductsData(updated);
   };
 
   const handleSave = async () => {
@@ -209,6 +214,7 @@ export default function InvoiceUploadModal({ onClose, onComplete }) {
                         <th style={thStyle}>Cantidad</th>
                         <th style={thStyle}>Precio Compra</th>
                         <th style={thStyle}>Decisión Precio</th>
+                        <th style={thStyle}>Acción</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -250,6 +256,24 @@ export default function InvoiceUploadModal({ onClose, onComplete }) {
                             ) : (
                               <span style={{ fontSize: '0.85rem', color: '#64748b' }}>No aplica</span>
                             )}
+                          </td>
+                          <td style={{ padding: '8px', textAlign: 'center' }}>
+                            <button 
+                              type="button" 
+                              onClick={() => handleRemoveProduct(idx)}
+                              style={{ 
+                                backgroundColor: '#fee2e2', 
+                                color: '#ef4444', 
+                                border: 'none', 
+                                borderRadius: '4px', 
+                                padding: '6px 10px', 
+                                cursor: 'pointer',
+                                fontWeight: 'bold'
+                              }}
+                              title="Eliminar producto"
+                            >
+                              ✕
+                            </button>
                           </td>
                         </tr>
                       ))}
