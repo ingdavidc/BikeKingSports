@@ -108,8 +108,8 @@ export default function Servicios() {
       <p style={{ color: '#64748b', marginBottom: '30px' }}>Agrega servicios, mantenimientos y sube videos/fotos de los trabajos realizados.</p>
       
       {/* Formulario para agregar servicio */}
-      <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: '30px' }}>
-        <h2 style={{ fontSize: '1.2rem', marginBottom: '20px' }}>Agregar Nuevo Servicio</h2>
+      <div style={{ backgroundColor: 'white', color: '#0f172a', padding: '24px', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', marginBottom: '30px', border: '1px solid #e2e8f0' }}>
+        <h2 style={{ fontSize: '1.2rem', marginBottom: '20px', color: '#0f172a', fontWeight: '700' }}>Agregar Nuevo Servicio</h2>
         <form onSubmit={handleAddService} style={{ display: 'grid', gap: '15px' }}>
           <div>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Nombre del Servicio</label>
@@ -133,17 +133,17 @@ export default function Servicios() {
               </div>
             )}
           </div>
-          <button type="submit" disabled={saving || uploading} style={{ backgroundColor: '#16a34a', color: 'white', padding: '12px', borderRadius: '4px', border: 'none', cursor: 'pointer', fontWeight: 'bold', marginTop: '10px' }}>
+          <button type="submit" disabled={saving || uploading} style={{ backgroundColor: '#1964a6', color: 'white', padding: '12px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: 'bold', marginTop: '10px', boxShadow: '0 2px 4px rgba(25,100,166,0.2)', transition: 'background-color 0.2s' }}>
             Guardar Servicio
           </button>
         </form>
       </div>
 
       {/* Lista de servicios */}
-      <h2 style={{ fontSize: '1.2rem', marginBottom: '20px' }}>Servicios Actuales ({services.length})</h2>
+      <h2 style={{ fontSize: '1.2rem', marginBottom: '20px', color: '#0f172a', fontWeight: '700' }}>Servicios Actuales ({services.length})</h2>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}>
         {services.map(s => (
-          <div key={s.id} style={{ backgroundColor: 'white', padding: '15px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', gap: '20px', alignItems: 'center' }}>
+          <div key={s.id} style={{ backgroundColor: 'white', color: '#0f172a', padding: '15px', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0', display: 'flex', gap: '20px', alignItems: 'center' }}>
             {s.video_url && (
               <div style={{ width: '150px', flexShrink: 0 }}>
                 {s.video_url.match(/\.(mp4|webm)$/i) ? (
@@ -154,14 +154,14 @@ export default function Servicios() {
               </div>
             )}
             <div style={{ flex: 1 }}>
-              <h3 style={{ fontSize: '1.1rem', marginBottom: '5px' }}>{s.name}</h3>
-              <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '10px' }}>{s.description}</p>
+              <h3 style={{ fontSize: '1.1rem', marginBottom: '5px', color: '#0f172a', fontWeight: '600' }}>{s.name}</h3>
+              <p style={{ color: '#475569', fontSize: '0.9rem', marginBottom: '10px' }}>{s.description}</p>
               <p style={{ fontWeight: 'bold', color: '#1e293b' }}>${s.price}</p>
             </div>
-            <button onClick={() => handleDelete(s.id)} style={{ backgroundColor: '#ef4444', color: 'white', padding: '6px 12px', borderRadius: '4px', border: 'none', cursor: 'pointer', fontSize: '0.8rem', height: 'fit-content' }}>Eliminar</button>
+            <button onClick={() => handleDelete(s.id)} style={{ backgroundColor: '#e5142b', color: 'white', padding: '6px 12px', borderRadius: '4px', border: 'none', cursor: 'pointer', fontSize: '0.8rem', height: 'fit-content', fontWeight: '500' }}>Eliminar</button>
           </div>
         ))}
-        {services.length === 0 && <p>No hay servicios registrados.</p>}
+        {services.length === 0 && <p style={{ color: '#475569' }}>No hay servicios registrados.</p>}
       </div>
     </div>
   );

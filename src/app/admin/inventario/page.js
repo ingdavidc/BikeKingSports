@@ -78,7 +78,7 @@ export default function InventarioPage() {
           />
           <button 
             onClick={handleAddClick}
-            style={{ padding: '10px 16px', backgroundColor: '#38bdf8', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}
+            style={{ padding: '10px 16px', backgroundColor: '#1964a6', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 2px 4px rgba(25,100,166,0.2)', transition: 'background-color 0.2s' }}
           >
             + Añadir Producto
           </button>
@@ -94,17 +94,17 @@ export default function InventarioPage() {
       )}
 
       {loading ? (
-        <p>Cargando inventario...</p>
+        <p style={{ color: '#475569' }}>Cargando inventario...</p>
       ) : (
-        <div style={{ overflowX: 'auto', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>
+        <div style={{ overflowX: 'auto', backgroundColor: 'white', color: '#0f172a', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                <th style={{ padding: '12px 16px', color: '#475569', fontWeight: 600 }}>CÓDIGO</th>
-                <th style={{ padding: '12px 16px', color: '#475569', fontWeight: 600 }}>DESCRIPCIÓN</th>
-                <th style={{ padding: '12px 16px', color: '#475569', fontWeight: 600 }}>STOCK</th>
-                <th style={{ padding: '12px 16px', color: '#475569', fontWeight: 600 }}>PRECIO (VR UNIT)</th>
-                <th style={{ padding: '12px 16px', color: '#475569', fontWeight: 600 }}>ACCIONES</th>
+                <th style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600 }}>CÓDIGO</th>
+                <th style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600 }}>DESCRIPCIÓN</th>
+                <th style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600 }}>STOCK</th>
+                <th style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600 }}>PRECIO (VR UNIT)</th>
+                <th style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600 }}>ACCIONES</th>
               </tr>
             </thead>
             <tbody>
@@ -125,8 +125,8 @@ export default function InventarioPage() {
                     ${item.price.toLocaleString()}
                   </td>
                   <td style={{ padding: '12px 16px', display: 'flex', gap: '8px' }}>
-                    <button onClick={() => handleEditClick(item)} style={{ padding: '6px 12px', backgroundColor: '#38bdf8', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Editar</button>
-                    <button onClick={() => handleDelete(item.id)} style={{ padding: '6px 12px', backgroundColor: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Eliminar</button>
+                    <button onClick={() => handleEditClick(item)} style={{ padding: '6px 12px', backgroundColor: '#1964a6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}>Editar</button>
+                    <button onClick={() => handleDelete(item.id)} style={{ padding: '6px 12px', backgroundColor: '#e5142b', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}>Eliminar</button>
                   </td>
                 </tr>
               ))}

@@ -21,20 +21,22 @@ export default function AdministracionWeb() {
       <h1 style={{ fontSize: '2.5rem', marginBottom: '20px' }}>Administración Web</h1>
       
       {/* Tab Navigation */}
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '30px', borderBottom: '1px solid #cbd5e1', paddingBottom: '10px' }}>
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '30px', borderBottom: '2px solid #e2e8f0', paddingBottom: '10px' }}>
         {tabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             style={{
-              padding: '10px 20px',
-              backgroundColor: activeTab === tab.id ? '#1e293b' : 'transparent',
+              padding: '10px 24px',
+              backgroundColor: activeTab === tab.id ? '#1964a6' : '#f8fafc',
               color: activeTab === tab.id ? 'white' : '#475569',
-              border: 'none',
-              borderRadius: '4px',
+              border: activeTab === tab.id ? '1px solid #1964a6' : '1px solid #cbd5e1',
+              borderRadius: '6px',
               cursor: 'pointer',
-              fontWeight: 'bold',
-              transition: 'all 0.2s'
+              fontWeight: '600',
+              fontSize: '0.95rem',
+              transition: 'all 0.2s',
+              boxShadow: activeTab === tab.id ? '0 4px 6px -1px rgba(25,100,166,0.2)' : 'none'
             }}
           >
             {tab.label}

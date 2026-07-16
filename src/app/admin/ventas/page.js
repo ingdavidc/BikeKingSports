@@ -173,10 +173,10 @@ export default function VentasPage() {
     <div style={{ height: 'calc(100vh - 80px)', display: 'flex', gap: '20px', flexDirection: 'row' }}>
       
       {/* LEFT COLUMN: PRODUCT CATALOG */}
-      <div style={{ flex: '6.5', display: 'flex', flexDirection: 'column', backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
+      <div style={{ flex: '6.5', display: 'flex', flexDirection: 'column', backgroundColor: 'white', color: '#0f172a', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
         
         <div style={{ padding: '20px', borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
-          <h2 style={{ margin: '0 0 15px 0', color: '#0f172a', fontSize: '1.5rem' }}>Punto de Venta</h2>
+          <h2 style={{ margin: '0 0 15px 0', color: '#0f172a', fontSize: '1.5rem', fontWeight: '700' }}>Punto de Venta</h2>
           <input 
             type="text"
             placeholder="🔍 Buscar por nombre o código de barras (SKU)..."
@@ -198,7 +198,7 @@ export default function VentasPage() {
                     key={product.id}
                     onClick={() => addToCart(product)}
                     style={{ 
-                      backgroundColor: 'white', borderRadius: '8px', padding: '15px', border: '1px solid #e2e8f0',
+                      backgroundColor: 'white', color: '#0f172a', borderRadius: '8px', padding: '15px', border: '1px solid #e2e8f0',
                       cursor: isOutOfStock ? 'not-allowed' : 'pointer', opacity: isOutOfStock ? 0.6 : 1,
                       transition: 'transform 0.1s', boxShadow: '0 1px 3px 0 rgba(0,0,0,0.1)',
                       display: 'flex', flexDirection: 'column', justifyContent: 'space-between'
@@ -227,11 +227,11 @@ export default function VentasPage() {
       </div>
 
       {/* RIGHT COLUMN: CART */}
-      <div style={{ flex: '3.5', display: 'flex', flexDirection: 'column', backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>
-        <div style={{ padding: '20px', borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
-          <h2 style={{ margin: 0, color: '#0f172a', fontSize: '1.5rem', display: 'flex', justifyContent: 'space-between' }}>
+      <div style={{ flex: '3.5', display: 'flex', flexDirection: 'column', backgroundColor: 'white', color: '#0f172a', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
+        <div style={{ padding: '20px', borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc', borderTopLeftRadius: '12px', borderTopRightRadius: '12px' }}>
+          <h2 style={{ margin: 0, color: '#0f172a', fontSize: '1.5rem', display: 'flex', justifyContent: 'space-between', fontWeight: '700' }}>
             <span>🛒 Ticket</span>
-            <span style={{ backgroundColor: '#e2e8f0', padding: '2px 10px', borderRadius: '20px', fontSize: '1rem' }}>{cart.length}</span>
+            <span style={{ backgroundColor: '#e2e8f0', color: '#334155', padding: '2px 10px', borderRadius: '20px', fontSize: '1rem' }}>{cart.length}</span>
           </h2>
         </div>
 
@@ -275,7 +275,7 @@ export default function VentasPage() {
             disabled={cart.length === 0}
             onClick={() => setIsCheckoutModalOpen(true)}
             style={{ 
-              width: '100%', padding: '20px', backgroundColor: cart.length === 0 ? '#cbd5e1' : '#10b981', 
+              width: '100%', padding: '20px', backgroundColor: cart.length === 0 ? '#cbd5e1' : '#1964a6', 
               color: 'white', border: 'none', borderRadius: '8px', fontSize: '1.5rem', fontWeight: 'bold', 
               cursor: cart.length === 0 ? 'not-allowed' : 'pointer', transition: 'background-color 0.2s', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
             }}
@@ -288,9 +288,9 @@ export default function VentasPage() {
       {/* MODAL DE PAGO */}
       {isCheckoutModalOpen && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-          <div style={{ backgroundColor: 'white', width: '95%', maxWidth: '900px', borderRadius: '16px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', overflow: 'hidden', display: 'flex', flexDirection: 'column', maxHeight: '90vh' }}>
+          <div style={{ backgroundColor: 'white', color: '#0f172a', width: '95%', maxWidth: '900px', borderRadius: '16px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', overflow: 'hidden', display: 'flex', flexDirection: 'column', maxHeight: '90vh' }}>
             <div style={{ padding: '20px', borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2 style={{ margin: 0, color: '#0f172a', fontSize: '1.5rem' }}>Finalizar Venta</h2>
+              <h2 style={{ margin: 0, color: '#0f172a', fontSize: '1.5rem', fontWeight: '700' }}>Finalizar Venta</h2>
               <button onClick={() => setIsCheckoutModalOpen(false)} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#64748b' }}>×</button>
             </div>
             
@@ -392,9 +392,9 @@ export default function VentasPage() {
                           onClick={() => setPaymentMethod(method)}
                           style={{
                             padding: '15px', textAlign: 'center', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold',
-                            border: paymentMethod === method ? '2px solid #38bdf8' : '2px solid #e2e8f0',
+                            border: paymentMethod === method ? '2px solid #1964a6' : '2px solid #e2e8f0',
                             backgroundColor: paymentMethod === method ? '#f0f9ff' : 'white',
-                            color: paymentMethod === method ? '#0284c7' : '#64748b',
+                            color: paymentMethod === method ? '#1964a6' : '#64748b',
                             transition: 'all 0.2s'
                           }}
                         >
@@ -416,7 +416,7 @@ export default function VentasPage() {
                     type="submit"
                     disabled={isProcessing}
                     style={{
-                      width: '100%', padding: '18px', backgroundColor: isProcessing ? '#94a3b8' : '#1e293b', 
+                      width: '100%', padding: '18px', backgroundColor: isProcessing ? '#94a3b8' : '#1964a6', 
                       color: 'white', border: 'none', borderRadius: '8px', fontSize: '1.1rem', fontWeight: 'bold', cursor: isProcessing ? 'wait' : 'pointer'
                     }}
                   >

@@ -75,13 +75,14 @@ export default function AdminLayout({ children }) {
       ? pathname === '/admin'
       : pathname.startsWith(href);
     return {
-      color: isActive ? '#38bdf8' : '#cbd5e1',
+      color: isActive ? '#ffffff' : '#cbd5e1',
       textDecoration: 'none',
       padding: '10px 12px',
       borderRadius: '6px',
       display: 'block',
       fontSize: '0.9rem',
-      backgroundColor: isActive ? 'rgba(56,189,248,0.1)' : 'transparent',
+      backgroundColor: isActive ? 'rgba(255,255,255,0.15)' : 'transparent',
+      fontWeight: isActive ? 600 : 400,
       transition: 'all 0.15s',
     };
   };
@@ -89,13 +90,13 @@ export default function AdminLayout({ children }) {
   return (
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f1f5f9' }}>
       {/* Sidebar */}
-      <aside style={{ width: '240px', minWidth: '240px', backgroundColor: '#0f172a', color: 'white', display: 'flex', flexDirection: 'column', position: 'sticky', top: 0, height: '100vh' }}>
+      <aside style={{ width: '240px', minWidth: '240px', backgroundColor: '#124b7d', color: 'white', display: 'flex', flexDirection: 'column', position: 'sticky', top: 0, height: '100vh', boxShadow: '2px 0 8px rgba(0,0,0,0.1)' }}>
         {/* Logo + usuario */}
-        <div style={{ padding: '20px', borderBottom: '1px solid #1e293b' }}>
-          <h2 style={{ margin: '0 0 6px', fontSize: '1rem', color: '#38bdf8', fontWeight: 700 }}>🚲 Bike King Admin</h2>
-          <div style={{ fontSize: '0.82rem', color: '#94a3b8' }}>
-            <span style={{ display: 'block', fontWeight: 700, color: 'white', marginBottom: '3px' }}>{user.name}</span>
-            <span style={{ backgroundColor: '#1e293b', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem', color: '#7dd3fc', textTransform: 'capitalize' }}>{user.role}</span>
+        <div style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+          <h2 style={{ margin: '0 0 6px', fontSize: '1.05rem', color: '#ffffff', fontWeight: 700, letterSpacing: '0.5px' }}>🚲 BIKE KING</h2>
+          <div style={{ fontSize: '0.82rem', color: '#e2e8f0' }}>
+            <span style={{ display: 'block', fontWeight: 700, color: 'white', marginBottom: '4px' }}>{user.name}</span>
+            <span style={{ backgroundColor: 'rgba(255,255,255,0.2)', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', color: '#ffffff', textTransform: 'capitalize', fontWeight: 600 }}>{user.role}</span>
           </div>
         </div>
 

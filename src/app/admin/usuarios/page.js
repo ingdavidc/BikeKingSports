@@ -217,9 +217,9 @@ export default function UsuariosPage() {
         <button
           onClick={() => openModal()}
           style={{
-            padding: '10px 20px', backgroundColor: '#3b82f6', color: 'white',
+            padding: '10px 20px', backgroundColor: '#1964a6', color: 'white',
             border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600,
-            fontSize: '0.9rem',
+            fontSize: '0.9rem', boxShadow: '0 2px 4px rgba(25,100,166,0.2)'
           }}
         >
           + Nuevo Usuario
@@ -240,12 +240,12 @@ export default function UsuariosPage() {
       )}
 
       {/* Tabla de usuarios */}
-      <div style={{ backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
+      <div style={{ backgroundColor: 'white', color: '#0f172a', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
             <tr>
               {['Nombre', 'Correo', 'Documento', 'Rol', 'Estado', 'Acciones'].map((h, i) => (
-                <th key={h} style={{ padding: '13px 16px', textAlign: i === 5 ? 'right' : 'left', color: '#64748b', fontWeight: 600, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <th key={h} style={{ padding: '13px 16px', textAlign: i === 5 ? 'right' : 'left', color: '#0f172a', fontWeight: 600, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   {h}
                 </th>
               ))}
@@ -306,8 +306,8 @@ export default function UsuariosPage() {
           style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '20px' }}
           onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}
         >
-          <div style={{ backgroundColor: 'white', padding: '32px', borderRadius: '10px', width: '100%', maxWidth: '600px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
-            <h2 style={{ marginTop: 0, marginBottom: '24px', fontSize: '1.3rem', fontWeight: 700 }}>
+          <div style={{ backgroundColor: 'white', color: '#0f172a', padding: '32px', borderRadius: '10px', width: '100%', maxWidth: '600px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+            <h2 style={{ marginTop: 0, marginBottom: '24px', fontSize: '1.3rem', fontWeight: 700, color: '#0f172a' }}>
               {isEditing ? '✏️ Editar Usuario' : '➕ Nuevo Usuario'}
             </h2>
 
@@ -370,10 +370,10 @@ export default function UsuariosPage() {
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '24px' }}>
-                <button type="button" onClick={closeModal} style={{ padding: '10px 20px', border: '1px solid #e2e8f0', backgroundColor: 'white', borderRadius: '6px', cursor: 'pointer', fontWeight: 500 }}>
+                <button type="button" onClick={closeModal} style={{ padding: '10px 20px', border: '1px solid #e2e8f0', backgroundColor: 'white', color: '#0f172a', borderRadius: '6px', cursor: 'pointer', fontWeight: 500 }}>
                   Cancelar
                 </button>
-                <button type="submit" disabled={submitting} style={{ padding: '10px 20px', backgroundColor: submitting ? '#93c5fd' : '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', cursor: submitting ? 'not-allowed' : 'pointer', fontWeight: 600 }}>
+                <button type="submit" disabled={submitting} style={{ padding: '10px 20px', backgroundColor: submitting ? '#93c5fd' : '#1964a6', color: 'white', border: 'none', borderRadius: '6px', cursor: submitting ? 'not-allowed' : 'pointer', fontWeight: 600 }}>
                   {submitting ? 'Guardando...' : isEditing ? 'Guardar Cambios' : 'Crear Usuario'}
                 </button>
               </div>
@@ -385,15 +385,15 @@ export default function UsuariosPage() {
       {/* Diálogo de confirmación personalizado (reemplaza confirm()) */}
       {confirmDialog.open && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: '20px' }}>
-          <div style={{ backgroundColor: 'white', padding: '28px', borderRadius: '10px', maxWidth: '400px', width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+          <div style={{ backgroundColor: 'white', color: '#0f172a', padding: '28px', borderRadius: '10px', maxWidth: '400px', width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
             <p style={{ margin: '0 0 24px', fontSize: '1rem', lineHeight: 1.5, color: '#0f172a' }}>
               {confirmDialog.message}
             </p>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-              <button onClick={() => setConfirmDialog({ open: false })} style={{ padding: '9px 18px', border: '1px solid #e2e8f0', backgroundColor: 'white', borderRadius: '6px', cursor: 'pointer' }}>
+              <button onClick={() => setConfirmDialog({ open: false })} style={{ padding: '9px 18px', border: '1px solid #e2e8f0', backgroundColor: 'white', color: '#0f172a', borderRadius: '6px', cursor: 'pointer' }}>
                 Cancelar
               </button>
-              <button onClick={confirmDialog.onConfirm} style={{ padding: '9px 18px', backgroundColor: confirmDialog.destructive ? '#ef4444' : '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}>
+              <button onClick={confirmDialog.onConfirm} style={{ padding: '9px 18px', backgroundColor: confirmDialog.destructive ? '#ef4444' : '#1964a6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}>
                 Confirmar
               </button>
             </div>

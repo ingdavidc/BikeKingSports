@@ -55,8 +55,8 @@ export default function ContenidoWeb() {
       <h1 style={{ fontSize: '2rem', marginBottom: '10px' }}>Gestor de Contenido</h1>
       <p style={{ color: '#64748b', marginBottom: '30px' }}>Modifica los textos principales de la página web en tiempo real.</p>
       
-      <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-        <h2 style={{ fontSize: '1.2rem', marginBottom: '20px', borderBottom: '1px solid #e2e8f0', paddingBottom: '10px' }}>Página de Inicio (Home)</h2>
+      <div style={{ backgroundColor: 'white', color: '#0f172a', padding: '24px', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
+        <h2 style={{ fontSize: '1.2rem', marginBottom: '20px', borderBottom: '1px solid #e2e8f0', paddingBottom: '10px', color: '#0f172a', fontWeight: '700' }}>Página de Inicio (Home)</h2>
         
         {/* Título Principal */}
         <div style={{ marginBottom: '20px' }}>

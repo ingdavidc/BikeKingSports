@@ -108,8 +108,8 @@ export default function Inventario() {
       <p style={{ color: '#64748b', marginBottom: '30px' }}>Agrega productos, sube fotos y gestiona la tienda.</p>
       
       {/* Formulario para agregar producto */}
-      <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: '30px' }}>
-        <h2 style={{ fontSize: '1.2rem', marginBottom: '20px' }}>Agregar Nuevo Producto</h2>
+      <div style={{ backgroundColor: 'white', color: '#0f172a', padding: '24px', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', marginBottom: '30px', border: '1px solid #e2e8f0' }}>
+        <h2 style={{ fontSize: '1.2rem', marginBottom: '20px', color: '#0f172a', fontWeight: '700' }}>Agregar Nuevo Producto</h2>
         <form onSubmit={handleAddProduct} style={{ display: 'grid', gap: '15px' }}>
           <div>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Nombre</label>
@@ -143,24 +143,24 @@ export default function Inventario() {
               </div>
             )}
           </div>
-          <button type="submit" disabled={saving || uploading} style={{ backgroundColor: '#16a34a', color: 'white', padding: '12px', borderRadius: '4px', border: 'none', cursor: 'pointer', fontWeight: 'bold', marginTop: '10px' }}>
+          <button type="submit" disabled={saving || uploading} style={{ backgroundColor: '#1964a6', color: 'white', padding: '12px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: 'bold', marginTop: '10px', boxShadow: '0 2px 4px rgba(25,100,166,0.2)', transition: 'background-color 0.2s' }}>
             Guardar Producto
           </button>
         </form>
       </div>
 
       {/* Lista de productos */}
-      <h2 style={{ fontSize: '1.2rem', marginBottom: '20px' }}>Productos Actuales ({products.length})</h2>
+      <h2 style={{ fontSize: '1.2rem', marginBottom: '20px', color: '#0f172a', fontWeight: '700' }}>Productos Actuales ({products.length})</h2>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
         {products.map(p => (
-          <div key={p.id} style={{ backgroundColor: 'white', padding: '15px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+          <div key={p.id} style={{ backgroundColor: 'white', color: '#0f172a', padding: '15px', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
             {p.image_url && <img src={p.image_url} alt={p.name} style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '4px', marginBottom: '10px' }} />}
-            <h3 style={{ fontSize: '1.1rem', marginBottom: '5px' }}>{p.name}</h3>
-            <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '10px' }}>{p.category} | ${p.price}</p>
-            <button onClick={() => handleDelete(p.id)} style={{ backgroundColor: '#ef4444', color: 'white', padding: '6px 12px', borderRadius: '4px', border: 'none', cursor: 'pointer', fontSize: '0.8rem' }}>Eliminar</button>
+            <h3 style={{ fontSize: '1.1rem', marginBottom: '5px', color: '#0f172a', fontWeight: '600' }}>{p.name}</h3>
+            <p style={{ color: '#475569', fontSize: '0.9rem', marginBottom: '10px' }}>{p.category} | ${p.price}</p>
+            <button onClick={() => handleDelete(p.id)} style={{ backgroundColor: '#e5142b', color: 'white', padding: '6px 12px', borderRadius: '4px', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500' }}>Eliminar</button>
           </div>
         ))}
-        {products.length === 0 && <p>No hay productos registrados.</p>}
+        {products.length === 0 && <p style={{ color: '#475569' }}>No hay productos registrados.</p>}
       </div>
     </div>
   );
