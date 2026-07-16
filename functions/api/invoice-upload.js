@@ -44,7 +44,7 @@ export async function onRequest(context) {
     const base64Data = btoa(binary);
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
     
     const prompt = `
       Eres un asistente experto en contabilidad e inventarios. 
