@@ -36,7 +36,7 @@ export default function UsuariosPage() {
   const [confirmDialog, setConfirmDialog] = useState({ open: false, message: '', onConfirm: null });
 
   // Form state
-  const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'ventas' });
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'ventas', identification: '', phone: '' });
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -68,11 +68,18 @@ export default function UsuariosPage() {
     if (user) {
       setIsEditing(true);
       setCurrentUser(user);
-      setFormData({ name: user.name, email: user.email, password: '', role: user.role });
+      setFormData({ 
+        name: user.name || '', 
+        email: user.email || '', 
+        password: '', 
+        role: user.role || 'ventas',
+        identification: user.identification || '',
+        phone: user.phone || ''
+      });
     } else {
       setIsEditing(false);
       setCurrentUser(null);
-      setFormData({ name: '', email: '', password: '', role: 'ventas' });
+      setFormData({ name: '', email: '', password: '', role: 'ventas', identification: '', phone: '' });
     }
     setIsModalOpen(true);
   };
@@ -95,8 +102,22 @@ export default function UsuariosPage() {
     try {
       const action = isEditing ? 'update_user' : 'add_user';
       const payload = isEditing
-        ? { id: currentUser.id, name: formData.name.trim(), role: formData.role, ...(formData.password ? { password: formData.password } : {}) }
-        : formData;
+        ? { 
+            id: currentUser.id, 
+            name: formData.name.trim(), 
+            role: formData.role, 
+            identification: formData.identification.trim(),
+            phone: formData.phone.trim(),
+            ...(formData.password ? { password: formData.password } : {}) 
+          }
+        : {
+            name: formData.name.trim(),
+            email: formData.email.trim(),
+            password: formData.password,
+            role: formData.role,
+            identification: formData.identification.trim(),
+            phone: formData.phone.trim()
+          };
 
       const res = await fetch('/api/users', {
         method: 'POST',
@@ -121,6 +142,10 @@ export default function UsuariosPage() {
   };
 
   const handleToggleStatus = (user) => {
+    if (user.email === 'admin@bikekingsports.com') {
+      alert('No puedes cambiar el estado del superusuario principal.');
+      return;
+    }
     const newStatus = user.status === 'activo' ? 'inactivo' : 'activo';
     const action = newStatus === 'inactivo' ? 'desactivar' : 'activar';
     setConfirmDialog({
@@ -149,6 +174,10 @@ export default function UsuariosPage() {
   };
 
   const handleDelete = (user) => {
+    if (user.email === 'admin@bikekingsports.com') {
+      alert('El superusuario principal es imborrable.');
+      return;
+    }
     setConfirmDialog({
       open: true,
       message: `¿Eliminar permanentemente a ${user.name}? Esta acción no se puede deshacer.`,
@@ -215,8 +244,8 @@ export default function UsuariosPage() {
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
             <tr>
-              {['Nombre', 'Correo', 'Rol', 'Estado', 'Acciones'].map((h, i) => (
-                <th key={h} style={{ padding: '13px 16px', textAlign: i === 4 ? 'right' : 'left', color: '#64748b', fontWeight: 600, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              {['Nombre', 'Correo', 'Documento', 'Rol', 'Estado', 'Acciones'].map((h, i) => (
+                <th key={h} style={{ padding: '13px 16px', textAlign: i === 5 ? 'right' : 'left', color: '#64748b', fontWeight: 600, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   {h}
                 </th>
               ))}
@@ -224,16 +253,21 @@ export default function UsuariosPage() {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan="5" style={{ padding: '30px', textAlign: 'center', color: '#94a3b8' }}>Cargando usuarios...</td></tr>
+              <tr><td colSpan="6" style={{ padding: '30px', textAlign: 'center', color: '#94a3b8' }}>Cargando usuarios...</td></tr>
             ) : users.length === 0 ? (
-              <tr><td colSpan="5" style={{ padding: '30px', textAlign: 'center', color: '#94a3b8' }}>No hay usuarios registrados.</td></tr>
+              <tr><td colSpan="6" style={{ padding: '30px', textAlign: 'center', color: '#94a3b8' }}>No hay usuarios registrados.</td></tr>
             ) : users.map(user => {
               const roleMeta = ROLE_COLORS[user.role] || { bg: '#f1f5f9', text: '#475569' };
               const statusMeta = STATUS_COLORS[user.status] || STATUS_COLORS.inactivo;
+              const isSuperAdmin = user.email === 'admin@bikekingsports.com';
               return (
                 <tr key={user.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                  <td style={{ padding: '14px 16px', fontWeight: 500 }}>{user.name}</td>
+                  <td style={{ padding: '14px 16px', fontWeight: 500 }}>
+                    {user.name}
+                    {isSuperAdmin && <span style={{ marginLeft: '8px', fontSize: '0.7rem', backgroundColor: '#fef08a', color: '#854d0e', padding: '2px 6px', borderRadius: '4px' }}>SUPERADMIN</span>}
+                  </td>
                   <td style={{ padding: '14px 16px', color: '#64748b', fontSize: '0.9rem' }}>{user.email}</td>
+                  <td style={{ padding: '14px 16px', color: '#64748b', fontSize: '0.9rem' }}>{user.identification || '-'}</td>
                   <td style={{ padding: '14px 16px' }}>
                     <span style={{ padding: '3px 10px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 600, backgroundColor: roleMeta.bg, color: roleMeta.text }}>
                       {ROLE_LABELS[user.role] || user.role}
@@ -242,8 +276,9 @@ export default function UsuariosPage() {
                   <td style={{ padding: '14px 16px' }}>
                     <button
                       onClick={() => handleToggleStatus(user)}
-                      title={`Click para ${user.status === 'activo' ? 'desactivar' : 'activar'}`}
-                      style={{ padding: '3px 10px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 600, border: 'none', cursor: 'pointer', backgroundColor: statusMeta.bg, color: statusMeta.text }}
+                      disabled={isSuperAdmin}
+                      title={isSuperAdmin ? 'El superadmin no se puede desactivar' : `Click para ${user.status === 'activo' ? 'desactivar' : 'activar'}`}
+                      style={{ padding: '3px 10px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 600, border: 'none', cursor: isSuperAdmin ? 'not-allowed' : 'pointer', backgroundColor: statusMeta.bg, color: statusMeta.text, opacity: isSuperAdmin ? 0.6 : 1 }}
                     >
                       {user.status === 'activo' ? '● Activo' : '○ Inactivo'}
                     </button>
@@ -252,9 +287,11 @@ export default function UsuariosPage() {
                     <button onClick={() => openModal(user)} style={{ marginRight: '12px', color: '#3b82f6', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 500 }}>
                       Editar
                     </button>
-                    <button onClick={() => handleDelete(user)} style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 500 }}>
-                      Eliminar
-                    </button>
+                    {!isSuperAdmin && (
+                      <button onClick={() => handleDelete(user)} style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 500 }}>
+                        Eliminar
+                      </button>
+                    )}
                   </td>
                 </tr>
               );
@@ -269,7 +306,7 @@ export default function UsuariosPage() {
           style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '20px' }}
           onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}
         >
-          <div style={{ backgroundColor: 'white', padding: '32px', borderRadius: '10px', width: '100%', maxWidth: '480px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+          <div style={{ backgroundColor: 'white', padding: '32px', borderRadius: '10px', width: '100%', maxWidth: '600px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
             <h2 style={{ marginTop: 0, marginBottom: '24px', fontSize: '1.3rem', fontWeight: 700 }}>
               {isEditing ? '✏️ Editar Usuario' : '➕ Nuevo Usuario'}
             </h2>
@@ -281,41 +318,58 @@ export default function UsuariosPage() {
             )}
 
             <form onSubmit={handleSubmit}>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={labelStyle}>Nombre Completo</label>
-                <input required type="text" name="name" value={formData.name} onChange={handleChange} maxLength={100} style={inputStyle} placeholder="Juan Pérez" />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                <div>
+                  <label style={labelStyle}>Nombres y Apellidos</label>
+                  <input required type="text" name="name" value={formData.name} onChange={handleChange} maxLength={100} style={inputStyle} placeholder="Juan Pérez" />
+                </div>
+                <div>
+                  <label style={labelStyle}>Correo Electrónico</label>
+                  <input required={!isEditing} disabled={isEditing} type="email" name="email" value={formData.email} onChange={handleChange} maxLength={254} style={{ ...inputStyle, backgroundColor: isEditing ? '#f8fafc' : 'white', color: isEditing ? '#94a3b8' : 'inherit' }} placeholder="usuario@empresa.com" />
+                </div>
+                <div>
+                  <label style={labelStyle}>Documento de Identidad (Opcional)</label>
+                  <input type="text" name="identification" value={formData.identification} onChange={handleChange} maxLength={50} style={inputStyle} placeholder="Ej. 123456789" />
+                </div>
+                <div>
+                  <label style={labelStyle}>Teléfono (Opcional)</label>
+                  <input type="text" name="phone" value={formData.phone} onChange={handleChange} maxLength={50} style={inputStyle} placeholder="Ej. 3001234567" />
+                </div>
+                <div>
+                  <label style={labelStyle}>Rol</label>
+                  <select 
+                    name="role" 
+                    value={formData.role} 
+                    onChange={handleChange} 
+                    style={{...inputStyle, backgroundColor: (isEditing && currentUser?.email === 'admin@bikekingsports.com') ? '#f8fafc' : 'white'}}
+                    disabled={isEditing && currentUser?.email === 'admin@bikekingsports.com'}
+                  >
+                    <option value="ventas">Ventas</option>
+                    <option value="mecanico">Mecánico</option>
+                    <option value="admin">Administrador</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={labelStyle}>
+                    Contraseña{' '}
+                    {isEditing && <span style={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 400 }}>(Opcional)</span>}
+                  </label>
+                  <input
+                    required={!isEditing}
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    minLength={8}
+                    maxLength={128}
+                    style={inputStyle}
+                    placeholder={isEditing ? '••••••••' : 'Mínimo 8 caracteres'}
+                    autoComplete="new-password"
+                  />
+                </div>
               </div>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={labelStyle}>Correo Electrónico</label>
-                <input required={!isEditing} disabled={isEditing} type="email" name="email" value={formData.email} onChange={handleChange} maxLength={254} style={{ ...inputStyle, backgroundColor: isEditing ? '#f8fafc' : 'white', color: isEditing ? '#94a3b8' : 'inherit' }} placeholder="usuario@empresa.com" />
-              </div>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={labelStyle}>
-                  Contraseña{' '}
-                  {isEditing && <span style={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 400 }}>(dejar en blanco para no cambiar)</span>}
-                </label>
-                <input
-                  required={!isEditing}
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  minLength={8}
-                  maxLength={128}
-                  style={inputStyle}
-                  placeholder={isEditing ? '••••••••' : 'Mínimo 8 caracteres'}
-                  autoComplete="new-password"
-                />
-              </div>
-              <div style={{ marginBottom: '24px' }}>
-                <label style={labelStyle}>Rol</label>
-                <select name="role" value={formData.role} onChange={handleChange} style={inputStyle}>
-                  <option value="ventas">Ventas — Acceso a inventario y sitio web</option>
-                  <option value="mecanico">Mecánico — Acceso limitado al taller</option>
-                  <option value="admin">Administrador — Acceso total</option>
-                </select>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '24px' }}>
                 <button type="button" onClick={closeModal} style={{ padding: '10px 20px', border: '1px solid #e2e8f0', backgroundColor: 'white', borderRadius: '6px', cursor: 'pointer', fontWeight: 500 }}>
                   Cancelar
                 </button>
