@@ -11,6 +11,25 @@ const inter = Inter({
 export const metadata = {
   title: "Bike King | Pasión a Tope",
   description: "Tienda de bicicletas, repuestos, accesorios y servicio técnico especializado en Saravena, Arauca.",
+  icons: {
+    icon: '/logo.png',
+  },
+  openGraph: {
+    title: "Bike King | Pasión a Tope",
+    description: "Tienda de bicicletas, repuestos, accesorios y servicio técnico especializado en Saravena, Arauca.",
+    url: 'https://www.bikekingsports.com',
+    siteName: 'Bike King Sports',
+    images: [
+      {
+        url: 'https://www.bikekingsports.com/logo.png', // URL absoluta recomendada para WhatsApp
+        width: 800,
+        height: 800,
+        alt: 'Bike King Logo',
+      },
+    ],
+    locale: 'es_CO',
+    type: 'website',
+  },
 };
 
 export default function RootLayout({ children }) {
