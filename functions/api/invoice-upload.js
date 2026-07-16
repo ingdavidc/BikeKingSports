@@ -44,14 +44,7 @@ export async function onRequest(context) {
     const base64Data = btoa(binary);
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    
-    // Array of fallback models for 503 failover
-    const modelsToTry = [
-      'gemini-flash-latest',
-      'gemini-2.5-flash',
-      'gemini-2.0-flash',
-      'gemini-pro-latest'
-    ];
+    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
     
     const prompt = `
       Eres un asistente experto en contabilidad e inventarios. 
@@ -83,34 +76,15 @@ export async function onRequest(context) {
       }
     `;
 
-    let result = null;
-    let lastError = null;
-
-    for (const modelName of modelsToTry) {
-      try {
-        console.log(`Intentando extraer datos con el modelo: ${modelName}...`);
-        const model = genAI.getGenerativeModel({ model: modelName });
-        result = await model.generateContent([
-          prompt,
-          {
-            inlineData: {
-              mimeType: file.type || 'application/pdf',
-              data: base64Data
-            }
-          }
-        ]);
-        console.log(`¡Éxito con ${modelName}!`);
-        break; // Stop loop if successful
-      } catch (error) {
-        console.warn(`Falló el modelo ${modelName}:`, error.message);
-        lastError = error;
-        // Continue to next model in the array
+    const result = await model.generateContent([
+      prompt,
+      {
+        inlineData: {
+          mimeType: file.type || 'application/pdf',
+          data: base64Data
+        }
       }
-    }
-
-    if (!result) {
-      throw new Error(`Todos los modelos fallaron. Último error: ${lastError?.message}`);
-    }
+    ]);
 
     let extractedText = result.response.text();
     
