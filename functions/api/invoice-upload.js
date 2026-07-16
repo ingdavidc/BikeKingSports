@@ -27,8 +27,8 @@ export async function onRequest(context) {
     }
     const base64Data = btoa(binary);
 
-    // Call Gemini API (1.5 Flash) via standard fetch
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // Call Gemini API (2.5 Flash) via standard fetch
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
     
     const prompt = `
       Eres un asistente experto en contabilidad e inventarios. 
