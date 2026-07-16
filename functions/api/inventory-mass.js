@@ -59,25 +59,41 @@ export async function onRequest(context) {
 
       // Check if product exists
       if (sku) {
-        const existingBySku = await env.DB.prepare('SELECT id, stock FROM products WHERE sku = ?').bind(sku).first();
+        const existingBySku = await env.DB.prepare('SELECT id, stock, price FROM products WHERE sku = ?').bind(sku).first();
         if (existingBySku) {
           productId = existingBySku.id;
+          prod.db_price = existingBySku.price;
         }
       }
 
       if (!productId && prod.name) {
-        const existingByName = await env.DB.prepare('SELECT id, stock FROM products WHERE name = ?').bind(prod.name).first();
+        const existingByName = await env.DB.prepare('SELECT id, stock, price FROM products WHERE name = ?').bind(prod.name).first();
         if (existingByName) {
           productId = existingByName.id;
+          prod.db_price = existingByName.price;
         }
       }
 
       if (productId) {
-        // Update stock
         const quantityToAdd = Number(prod.quantity) || 0;
-        if (quantityToAdd > 0) {
-          await env.DB.prepare('UPDATE products SET stock = stock + ? WHERE id = ?')
-            .bind(quantityToAdd, productId)
+        
+        let newPrice = Number(prod.db_price) || 0;
+        const invoicePrice = Number(prod.price) || 0;
+        const priceAction = prod.priceAction || 'keep';
+
+        if (priceAction === 'overwrite') {
+          newPrice = invoicePrice;
+        } else if (priceAction === 'average') {
+          if (newPrice > 0 && invoicePrice > 0) {
+            newPrice = (newPrice + invoicePrice) / 2;
+          } else {
+            newPrice = invoicePrice || newPrice;
+          }
+        }
+
+        if (quantityToAdd > 0 || priceAction !== 'keep') {
+          await env.DB.prepare('UPDATE products SET stock = stock + ?, price = ? WHERE id = ?')
+            .bind(quantityToAdd, newPrice, productId)
             .run();
         }
       } else {

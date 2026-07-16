@@ -159,12 +159,36 @@ export default function InvoiceUploadModal({ onClose, onComplete }) {
                   <input type="text" value={providerData.document || ''} onChange={e => setProviderData({...providerData, document: e.target.value})} style={inputStyle} />
                 </div>
                 <div>
+                  <label style={labelStyle}>Persona de Contacto / Vendedor</label>
+                  <input type="text" value={providerData.contact_person || ''} onChange={e => setProviderData({...providerData, contact_person: e.target.value})} style={inputStyle} />
+                </div>
+                <div>
                   <label style={labelStyle}>Correo</label>
                   <input type="email" value={providerData.email || ''} onChange={e => setProviderData({...providerData, email: e.target.value})} style={inputStyle} />
                 </div>
                 <div>
                   <label style={labelStyle}>Teléfono</label>
                   <input type="text" value={providerData.phone || ''} onChange={e => setProviderData({...providerData, phone: e.target.value})} style={inputStyle} />
+                </div>
+                <div>
+                  <label style={labelStyle}>Página Web / Catálogo</label>
+                  <input type="text" value={providerData.website || ''} onChange={e => setProviderData({...providerData, website: e.target.value})} style={inputStyle} />
+                </div>
+                <div>
+                  <label style={labelStyle}>Dirección y Ciudad</label>
+                  <input type="text" value={providerData.address || ''} onChange={e => setProviderData({...providerData, address: e.target.value})} style={inputStyle} />
+                </div>
+                <div>
+                  <label style={labelStyle}>Categoría</label>
+                  <input type="text" value={providerData.category || ''} onChange={e => setProviderData({...providerData, category: e.target.value})} style={inputStyle} />
+                </div>
+                <div>
+                  <label style={labelStyle}>Marcas que Distribuye</label>
+                  <input type="text" value={providerData.brands || ''} onChange={e => setProviderData({...providerData, brands: e.target.value})} style={inputStyle} />
+                </div>
+                <div>
+                  <label style={labelStyle}>Condiciones de Pago</label>
+                  <input type="text" value={providerData.payment_terms || ''} onChange={e => setProviderData({...providerData, payment_terms: e.target.value})} style={inputStyle} />
                 </div>
               </div>
             </div>
@@ -176,32 +200,56 @@ export default function InvoiceUploadModal({ onClose, onComplete }) {
               </p>
               <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-                    <tr>
-                      <th style={thStyle}>Nombre del Repuesto</th>
-                      <th style={thStyle}>SKU</th>
-                      <th style={thStyle}>Cantidad</th>
-                      <th style={thStyle}>Precio Compra</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {productsData.map((prod, idx) => (
-                      <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                        <td style={{ padding: '8px' }}>
-                          <input type="text" value={prod.name || ''} onChange={e => handleProductChange(idx, 'name', e.target.value)} style={inputStyle} />
-                        </td>
-                        <td style={{ padding: '8px' }}>
-                          <input type="text" value={prod.sku || ''} onChange={e => handleProductChange(idx, 'sku', e.target.value)} style={inputStyle} />
-                        </td>
-                        <td style={{ padding: '8px' }}>
-                          <input type="number" value={prod.quantity || 0} onChange={e => handleProductChange(idx, 'quantity', e.target.value)} style={inputStyle} />
-                        </td>
-                        <td style={{ padding: '8px' }}>
-                          <input type="number" value={prod.price || 0} onChange={e => handleProductChange(idx, 'price', e.target.value)} style={inputStyle} />
-                        </td>
+                    <thead style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                      <tr>
+                        <th style={thStyle}>Estado</th>
+                        <th style={thStyle}>Nombre del Repuesto</th>
+                        <th style={thStyle}>SKU</th>
+                        <th style={thStyle}>Cantidad</th>
+                        <th style={thStyle}>Precio Compra</th>
+                        <th style={thStyle}>Decisión Precio</th>
                       </tr>
-                    ))}
-                  </tbody>
+                    </thead>
+                    <tbody>
+                      {productsData.map((prod, idx) => (
+                        <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                          <td style={{ padding: '8px', textAlign: 'center' }}>
+                            {prod.status === 'EXISTENTE' ? (
+                              <span style={{ backgroundColor: '#e0f2fe', color: '#0369a1', padding: '4px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 'bold' }}>EXISTENTE</span>
+                            ) : (
+                              <span style={{ backgroundColor: '#dcfce3', color: '#166534', padding: '4px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 'bold' }}>NUEVO</span>
+                            )}
+                          </td>
+                          <td style={{ padding: '8px' }}>
+                            <input type="text" value={prod.name || ''} onChange={e => handleProductChange(idx, 'name', e.target.value)} style={inputStyle} />
+                          </td>
+                          <td style={{ padding: '8px' }}>
+                            <input type="text" value={prod.sku || ''} onChange={e => handleProductChange(idx, 'sku', e.target.value)} style={inputStyle} />
+                          </td>
+                          <td style={{ padding: '8px' }}>
+                            <input type="number" value={prod.quantity || 0} onChange={e => handleProductChange(idx, 'quantity', e.target.value)} style={inputStyle} />
+                          </td>
+                          <td style={{ padding: '8px' }}>
+                            <input type="number" value={prod.price || 0} onChange={e => handleProductChange(idx, 'price', e.target.value)} style={inputStyle} />
+                          </td>
+                          <td style={{ padding: '8px' }}>
+                            {prod.status === 'EXISTENTE' && Number(prod.price) !== Number(prod.existing_price) ? (
+                              <select 
+                                value={prod.priceAction || 'keep'} 
+                                onChange={e => handleProductChange(idx, 'priceAction', e.target.value)} 
+                                style={{ ...inputStyle, borderColor: '#f59e0b', backgroundColor: '#fffbeb' }}
+                              >
+                                <option value="keep">Mantener actual (${prod.existing_price || 0})</option>
+                                <option value="overwrite">Actualizar a nuevo (${prod.price || 0})</option>
+                                <option value="average">Promediar</option>
+                              </select>
+                            ) : (
+                              <span style={{ fontSize: '0.85rem', color: '#64748b' }}>No aplica</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
                 </table>
               </div>
             </div>

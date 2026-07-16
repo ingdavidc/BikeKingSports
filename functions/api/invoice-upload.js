@@ -92,6 +92,27 @@ export async function onRequest(context) {
 
     const parsedJson = JSON.parse(extractedText);
 
+    // Cross-reference with DB to determine NEW vs EXISTENTE
+    if (parsedJson.products && Array.isArray(parsedJson.products)) {
+      for (let prod of parsedJson.products) {
+        let existingProduct = null;
+        if (prod.sku) {
+          existingProduct = await env.DB.prepare('SELECT id, price FROM products WHERE sku = ?').bind(prod.sku).first();
+        }
+        if (!existingProduct && prod.name) {
+          existingProduct = await env.DB.prepare('SELECT id, price FROM products WHERE name = ?').bind(prod.name).first();
+        }
+        
+        if (existingProduct) {
+          prod.status = 'EXISTENTE';
+          prod.existing_price = existingProduct.price;
+        } else {
+          prod.status = 'NUEVO';
+          prod.existing_price = 0;
+        }
+      }
+    }
+
     return Response.json({ success: true, data: parsedJson });
 
   } catch (error) {
