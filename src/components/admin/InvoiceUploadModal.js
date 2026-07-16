@@ -204,6 +204,7 @@ export default function InvoiceUploadModal({ onClose, onComplete }) {
                       <tr>
                         <th style={thStyle}>Estado</th>
                         <th style={thStyle}>Nombre del Repuesto</th>
+                        <th style={thStyle}>Categoría</th>
                         <th style={thStyle}>SKU</th>
                         <th style={thStyle}>Cantidad</th>
                         <th style={thStyle}>Precio Compra</th>
@@ -222,6 +223,9 @@ export default function InvoiceUploadModal({ onClose, onComplete }) {
                           </td>
                           <td style={{ padding: '8px' }}>
                             <input type="text" value={prod.name || ''} onChange={e => handleProductChange(idx, 'name', e.target.value)} style={inputStyle} />
+                          </td>
+                          <td style={{ padding: '8px' }}>
+                            <input type="text" value={prod.category || ''} onChange={e => handleProductChange(idx, 'category', e.target.value)} style={inputStyle} placeholder="Ej. Repuestos" />
                           </td>
                           <td style={{ padding: '8px' }}>
                             <input type="text" value={prod.sku || ''} onChange={e => handleProductChange(idx, 'sku', e.target.value)} style={inputStyle} />

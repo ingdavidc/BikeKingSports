@@ -91,10 +91,19 @@ export async function onRequest(context) {
           }
         }
 
-        if (quantityToAdd > 0 || priceAction !== 'keep') {
-          await env.DB.prepare('UPDATE products SET stock = stock + ?, price = ? WHERE id = ?')
-            .bind(quantityToAdd, newPrice, productId)
-            .run();
+        if (quantityToAdd > 0 || priceAction !== 'keep' || prod.category) {
+          const catUpdate = prod.category ? ', category = ?' : '';
+          const query = `UPDATE products SET stock = stock + ?, price = ?${catUpdate} WHERE id = ?`;
+          
+          if (prod.category) {
+            await env.DB.prepare(query)
+              .bind(quantityToAdd, newPrice, prod.category, productId)
+              .run();
+          } else {
+            await env.DB.prepare(query)
+              .bind(quantityToAdd, newPrice, productId)
+              .run();
+          }
         }
       } else {
         // Create new product
@@ -106,7 +115,7 @@ export async function onRequest(context) {
           .bind(
             productId, 
             prod.name, 
-            'General', 
+            prod.category || 'General', 
             sku, 
             prod.price || 0, 
             prod.quantity || 0, 
