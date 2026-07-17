@@ -103,7 +103,7 @@ export async function onRequest(context) {
         
         let newPrice = Number(prod.db_price) || 0;
         const invoicePrice = Number(prod.price) || 0;
-        const priceAction = prod.priceAction || 'keep';
+        const priceAction = prod.priceAction || 'overwrite'; // Changed from keep to overwrite per user request
 
         if (priceAction === 'overwrite') {
           newPrice = invoicePrice;

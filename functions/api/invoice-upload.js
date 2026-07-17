@@ -107,9 +107,11 @@ export async function onRequest(context) {
         if (existingProduct) {
           prod.status = 'EXISTENTE';
           prod.existing_price = existingProduct.price;
+          prod.priceAction = 'overwrite'; // Default to updating to the new price
         } else {
           prod.status = 'NUEVO';
           prod.existing_price = 0;
+          prod.priceAction = 'overwrite'; // Even though it's not used in UI for NEW, good for consistency
         }
       }
     }

@@ -245,12 +245,12 @@ export default function InvoiceUploadModal({ onClose, onComplete }) {
                           <td style={{ padding: '8px', minWidth: '180px' }}>
                             {prod.status === 'EXISTENTE' && Number(prod.price) !== Number(prod.existing_price) ? (
                               <select 
-                                value={prod.priceAction || 'keep'} 
+                                value={prod.priceAction || 'overwrite'} 
                                 onChange={e => handleProductChange(idx, 'priceAction', e.target.value)} 
                                 style={{ ...inputStyle, borderColor: '#f59e0b', backgroundColor: '#fffbeb' }}
                               >
-                                <option value="keep">Mantener actual (${prod.existing_price || 0})</option>
                                 <option value="overwrite">Actualizar a nuevo (${prod.price || 0})</option>
+                                <option value="keep">Mantener actual (${prod.existing_price || 0})</option>
                                 <option value="average">Promediar</option>
                               </select>
                             ) : (
