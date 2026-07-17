@@ -6,6 +6,30 @@ export async function onRequest(context) {
   }
 
   try {
+    // Auto-create missing tables on the fly
+    await env.DB.prepare(`
+      CREATE TABLE IF NOT EXISTS product_providers (
+          id TEXT PRIMARY KEY,
+          product_id TEXT NOT NULL,
+          provider_id TEXT NOT NULL,
+          is_main BOOLEAN DEFAULT 0,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+          FOREIGN KEY (provider_id) REFERENCES providers(id) ON DELETE CASCADE
+      )
+    `).run();
+
+    await env.DB.prepare(`
+      CREATE TABLE IF NOT EXISTS purchase_invoices (
+          id TEXT PRIMARY KEY,
+          provider_id TEXT NOT NULL,
+          invoice_number TEXT,
+          total_amount REAL,
+          date DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (provider_id) REFERENCES providers(id)
+      )
+    `).run();
+
     const { provider, products } = await request.json();
 
     if (!provider || !provider.name) {
