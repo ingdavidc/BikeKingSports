@@ -110,9 +110,8 @@ export default function ProductModal({ onClose, onSave, initialData }) {
   };
 
   // Auto-calculate suggested price (just visual for now)
-  const suggestedPrice = Math.round(
-    parseFloat(formData.cost || 0) * (1 + parseFloat(formData.utilityPercent || 0) / 100) * (1 + parseFloat(formData.tax_rate || 0) / 100)
-  );
+  const rawPrice = parseFloat(formData.cost || 0) * (1 + parseFloat(formData.utilityPercent || 0) / 100) * (1 + parseFloat(formData.tax_rate || 0) / 100);
+  const suggestedPrice = rawPrice > 0 ? Math.ceil(rawPrice / 1000) * 1000 : 0;
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -121,7 +120,11 @@ export default function ProductModal({ onClose, onSave, initialData }) {
       setActiveTab(1);
       return;
     }
-    onSave(formData);
+    const finalData = { ...formData };
+    if (!finalData.price) {
+      finalData.price = suggestedPrice;
+    }
+    onSave(finalData);
   };
 
   const tabs = [
@@ -210,12 +213,24 @@ export default function ProductModal({ onClose, onSave, initialData }) {
                   </div>
                   <div>
                     <label style={labelStyle}>Categoría / Familia *</label>
-                    <select required name="category" value={formData.category} onChange={handleChange} style={inputStyle}>
-                      <option value="">Seleccione Categoría...</option>
-                      <option value="General">General</option>
-                      <option value="Accesorios">Accesorios</option>
-                      <option value="Repuestos">Repuestos</option>
-                    </select>
+                    <input 
+                      type="text" 
+                      required 
+                      name="category" 
+                      value={formData.category} 
+                      onChange={handleChange} 
+                      style={inputStyle} 
+                      placeholder="Ej. Accesorios, Repuestos..." 
+                      list="categoryList"
+                    />
+                    <datalist id="categoryList">
+                      <option value="General" />
+                      <option value="Accesorios" />
+                      <option value="Repuestos" />
+                      <option value="Bicicletas" />
+                      <option value="Vestuario" />
+                      <option value="Herramientas" />
+                    </datalist>
                   </div>
                 </div>
                 <div style={{ marginBottom: '20px' }}>

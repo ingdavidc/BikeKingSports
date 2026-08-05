@@ -66,7 +66,7 @@ export async function onRequest(context) {
         "products": [
           {
             "name": "Nombre del Repuesto",
-            "category": "Categoría sugerida (Ej. Repuestos, Accesorios, Bicicletas, Herramientas, Vestuario)",
+            "category": "Asigna una categoría específica. Si las comunes no aplican, INVENTA una nueva categoría específica y lógica para el producto (ej. Llantas, Frenos, Transmisión, Suspensión, etc.)",
             "sku": "Código de Barras o SKU (opcional)",
             "quantity": 10,
             "price": 50000,
