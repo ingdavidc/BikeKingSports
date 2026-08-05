@@ -145,18 +145,28 @@ export default function Home() {
         <div className={styles.grid}>
           <div className={styles.card}>
             <div className={styles.cardIcon}>🚲</div>
-            <h3>Venta de Bicicletas</h3>
-            <p>Encuentra las mejores marcas en bicicletas de MTB y Ruta para todos los niveles.</p>
-          </div>
-          <div className={styles.card}>
-            <div className={styles.cardIcon}>🔧</div>
-            <h3>Servicio Técnico Especializado</h3>
-            <p>Mantenimiento preventivo y correctivo con mecánicos expertos y herramienta profesional.</p>
+            <h3>Bicicletas</h3>
+            <p>Encuentra las mejores marcas en bicicletas para todos los niveles y disciplinas.</p>
           </div>
           <div className={styles.card}>
             <div className={styles.cardIcon}>⚙️</div>
-            <h3>Repuestos y Accesorios</h3>
-            <p>Todo lo que necesitas para mejorar tu rendimiento y rodar seguro.</p>
+            <h3>Componentes</h3>
+            <p>Repuestos y partes de alta calidad para optimizar el rendimiento de tu bicicleta.</p>
+          </div>
+          <div className={styles.card}>
+            <div className={styles.cardIcon}>🎒</div>
+            <h3>Accesorios</h3>
+            <p>Todo lo que necesitas como complemento ideal para rodar seguro y preparado.</p>
+          </div>
+          <div className={styles.card}>
+            <div className={styles.cardIcon}>👕</div>
+            <h3>Ropa</h3>
+            <p>Indumentaria técnica, cómoda y aerodinámica diseñada para ciclistas.</p>
+          </div>
+          <div className={styles.card}>
+            <div className={styles.cardIcon}>🏋️</div>
+            <h3>Gym</h3>
+            <p>Equipos y accesorios para potenciar tu entrenamiento físico y gimnasio en casa.</p>
           </div>
         </div>
       </section>
