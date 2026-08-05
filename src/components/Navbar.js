@@ -19,6 +19,7 @@ export default function Navbar() {
             <Link href="/" className={styles.navLink}>Inicio</Link>
             <Link href="/tienda" className={styles.navLink}>Tienda</Link>
             <Link href="/servicios" className={styles.navLink}>Taller</Link>
+            <Link href="/tienda?ofertas=true" className={`${styles.navLink} ${styles.ofertasLink}`}>Super Ofertas</Link>
             <Link href="/carrito" className={styles.navLink}>
               🛒 Carrito {cartCount > 0 && <span className={styles.cartBadge}>{cartCount}</span>}
             </Link>
