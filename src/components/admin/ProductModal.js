@@ -66,9 +66,7 @@ export default function ProductModal({ onClose, onSave, initialData }) {
     if (!imageQuery) return;
     setSearching(true);
     try {
-      // Se añade sufijo de contexto para que Bing devuelva partes de bicicleta en vez de imágenes aleatorias o literales
-      const contextualQuery = `${imageQuery} bicicleta bike`;
-      const res = await fetch(`/api/image-search?q=${encodeURIComponent(contextualQuery)}`);
+      const res = await fetch(`/api/image-search?q=${encodeURIComponent(imageQuery)}`);
       const data = await res.json();
       if (data.success) {
         setSearchResults(data.images);
