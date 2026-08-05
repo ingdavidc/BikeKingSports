@@ -26,11 +26,30 @@ export default function Tienda() {
     fetchProducts();
   }, []);
 
-  const categories = ['Todos', ...new Set(products.map(p => p.category).filter(Boolean))];
+  const MAIN_CATEGORIES = ['Bicicletas', 'Componentes', 'Accesorios', 'Ropa', 'Gym'];
+
+  // Helper to map DB subcategories to the 5 main UI categories
+  const mapToMainCategory = (dbCategory) => {
+    if (!dbCategory) return 'Otros';
+    const cat = dbCategory.toLowerCase();
+    
+    if (cat.includes('bici')) return 'Bicicletas';
+    if (['transmisión', 'transmision', 'eje', 'sillin', 'sillín', 'manubrio', 'dirección', 'direccion', 'general', 'componente'].some(k => cat.includes(k))) return 'Componentes';
+    if (['accesorio', 'luz', 'casco', 'botella'].some(k => cat.includes(k))) return 'Accesorios';
+    if (['ropa', 'jersey', 'zapatilla', 'guante'].some(k => cat.includes(k))) return 'Ropa';
+    if (['gym', 'pesa', 'banda'].some(k => cat.includes(k))) return 'Gym';
+    
+    return dbCategory; // fallback
+  };
+
+  const categories = ['Todos', ...MAIN_CATEGORIES];
 
   const filteredProducts = filter === 'Todos' 
     ? products 
-    : products.filter(p => p.category === filter);
+    : products.filter(p => {
+        const mainCat = mapToMainCategory(p.category);
+        return mainCat === filter || p.category === filter;
+      });
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(price);
