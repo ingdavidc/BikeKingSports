@@ -397,8 +397,9 @@ export default function ProductModal({ onClose, onSave, initialData }) {
                          }
                        }
                      `}</style>
-                     <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#1e293b', marginBottom: '4px' }}>BIKEKING</div>
-                     <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '5px' }}>{formData.name || 'Nuevo Producto'}</div>
+                     <img src="/logo.png" alt="Logo" style={{ height: '35px', objectFit: 'contain', marginBottom: '8px' }} />
+                     <div style={{ fontSize: '15px', fontWeight: 'bold', marginBottom: '2px' }}>{formData.name || 'Nuevo Producto'}</div>
+                     <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '8px', color: '#1e293b' }}>Precio: ${(formData.price || suggestedPrice).toLocaleString()}</div>
                      <Barcode value={formData.sku} height={50} fontSize={14} />
                   </div>
                 ) : (
