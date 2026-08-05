@@ -18,12 +18,7 @@ export default function ProductModal({ onClose, onSave, initialData }) {
       });
   }, []);
 
-  // Auto-fill image query when reaching tab 4
-  useEffect(() => {
-    if (activeTab === 4 && formData.name && !imageQuery) {
-      setImageQuery(formData.name);
-    }
-  }, [activeTab, formData.name, imageQuery]);
+
 
   const [formData, setFormData] = useState({
     // Tab 1
@@ -59,6 +54,13 @@ export default function ProductModal({ onClose, onSave, initialData }) {
   const [imageQuery, setImageQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [searching, setSearching] = useState(false);
+
+  // Auto-fill image query when reaching tab 4
+  useEffect(() => {
+    if (activeTab === 4 && formData.name && !imageQuery) {
+      setImageQuery(formData.name);
+    }
+  }, [activeTab, formData.name, imageQuery]);
 
   const searchImage = async () => {
     if (!imageQuery) return;
