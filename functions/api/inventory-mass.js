@@ -202,7 +202,8 @@ export async function onRequest(context) {
             .bind(crypto.randomUUID(), productId, providerId, isNew ? 1 : 0)
             .run();
         } catch (e) {
-          throw new Error(`Error al insertar relación producto-proveedor (${prod.name}): ` + e.message);
+          console.warn(`Error al insertar relación producto-proveedor (${prod.name}) [prod: ${productId}, prov: ${providerId}]: ` + e.message);
+          // Don't throw, let the invoice processing continue so it doesn't crash the whole operation
         }
       }
     }
