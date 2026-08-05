@@ -18,6 +18,13 @@ export default function ProductModal({ onClose, onSave, initialData }) {
       });
   }, []);
 
+  // Auto-fill image query when reaching tab 4
+  useEffect(() => {
+    if (activeTab === 4 && formData.name && !imageQuery) {
+      setImageQuery(formData.name);
+    }
+  }, [activeTab, formData.name, imageQuery]);
+
   const [formData, setFormData] = useState({
     // Tab 1
     name: initialData?.name || '',
@@ -57,7 +64,9 @@ export default function ProductModal({ onClose, onSave, initialData }) {
     if (!imageQuery) return;
     setSearching(true);
     try {
-      const res = await fetch(`/api/image-search?q=${encodeURIComponent(imageQuery)}`);
+      // Se añade sufijo de contexto para que Bing devuelva partes de bicicleta en vez de imágenes aleatorias o literales
+      const contextualQuery = `${imageQuery} bicicleta bike`;
+      const res = await fetch(`/api/image-search?q=${encodeURIComponent(contextualQuery)}`);
       const data = await res.json();
       if (data.success) {
         setSearchResults(data.images);
