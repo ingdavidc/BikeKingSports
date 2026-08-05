@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import ProductModal from '@/components/admin/ProductModal';
 import ProviderModal from '@/components/admin/ProviderModal';
 import InvoiceUploadModal from '@/components/admin/InvoiceUploadModal';
@@ -15,6 +15,7 @@ export default function InventarioPage() {
   
   const [isProviderModalOpen, setIsProviderModalOpen] = useState(false);
   const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
   const fetchInventory = async () => {
     setLoading(true);
@@ -33,6 +34,39 @@ export default function InventarioPage() {
   useEffect(() => {
     fetchInventory();
   }, [search]);
+
+  const sortedItems = useMemo(() => {
+    let sortableItems = [...items];
+    if (sortConfig.key) {
+      sortableItems.sort((a, b) => {
+        let aValue = a[sortConfig.key];
+        let bValue = b[sortConfig.key];
+        
+        if (aValue == null) aValue = '';
+        if (bValue == null) bValue = '';
+        
+        if (typeof aValue === 'string') aValue = aValue.toLowerCase();
+        if (typeof bValue === 'string') bValue = bValue.toLowerCase();
+
+        if (aValue < bValue) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableItems;
+  }, [items, sortConfig]);
+
+  const requestSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
 
   const handleEditClick = (item) => {
     setModalData(item);
@@ -149,17 +183,29 @@ export default function InventarioPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                <th style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600 }}>CÓDIGO</th>
-                <th style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600 }}>DESCRIPCIÓN</th>
-                <th style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600 }}>STOCK</th>
-                <th style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600 }}>COSTO</th>
-                <th style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600 }}>PRECIO (PVP)</th>
-                <th style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600 }}>PROVEEDOR</th>
+                <th onClick={() => requestSort('sku')} style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600, cursor: 'pointer', userSelect: 'none' }}>
+                  CÓDIGO {sortConfig.key === 'sku' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
+                </th>
+                <th onClick={() => requestSort('name')} style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600, cursor: 'pointer', userSelect: 'none' }}>
+                  DESCRIPCIÓN {sortConfig.key === 'name' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
+                </th>
+                <th onClick={() => requestSort('stock')} style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600, cursor: 'pointer', userSelect: 'none' }}>
+                  STOCK {sortConfig.key === 'stock' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
+                </th>
+                <th onClick={() => requestSort('cost')} style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600, cursor: 'pointer', userSelect: 'none' }}>
+                  COSTO {sortConfig.key === 'cost' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
+                </th>
+                <th onClick={() => requestSort('price')} style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600, cursor: 'pointer', userSelect: 'none' }}>
+                  PRECIO (PVP) {sortConfig.key === 'price' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
+                </th>
+                <th onClick={() => requestSort('provider_name')} style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600, cursor: 'pointer', userSelect: 'none' }}>
+                  PROVEEDOR {sortConfig.key === 'provider_name' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
+                </th>
                 <th style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600 }}>ACCIONES</th>
               </tr>
             </thead>
             <tbody>
-              {items.map(item => (
+              {sortedItems.map(item => (
                 <tr key={item.id} style={{ borderBottom: '1px solid #e2e8f0', color: '#334155' }}>
                   <td style={{ padding: '12px 16px', fontWeight: 500 }}>
                     {item.sku || '-'}

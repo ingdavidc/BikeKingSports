@@ -127,19 +127,19 @@ export async function onRequest(context) {
       for (let prod of parsedJson.products) {
         let existingProduct = null;
         if (prod.sku) {
-          existingProduct = await env.DB.prepare('SELECT id, price FROM products WHERE sku = ?').bind(prod.sku).first();
+          existingProduct = await env.DB.prepare('SELECT id, cost FROM products WHERE sku = ?').bind(prod.sku).first();
         }
         if (!existingProduct && prod.name) {
-          existingProduct = await env.DB.prepare('SELECT id, price FROM products WHERE name = ?').bind(prod.name).first();
+          existingProduct = await env.DB.prepare('SELECT id, cost FROM products WHERE name = ?').bind(prod.name).first();
         }
         
         if (existingProduct) {
           prod.status = 'EXISTENTE';
-          prod.existing_price = existingProduct.price;
+          prod.existing_cost = existingProduct.cost;
           prod.priceAction = 'overwrite'; // Default to updating to the new price
         } else {
           prod.status = 'NUEVO';
-          prod.existing_price = 0;
+          prod.existing_cost = 0;
           prod.priceAction = 'overwrite'; // Even though it's not used in UI for NEW, good for consistency
         }
       }

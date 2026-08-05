@@ -234,7 +234,7 @@ export default function InvoiceUploadModal({ onClose, onComplete }) {
                         <th style={thStyle}>SKU</th>
                         <th style={thStyle}>Cantidad</th>
                         <th style={thStyle}>Precio Compra</th>
-                        <th style={thStyle}>Decisión Precio</th>
+                        <th style={thStyle}>Decisión de Costo</th>
                         <th style={thStyle}>Acción</th>
                       </tr>
                     </thead>
@@ -264,14 +264,14 @@ export default function InvoiceUploadModal({ onClose, onComplete }) {
                             <input type="number" value={prod.price || 0} onChange={e => handleProductChange(idx, 'price', e.target.value)} style={{ ...inputStyle, minWidth: '100px' }} />
                           </td>
                           <td style={{ padding: '8px', minWidth: '180px' }}>
-                            {prod.status === 'EXISTENTE' && Number(prod.price) !== Number(prod.existing_price) ? (
+                            {prod.status === 'EXISTENTE' && Number(prod.price) !== Number(prod.existing_cost) ? (
                               <select 
                                 value={prod.priceAction || 'overwrite'} 
                                 onChange={e => handleProductChange(idx, 'priceAction', e.target.value)} 
                                 style={{ ...inputStyle, borderColor: '#f59e0b', backgroundColor: '#fffbeb' }}
                               >
                                 <option value="overwrite">Actualizar a nuevo (${prod.price || 0})</option>
-                                <option value="keep">Mantener actual (${prod.existing_price || 0})</option>
+                                <option value="keep">Mantener actual (${prod.existing_cost || 0})</option>
                                 <option value="average">Promediar</option>
                               </select>
                             ) : (

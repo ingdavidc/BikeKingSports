@@ -90,37 +90,47 @@ export async function onRequest(context) {
 
       // Check if product exists
       if (sku) {
-        const existingBySku = await env.DB.prepare('SELECT id, stock, price FROM products WHERE sku = ?').bind(sku).first();
+        const existingBySku = await env.DB.prepare('SELECT id, stock, cost, profit_margin, tax FROM products WHERE sku = ?').bind(sku).first();
         if (existingBySku) {
           productId = existingBySku.id;
-          prod.db_price = existingBySku.price;
+          prod.db_cost = existingBySku.cost;
+          prod.db_profit_margin = existingBySku.profit_margin || 30;
+          prod.db_tax = existingBySku.tax || 19;
         }
       }
 
       if (!productId && prod.name) {
-        const existingByName = await env.DB.prepare('SELECT id, stock, price FROM products WHERE name = ?').bind(prod.name).first();
+        const existingByName = await env.DB.prepare('SELECT id, stock, cost, profit_margin, tax FROM products WHERE name = ?').bind(prod.name).first();
         if (existingByName) {
           productId = existingByName.id;
-          prod.db_price = existingByName.price;
+          prod.db_cost = existingByName.cost;
+          prod.db_profit_margin = existingByName.profit_margin || 30;
+          prod.db_tax = existingByName.tax || 19;
         }
       }
 
       if (productId) {
         const quantityToAdd = Number(prod.quantity) || 0;
         
-        let newPrice = Number(prod.db_price) || 0;
-        const invoicePrice = Number(prod.price) || 0;
+        let newCost = Number(prod.db_cost) || 0;
+        const invoiceCost = Number(prod.price) || 0;
         const priceAction = prod.priceAction || 'overwrite'; // Changed from keep to overwrite per user request
 
         if (priceAction === 'overwrite') {
-          newPrice = invoicePrice;
+          newCost = invoiceCost;
         } else if (priceAction === 'average') {
-          if (newPrice > 0 && invoicePrice > 0) {
-            newPrice = (newPrice + invoicePrice) / 2;
+          if (newCost > 0 && invoiceCost > 0) {
+            newCost = (newCost + invoiceCost) / 2;
           } else {
-            newPrice = invoicePrice || newPrice;
+            newCost = invoiceCost || newCost;
           }
         }
+
+        // Auto-calculate new PVP
+        const margin = prod.db_profit_margin || 30;
+        const tax = prod.db_tax || 19;
+        const rawPvp = newCost * (1 + margin / 100) * (1 + tax / 100);
+        const newPvp = rawPvp > 0 ? Math.ceil(rawPvp / 1000) * 1000 : 0;
 
         if (quantityToAdd > 0 || priceAction !== 'keep' || prod.category) {
           // Sanitize potential empty string foreign keys that violate constraints on UPDATE
@@ -132,16 +142,16 @@ export async function onRequest(context) {
           }
 
           const catUpdate = prod.category ? ', category = ?' : '';
-          const query = `UPDATE products SET stock = stock + ?, price = ?${catUpdate} WHERE id = ?`;
+          const query = `UPDATE products SET stock = stock + ?, cost = ?, price = ?${catUpdate} WHERE id = ?`;
           
           try {
             if (prod.category) {
               await env.DB.prepare(query)
-                .bind(quantityToAdd, newPrice, prod.category, productId)
+                .bind(quantityToAdd, newCost, newPvp, prod.category, productId)
                 .run();
             } else {
               await env.DB.prepare(query)
-                .bind(quantityToAdd, newPrice, productId)
+                .bind(quantityToAdd, newCost, newPvp, productId)
                 .run();
             }
           } catch (e) {
@@ -152,18 +162,25 @@ export async function onRequest(context) {
         // Create new product
         productId = crypto.randomUUID();
         isNew = true;
+        
+        const invoiceCost = Number(prod.price) || 0;
+        const tax = Number(prod.tax) || 19;
+        const rawPvp = invoiceCost * (1 + 30 / 100) * (1 + tax / 100);
+        const newPvp = rawPvp > 0 ? Math.ceil(rawPvp / 1000) * 1000 : 0;
+
         try {
           await env.DB.prepare(
-            'INSERT INTO products (id, name, category, sku, price, stock, tax) VALUES (?, ?, ?, ?, ?, ?, ?)'
+            'INSERT INTO products (id, name, category, sku, cost, price, stock, tax) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
           )
             .bind(
               productId, 
               prod.name, 
               prod.category || 'General', 
               sku, 
-              prod.price || 0, 
+              invoiceCost, 
+              newPvp,
               prod.quantity || 0, 
-              prod.tax || 0
+              tax
             )
             .run();
         } catch (e) {
