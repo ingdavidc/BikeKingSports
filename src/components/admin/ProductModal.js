@@ -185,7 +185,17 @@ export default function ProductModal({ onClose, onSave, initialData }) {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
                   <div>
                     <label style={labelStyle}>SKU o Código de Barras *</label>
-                    <input required name="sku" value={formData.sku} onChange={handleChange} style={inputStyle} placeholder="Ej: PRO-BRK-20A" />
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '6px' }}>
+                      <input required name="sku" value={formData.sku} onChange={handleChange} style={{ ...inputStyle, marginTop: 0 }} placeholder="Ej: PRO-BRK-20A" />
+                      <button 
+                        type="button" 
+                        onClick={() => setFormData(prev => ({...prev, sku: `BK-${Math.floor(100000 + Math.random() * 900000)}`}))} 
+                        style={{ padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0f172a' }} 
+                        title="Generar Código Automático"
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                      </button>
+                    </div>
                   </div>
                   <div>
                     <label style={labelStyle}>Categoría / Familia *</label>
@@ -363,8 +373,24 @@ export default function ProductModal({ onClose, onSave, initialData }) {
                 <p style={{ color: '#64748b', marginBottom: '20px' }}>Este código está basado en el SKU del producto: <strong>{formData.sku || 'N/A'}</strong></p>
                 
                 {formData.sku ? (
-                  <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '20px' }}>
-                     <Barcode value={formData.sku} />
+                  <div id="print-barcode-container" style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                     <style>{`
+                       @media print {
+                         body * { visibility: hidden !important; }
+                         #print-barcode-container, #print-barcode-container * { visibility: visible !important; }
+                         #print-barcode-container {
+                           position: absolute;
+                           left: 50%;
+                           top: 50px;
+                           transform: translateX(-50%);
+                           border: none !important;
+                           padding: 0 !important;
+                         }
+                       }
+                     `}</style>
+                     <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#1e293b', marginBottom: '4px' }}>BIKEKING</div>
+                     <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '5px' }}>{formData.name || 'Nuevo Producto'}</div>
+                     <Barcode value={formData.sku} height={50} fontSize={14} />
                   </div>
                 ) : (
                   <div style={{ padding: '20px', backgroundColor: '#fee2e2', color: '#991b1b', borderRadius: '8px', marginBottom: '20px' }}>
