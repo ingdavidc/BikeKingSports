@@ -123,6 +123,14 @@ export async function onRequest(context) {
         }
 
         if (quantityToAdd > 0 || priceAction !== 'keep' || prod.category) {
+          // Sanitize potential empty string foreign keys that violate constraints on UPDATE
+          try {
+            await env.DB.prepare("UPDATE products SET supplier_id = NULL WHERE id = ? AND supplier_id = ''").bind(productId).run();
+            await env.DB.prepare("UPDATE products SET alt_supplier_id = NULL WHERE id = ? AND alt_supplier_id = ''").bind(productId).run();
+          } catch (e) {
+            console.warn("Sanitization warning:", e.message);
+          }
+
           const catUpdate = prod.category ? ', category = ?' : '';
           const query = `UPDATE products SET stock = stock + ?, price = ?${catUpdate} WHERE id = ?`;
           
