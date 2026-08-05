@@ -119,6 +119,11 @@ export default function ProductModal({ onClose, onSave, initialData }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!formData.name || !formData.sku) {
+      alert("El Nombre y el SKU o Código de Barras son obligatorios. Por favor revisa la Pestaña 1.");
+      setActiveTab(1);
+      return;
+    }
     onSave(formData);
   };
 
@@ -417,7 +422,7 @@ export default function ProductModal({ onClose, onSave, initialData }) {
         </div>
 
         {/* Footer */}
-        <div style={{ padding: '20px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ padding: '20px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
           <div>
             {activeTab > 1 && (
               <button 
@@ -429,7 +434,7 @@ export default function ProductModal({ onClose, onSave, initialData }) {
               </button>
             )}
           </div>
-          <div style={{ display: 'flex', gap: '15px' }}>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
             <button 
               type="button"
               onClick={onClose}
@@ -437,23 +442,22 @@ export default function ProductModal({ onClose, onSave, initialData }) {
             >
               Cancelar
             </button>
-            {activeTab < 6 ? (
+            {activeTab < 6 && (
               <button 
                 type="button"
                 onClick={() => setActiveTab(prev => prev + 1)}
-                style={{ padding: '10px 20px', backgroundColor: '#1e293b', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
+                style={{ padding: '10px 20px', backgroundColor: '#e2e8f0', color: '#1e293b', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
               >
-                Siguiente Pestaña
-              </button>
-            ) : (
-              <button 
-                form="productForm"
-                type="submit"
-                style={{ padding: '10px 20px', backgroundColor: '#1e293b', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}
-              >
-                💾 Guardar Producto Final
+                Siguiente
               </button>
             )}
+            <button 
+              form="productForm"
+              type="submit"
+              style={{ padding: '10px 20px', backgroundColor: '#1e293b', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}
+            >
+              💾 Guardar Producto
+            </button>
           </div>
         </div>
       </div>
