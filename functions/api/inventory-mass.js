@@ -44,7 +44,6 @@ export async function onRequest(context) {
 
     // Check if provider exists by document or name, or create
     if (!providerId) {
-      // Intentar buscar proveedor existente
       let existingProvider = null;
       if (provider.document) {
         existingProvider = await env.DB.prepare('SELECT id FROM providers WHERE document = ?').bind(provider.document).first();
@@ -57,11 +56,15 @@ export async function onRequest(context) {
         providerId = existingProvider.id;
       } else {
         providerId = crypto.randomUUID();
-        await env.DB.prepare(
-          'INSERT INTO providers (id, name, document, email, phone) VALUES (?, ?, ?, ?, ?)'
-        )
-          .bind(providerId, provider.name, provider.document || '', provider.email || '', provider.phone || '')
-          .run();
+        try {
+          await env.DB.prepare(
+            'INSERT INTO providers (id, name, document, email, phone) VALUES (?, ?, ?, ?, ?)'
+          )
+            .bind(providerId, provider.name, provider.document || '', provider.email || '', provider.phone || '')
+            .run();
+        } catch (e) {
+          throw new Error('Error al insertar proveedor: ' + e.message);
+        }
       }
     }
 
@@ -69,11 +72,15 @@ export async function onRequest(context) {
     const invoiceId = crypto.randomUUID();
     const totalAmount = products.reduce((acc, p) => acc + (Number(p.price || 0) * Number(p.quantity || 1)), 0);
     
-    await env.DB.prepare(
-      'INSERT INTO purchase_invoices (id, provider_id, invoice_number, total_amount) VALUES (?, ?, ?, ?)'
-    )
-      .bind(invoiceId, providerId, provider.invoice_number || '', totalAmount)
-      .run();
+    try {
+      await env.DB.prepare(
+        'INSERT INTO purchase_invoices (id, provider_id, invoice_number, total_amount) VALUES (?, ?, ?, ?)'
+      )
+        .bind(invoiceId, providerId, provider.invoice_number || '', totalAmount)
+        .run();
+    } catch (e) {
+      throw new Error('Error al insertar factura: ' + e.message);
+    }
 
     // Process products
     for (const prod of products) {
@@ -119,33 +126,41 @@ export async function onRequest(context) {
           const catUpdate = prod.category ? ', category = ?' : '';
           const query = `UPDATE products SET stock = stock + ?, price = ?${catUpdate} WHERE id = ?`;
           
-          if (prod.category) {
-            await env.DB.prepare(query)
-              .bind(quantityToAdd, newPrice, prod.category, productId)
-              .run();
-          } else {
-            await env.DB.prepare(query)
-              .bind(quantityToAdd, newPrice, productId)
-              .run();
+          try {
+            if (prod.category) {
+              await env.DB.prepare(query)
+                .bind(quantityToAdd, newPrice, prod.category, productId)
+                .run();
+            } else {
+              await env.DB.prepare(query)
+                .bind(quantityToAdd, newPrice, productId)
+                .run();
+            }
+          } catch (e) {
+            throw new Error(`Error al actualizar producto (${prod.name}): ` + e.message);
           }
         }
       } else {
         // Create new product
         productId = crypto.randomUUID();
         isNew = true;
-        await env.DB.prepare(
-          'INSERT INTO products (id, name, category, sku, price, stock, tax) VALUES (?, ?, ?, ?, ?, ?, ?)'
-        )
-          .bind(
-            productId, 
-            prod.name, 
-            prod.category || 'General', 
-            sku, 
-            prod.price || 0, 
-            prod.quantity || 0, 
-            prod.tax || 0
+        try {
+          await env.DB.prepare(
+            'INSERT INTO products (id, name, category, sku, price, stock, tax) VALUES (?, ?, ?, ?, ?, ?, ?)'
           )
-          .run();
+            .bind(
+              productId, 
+              prod.name, 
+              prod.category || 'General', 
+              sku, 
+              prod.price || 0, 
+              prod.quantity || 0, 
+              prod.tax || 0
+            )
+            .run();
+        } catch (e) {
+          throw new Error(`Error al insertar nuevo producto (${prod.name}): ` + e.message);
+        }
       }
 
       // Check if relationship product_providers exists, if not, create it
@@ -154,12 +169,16 @@ export async function onRequest(context) {
         .first();
 
       if (!relation) {
-        // Si es producto nuevo, este es su proveedor principal
-        await env.DB.prepare(
-          'INSERT INTO product_providers (id, product_id, provider_id, is_main) VALUES (?, ?, ?, ?)'
-        )
-          .bind(crypto.randomUUID(), productId, providerId, isNew ? 1 : 0)
-          .run();
+        try {
+          // Si es producto nuevo, este es su proveedor principal
+          await env.DB.prepare(
+            'INSERT INTO product_providers (id, product_id, provider_id, is_main) VALUES (?, ?, ?, ?)'
+          )
+            .bind(crypto.randomUUID(), productId, providerId, isNew ? 1 : 0)
+            .run();
+        } catch (e) {
+          throw new Error(`Error al insertar relación producto-proveedor (${prod.name}): ` + e.message);
+        }
       }
     }
 
