@@ -11,12 +11,6 @@ export default function PromoPopup() {
   const router = useRouter();
 
   useEffect(() => {
-    // Check if user has already closed it today
-    const closedPromo = localStorage.getItem('promo_closed_date');
-    const today = new Date().toDateString();
-    
-    if (closedPromo === today) return;
-
     const fetchPromo = async () => {
       try {
         const res = await fetch('/api/store/products?promo=true');
@@ -39,7 +33,6 @@ export default function PromoPopup() {
 
   const handleClose = () => {
     setIsVisible(false);
-    localStorage.setItem('promo_closed_date', new Date().toDateString());
   };
 
   const handleAddToCart = () => {
