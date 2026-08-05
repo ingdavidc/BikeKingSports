@@ -51,6 +51,9 @@ export default function ProductModal({ onClose, onSave, initialData }) {
   };
 
   // --- IMAGES ---
+  const [searchResults, setSearchResults] = useState([]);
+  const [searching, setSearching] = useState(false);
+
   const searchImage = async () => {
     const q = `${formData.name || ''} ${formData.brand || ''} ${formData.sku || ''}`.trim();
     if (!q) {
