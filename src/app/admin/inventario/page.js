@@ -152,7 +152,9 @@ export default function InventarioPage() {
                 <th style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600 }}>CÓDIGO</th>
                 <th style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600 }}>DESCRIPCIÓN</th>
                 <th style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600 }}>STOCK</th>
-                <th style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600 }}>PRECIO (VR UNIT)</th>
+                <th style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600 }}>COSTO</th>
+                <th style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600 }}>PRECIO (PVP)</th>
+                <th style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600 }}>PROVEEDOR</th>
                 <th style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600 }}>ACCIONES</th>
               </tr>
             </thead>
@@ -166,12 +168,18 @@ export default function InventarioPage() {
                     {item.name}
                   </td>
                   <td style={{ padding: '12px 16px' }}>
-                    <span style={{ fontWeight: 'bold', color: item.stock <= 3 ? '#ef4444' : '#10b981' }}>
+                    <span style={{ fontWeight: 'bold', color: item.stock <= (item.min_stock_limit || 3) ? '#ef4444' : '#10b981' }}>
                       {item.stock}
                     </span>
                   </td>
-                  <td style={{ padding: '12px 16px', color: '#0f172a' }}>
-                    ${item.price.toLocaleString()}
+                  <td style={{ padding: '12px 16px', color: '#64748b' }}>
+                    ${(item.cost || 0).toLocaleString()}
+                  </td>
+                  <td style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 'bold' }}>
+                    ${item.price?.toLocaleString()}
+                  </td>
+                  <td style={{ padding: '12px 16px', color: '#475569', fontSize: '0.9rem' }}>
+                    {item.provider_name || '-'}
                   </td>
                   <td style={{ padding: '12px 16px', display: 'flex', gap: '8px' }}>
                     <button onClick={() => handleEditClick(item)} style={{ padding: '6px 12px', backgroundColor: '#1964a6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}>Editar</button>

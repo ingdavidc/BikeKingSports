@@ -7,12 +7,44 @@ CREATE TABLE IF NOT EXISTS site_settings (
 -- Store Products
 CREATE TABLE IF NOT EXISTS products (
     id TEXT PRIMARY KEY,
+    
+    -- Identificación
+    sku TEXT UNIQUE,
     name TEXT NOT NULL,
+    commercial_name TEXT,
     description TEXT,
-    price REAL NOT NULL,
-    image_url TEXT,
+    features TEXT,
+    brand TEXT,
     category TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    
+    -- Inventario y Medidas
+    unit TEXT DEFAULT 'Und',
+    stock INTEGER DEFAULT 0,
+    min_stock_limit INTEGER DEFAULT 10,
+    max_stock_limit INTEGER,
+    location TEXT,
+    
+    -- Costos y Precios
+    cost REAL DEFAULT 0,
+    profit_margin REAL DEFAULT 30,
+    volume_discount REAL DEFAULT 0,
+    tax REAL DEFAULT 19,
+    price REAL NOT NULL,
+    
+    -- Proveedores e Imagen
+    supplier_id TEXT,
+    alt_supplier_id TEXT,
+    image_url TEXT,
+    image_urls TEXT DEFAULT '[]',
+    technical_sheet_url TEXT,
+    sales_count INTEGER DEFAULT 0,
+    popularity INTEGER DEFAULT 0,
+    
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (supplier_id) REFERENCES providers(id),
+    FOREIGN KEY (alt_supplier_id) REFERENCES providers(id)
 );
 
 -- Workshop Services

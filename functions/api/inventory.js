@@ -1,20 +1,23 @@
 // functions/api/inventory.js
-
 export async function onRequestGet(context) {
   try {
     const DB = context.env.DB;
     const { searchParams } = new URL(context.request.url);
     const search = searchParams.get('q');
 
-    let query = 'SELECT * FROM products';
+    let query = `
+      SELECT p.*, prov.name as provider_name 
+      FROM products p
+      LEFT JOIN providers prov ON p.supplier_id = prov.id
+    `;
     let params = [];
 
     if (search) {
-      query += ' WHERE name LIKE ? OR sku LIKE ?';
+      query += ' WHERE p.name LIKE ? OR p.sku LIKE ?';
       params.push(`%${search}%`, `%${search}%`);
     }
 
-    query += ' ORDER BY created_at DESC';
+    query += ' ORDER BY p.created_at DESC';
 
     const { results } = await DB.prepare(query).bind(...params).all();
     return Response.json({ success: true, data: results });
@@ -30,18 +33,30 @@ export async function onRequestPost(context) {
     const id = crypto.randomUUID();
 
     await DB.prepare(`
-      INSERT INTO products (id, name, description, price, category, sku, stock, tax_rate, discount)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO products (
+        id, name, sku, category, brand, 
+        stock, unit, min_stock_limit, max_stock_limit, location,
+        cost, profit_margin, tax, price, 
+        supplier_id, alt_supplier_id
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
       id,
       body.name || '',
-      body.description || '',
-      body.price || 0,
-      body.category || 'General',
       body.sku || '',
+      body.category || 'General',
+      body.brand || '',
       body.stock || 0,
-      body.tax_rate || 0,
-      body.discount || 0
+      body.unit || 'Und',
+      body.minLimit || 10,
+      body.maxLimit || 100,
+      body.location || '',
+      body.cost || 0,
+      body.utilityPercent || 30,
+      body.tax_rate || 19,
+      body.price || 0,
+      body.provider || null,
+      body.altProvider || null
     ).run();
 
     return Response.json({ success: true, id });
@@ -57,17 +72,27 @@ export async function onRequestPut(context) {
 
     await DB.prepare(`
       UPDATE products 
-      SET name = ?, description = ?, price = ?, category = ?, sku = ?, stock = ?, tax_rate = ?, discount = ?
+      SET name = ?, sku = ?, category = ?, brand = ?, 
+          stock = ?, unit = ?, min_stock_limit = ?, max_stock_limit = ?, location = ?,
+          cost = ?, profit_margin = ?, tax = ?, price = ?, 
+          supplier_id = ?, alt_supplier_id = ?
       WHERE id = ?
     `).bind(
-      body.name,
-      body.description,
-      body.price,
-      body.category,
-      body.sku,
-      body.stock,
-      body.tax_rate,
-      body.discount,
+      body.name || '',
+      body.sku || '',
+      body.category || 'General',
+      body.brand || '',
+      body.stock || 0,
+      body.unit || 'Und',
+      body.minLimit || 10,
+      body.maxLimit || 100,
+      body.location || '',
+      body.cost || 0,
+      body.utilityPercent || 30,
+      body.tax_rate || 19,
+      body.price || 0,
+      body.provider || null,
+      body.altProvider || null,
       body.id
     ).run();
 

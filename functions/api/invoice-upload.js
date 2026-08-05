@@ -76,15 +76,44 @@ export async function onRequest(context) {
       }
     `;
 
-    const result = await model.generateContent([
-      prompt,
-      {
-        inlineData: {
-          mimeType: file.type || 'application/pdf',
-          data: base64Data
+    let result = null;
+    let attempt = 0;
+    const maxRetries = 3;
+
+    while (attempt < maxRetries) {
+      try {
+        result = await model.generateContent({
+          contents: [{
+            role: "user",
+            parts: [
+              { text: prompt },
+              {
+                inlineData: {
+                  mimeType: file.type || 'application/pdf',
+                  data: base64Data
+                }
+              }
+            ]
+          }],
+          generationConfig: {
+            responseMimeType: "application/json",
+          }
+        });
+        break; // Éxito, salir del bucle de reintentos
+      } catch (apiError) {
+        attempt++;
+        console.warn(`Advertencia: Falló el intento ${attempt} de procesamiento con Gemini:`, apiError.message);
+        
+        if (attempt >= maxRetries) {
+          console.error("Máximo número de reintentos alcanzado.");
+          throw apiError; // Lanza el error para que el bloque catch principal lo capture y devuelva respuesta 500
         }
+        
+        // Exponential Backoff: Esperar 1s, luego 2s antes de reintentar
+        const delay = Math.pow(2, attempt - 1) * 1000;
+        await new Promise(resolve => setTimeout(resolve, delay));
       }
-    ]);
+    }
 
     let extractedText = result.response.text();
     

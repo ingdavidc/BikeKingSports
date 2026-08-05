@@ -1,9 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Barcode from 'react-barcode';
+import { Bot } from 'lucide-react';
 
 export default function ProductModal({ onClose, onSave, initialData }) {
   const [activeTab, setActiveTab] = useState(1);
+  const [providers, setProviders] = useState([]);
+
+  useEffect(() => {
+    fetch('/api/providers')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setProviders(data.data);
+        }
+      });
+  }, []);
+
   const [formData, setFormData] = useState({
     // Tab 1
     name: initialData?.name || '',
@@ -13,17 +27,17 @@ export default function ProductModal({ onClose, onSave, initialData }) {
     // Tab 2
     stock: initialData?.stock || 0,
     unit: initialData?.unit || 'Unidad (Und)',
-    minLimit: initialData?.minLimit || 10,
-    maxLimit: initialData?.maxLimit || 100,
+    minLimit: initialData?.min_stock_limit || 10,
+    maxLimit: initialData?.max_stock_limit || 100,
     location: initialData?.location || '',
     // Tab 3
     cost: initialData?.cost || 0,
-    utilityPercent: initialData?.utilityPercent || 30,
-    tax_rate: initialData?.tax_rate || 19,
+    utilityPercent: initialData?.profit_margin || 30,
+    tax_rate: initialData?.tax || 19,
     price: initialData?.price || 0,
     // Tab 4
-    provider: initialData?.provider || '',
-    altProvider: initialData?.altProvider || '',
+    provider: initialData?.supplier_id || '',
+    altProvider: initialData?.alt_supplier_id || '',
     image: initialData?.image || null,
     // Add id for editing
     id: initialData?.id || null
@@ -32,6 +46,61 @@ export default function ProductModal({ onClose, onSave, initialData }) {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // --- IMAGES ---
+  const [imageQuery, setImageQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [searching, setSearching] = useState(false);
+
+  const searchImage = async () => {
+    if (!imageQuery) return;
+    setSearching(true);
+    try {
+      const res = await fetch(`/api/image-search?q=${encodeURIComponent(imageQuery)}`);
+      const data = await res.json();
+      if (data.success) {
+        setSearchResults(data.images);
+      } else {
+        alert(data.error);
+      }
+    } catch(err) {
+      alert("Error buscando imagenes");
+    }
+    setSearching(false);
+  };
+
+  // --- AI AUTOFILL ---
+  const [aiFile, setAiFile] = useState(null);
+  const [processingAi, setProcessingAi] = useState(false);
+
+  const handleAiFill = async () => {
+    if (!aiFile) return;
+    setProcessingAi(true);
+    const fd = new FormData();
+    fd.append('file', aiFile);
+    try {
+      const res = await fetch('/api/invoice-upload', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.success && data.data.products && data.data.products.length > 0) {
+        const prod = data.data.products[0];
+        setFormData(prev => ({
+          ...prev,
+          name: prod.name || prev.name,
+          sku: prod.sku || prev.sku,
+          category: prod.category || prev.category,
+          cost: prod.price || prev.cost, 
+          tax_rate: prod.tax || prev.tax_rate
+        }));
+        alert("¡Datos extraídos con éxito! Revisa las pestañas.");
+        setActiveTab(1);
+      } else {
+        alert("No se pudieron extraer datos del archivo.");
+      }
+    } catch(err) {
+      alert("Error con la IA.");
+    }
+    setProcessingAi(false);
   };
 
   // Auto-calculate suggested price (just visual for now)
@@ -48,7 +117,9 @@ export default function ProductModal({ onClose, onSave, initialData }) {
     { id: 1, name: '1. Identificación' },
     { id: 2, name: '2. Inventario' },
     { id: 3, name: '3. Costos y Precios' },
-    { id: 4, name: '4. Proveedores' }
+    { id: 4, name: '4. Proveedores' },
+    { id: 5, name: '5. Auto-llenado IA ✨' },
+    { id: 6, name: '6. Código Barras 🖨️' }
   ];
 
   const inputStyle = {
@@ -234,27 +305,76 @@ export default function ProductModal({ onClose, onSave, initialData }) {
                     <label style={labelStyle}>Proveedor Principal (Auto-Compra)</label>
                     <select name="provider" value={formData.provider} onChange={handleChange} style={inputStyle}>
                       <option value="">Seleccione Proveedor...</option>
-                      <option value="Shimano Colombia">Shimano Colombia</option>
-                      <option value="GW Bicycles">GW Bicycles</option>
+                      {providers.map(p => (
+                        <option key={p.id} value={p.id}>{p.name}</option>
+                      ))}
                     </select>
                   </div>
                   <div>
                     <label style={labelStyle}>Proveedor Alternativo</label>
                     <select name="altProvider" value={formData.altProvider} onChange={handleChange} style={inputStyle}>
                       <option value="">Ninguno / Opcional</option>
-                      <option value="Local">Local</option>
+                      {providers.map(p => (
+                        <option key={p.id} value={p.id}>{p.name}</option>
+                      ))}
                     </select>
                   </div>
                 </div>
                 
                 <div style={{ marginBottom: '20px' }}>
-                  <label style={labelStyle}>🖼️ Imagen del Producto</label>
-                  <input type="file" style={{ ...inputStyle, padding: '6px' }} />
-                  <input type="text" placeholder="O pega la URL de la imagen directamente..." style={{ ...inputStyle, marginTop: '10px' }} />
-                  <small style={{ color: '#64748b', display: 'block', marginTop: '5px' }}>
-                    * La imagen se comprimirá automáticamente a WebP (&lt;100KB) antes de subirse.
-                  </small>
+                  <label style={labelStyle}>🖼️ Buscar Imagen del Producto en la Web</label>
+                  <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                    <input type="text" value={imageQuery} onChange={e => setImageQuery(e.target.value)} placeholder="Ej: Shimano Tourney TX" style={inputStyle} />
+                    <button type="button" onClick={searchImage} disabled={searching} style={{ padding: '10px 16px', backgroundColor: '#1e293b', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                      {searching ? 'Buscando...' : 'Buscar'}
+                    </button>
+                  </div>
+                  {searchResults.length > 0 && (
+                    <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '10px' }}>
+                      {searchResults.map((img, i) => (
+                        <div key={i} onClick={() => setFormData(prev => ({ ...prev, image: img.url }))} style={{ border: formData.image === img.url ? '3px solid #10b981' : '1px solid #cbd5e1', cursor: 'pointer', borderRadius: '4px', overflow: 'hidden', minWidth: '100px', height: '100px', flexShrink: 0 }}>
+                          <img src={img.preview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} referrerPolicy="no-referrer" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <input type="text" name="image" value={formData.image || ''} onChange={handleChange} placeholder="URL de la imagen seleccionada" style={{ ...inputStyle, marginTop: '10px' }} />
                 </div>
+              </div>
+            )}
+
+            {/* TAB 5 - AI */}
+            {activeTab === 5 && (
+              <div style={{ padding: '20px', textAlign: 'center' }}>
+                <Bot size={48} color="#f97316" style={{ margin: '0 auto 10px' }} />
+                <h3 style={{ fontSize: '1.2rem', marginBottom: '10px', color: '#0f172a' }}>Auto-llenado Inteligente</h3>
+                <p style={{ color: '#64748b', marginBottom: '20px' }}>Sube una foto o PDF de la factura/recibo del proveedor. La Inteligencia Artificial llenará los campos de Nombre, Código, Costo e Impuestos por ti.</p>
+                <input type="file" accept=".pdf,image/*" onChange={e => setAiFile(e.target.files[0])} style={{ marginBottom: '20px', display: 'block', margin: '0 auto 20px' }} />
+                <button type="button" onClick={handleAiFill} disabled={!aiFile || processingAi} style={{ padding: '12px 24px', backgroundColor: '#f97316', color: 'white', border: 'none', borderRadius: '6px', cursor: (!aiFile || processingAi) ? 'not-allowed' : 'pointer', fontSize: '1.1rem', fontWeight: 'bold' }}>
+                  {processingAi ? 'Extrayendo datos con Gemini...' : 'Procesar Documento con IA'}
+                </button>
+              </div>
+            )}
+
+            {/* TAB 6 - Barcode */}
+            {activeTab === 6 && (
+              <div style={{ padding: '20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <h3 style={{ fontSize: '1.2rem', marginBottom: '10px', color: '#0f172a' }}>Generador de Código de Barras</h3>
+                <p style={{ color: '#64748b', marginBottom: '20px' }}>Este código está basado en el SKU del producto: <strong>{formData.sku || 'N/A'}</strong></p>
+                
+                {formData.sku ? (
+                  <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '20px' }}>
+                     <Barcode value={formData.sku} />
+                  </div>
+                ) : (
+                  <div style={{ padding: '20px', backgroundColor: '#fee2e2', color: '#991b1b', borderRadius: '8px', marginBottom: '20px' }}>
+                    Debes asignar un SKU en la Pestaña 1 primero.
+                  </div>
+                )}
+                
+                <button type="button" onClick={() => window.print()} disabled={!formData.sku} style={{ padding: '12px 24px', backgroundColor: '#1e293b', color: 'white', border: 'none', borderRadius: '6px', cursor: formData.sku ? 'pointer' : 'not-allowed', fontWeight: 'bold' }}>
+                  🖨️ Imprimir Etiqueta
+                </button>
               </div>
             )}
           </form>
@@ -281,7 +401,7 @@ export default function ProductModal({ onClose, onSave, initialData }) {
             >
               Cancelar
             </button>
-            {activeTab < 4 ? (
+            {activeTab < 6 ? (
               <button 
                 type="button"
                 onClick={() => setActiveTab(prev => prev + 1)}
