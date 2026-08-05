@@ -11,6 +11,10 @@ export default function InvoiceUploadModal({ onClose, onComplete }) {
   
   const [saving, setSaving] = useState(false);
 
+  const labelStyle = { display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '0.9rem', color: '#475569' };
+  const inputStyle = { width: '100%', padding: '8px 12px', borderRadius: '4px', border: '1px solid #cbd5e1', boxSizing: 'border-box' };
+  const thStyle = { padding: '12px', textAlign: 'left', fontWeight: '600', color: '#0f172a', fontSize: '0.9rem' };
+
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
     setError('');
@@ -299,6 +303,4 @@ export default function InvoiceUploadModal({ onClose, onComplete }) {
   );
 }
 
-const labelStyle = { display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '0.9rem', color: '#475569' };
-const inputStyle = { width: '100%', padding: '8px 12px', borderRadius: '4px', border: '1px solid #cbd5e1', boxSizing: 'border-box' };
-const thStyle = { padding: '12px', textAlign: 'left', fontWeight: '600', color: '#0f172a', fontSize: '0.9rem' };
+
