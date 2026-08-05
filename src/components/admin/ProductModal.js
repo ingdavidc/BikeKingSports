@@ -51,22 +51,16 @@ export default function ProductModal({ onClose, onSave, initialData }) {
   };
 
   // --- IMAGES ---
-  const [imageQuery, setImageQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [searching, setSearching] = useState(false);
-
-  // Auto-fill image query when reaching tab 4
-  useEffect(() => {
-    if (activeTab === 4 && formData.name && !imageQuery) {
-      setImageQuery(formData.name);
-    }
-  }, [activeTab, formData.name, imageQuery]);
-
   const searchImage = async () => {
-    if (!imageQuery) return;
+    const q = `${formData.name || ''} ${formData.brand || ''} ${formData.sku || ''}`.trim();
+    if (!q) {
+      alert("Por favor ingresa primero el nombre del producto");
+      return;
+    }
     setSearching(true);
+    setSearchResults([]);
     try {
-      const res = await fetch(`/api/image-search?q=${encodeURIComponent(imageQuery)}`);
+      const res = await fetch(`/api/image-search?q=${encodeURIComponent(q)}`);
       const data = await res.json();
       if (data.success) {
         setSearchResults(data.images);
@@ -346,23 +340,40 @@ export default function ProductModal({ onClose, onSave, initialData }) {
                 </div>
                 
                 <div style={{ marginBottom: '20px' }}>
-                  <label style={labelStyle}>🖼️ Buscar Imagen del Producto en la Web</label>
-                  <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-                    <input type="text" value={imageQuery} onChange={e => setImageQuery(e.target.value)} placeholder="Ej: Shimano Tourney TX" style={inputStyle} />
-                    <button type="button" onClick={searchImage} disabled={searching} style={{ padding: '10px 16px', backgroundColor: '#1e293b', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                      {searching ? 'Buscando...' : 'Buscar'}
+                  <label style={{...labelStyle, display: 'flex', alignItems: 'center', gap: '8px'}}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                    Imágenes del Producto
+                  </label>
+                  
+                  <div style={{ display: 'flex', gap: '10px', marginBottom: '10px', alignItems: 'center' }}>
+                    <input type="text" name="image" value={formData.image || ''} onChange={handleChange} placeholder="URL directa de la imagen..." style={{...inputStyle, marginTop: 0}} />
+                    <button type="button" onClick={searchImage} disabled={searching} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', backgroundColor: 'transparent', color: '#1e293b', border: '1px solid #1e293b', borderRadius: '6px', cursor: 'pointer', whiteSpace: 'nowrap', fontWeight: '500' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                      {searching ? 'Buscando...' : 'Asistente IA'}
                     </button>
                   </div>
+
                   {searchResults.length > 0 && (
-                    <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '10px' }}>
-                      {searchResults.map((img, i) => (
-                        <div key={i} onClick={() => setFormData(prev => ({ ...prev, image: img.url }))} style={{ border: formData.image === img.url ? '3px solid #10b981' : '1px solid #cbd5e1', cursor: 'pointer', borderRadius: '4px', overflow: 'hidden', minWidth: '100px', height: '100px', flexShrink: 0 }}>
-                          <img src={img.preview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} referrerPolicy="no-referrer" />
-                        </div>
-                      ))}
+                    <div style={{ marginTop: '16px', padding: '16px', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #cbd5e1' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                        <h4 style={{ margin: 0, fontSize: '14px', fontWeight: '600', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                          Resultados Sugeridos
+                        </h4>
+                        <button type="button" onClick={() => setSearchResults([])} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: 0 }}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </button>
+                      </div>
+                      <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '10px' }}>
+                        {searchResults.map((img, i) => (
+                          <div key={i} onClick={() => setFormData(prev => ({ ...prev, image: img.url }))} style={{ border: formData.image === img.url ? '3px solid #10b981' : '1px solid #cbd5e1', cursor: 'pointer', borderRadius: '6px', overflow: 'hidden', minWidth: '90px', height: '90px', flexShrink: 0, background: 'white' }}>
+                            <img src={img.preview} style={{ width: '100%', height: '100%', objectFit: 'contain' }} referrerPolicy="no-referrer" />
+                          </div>
+                        ))}
+                      </div>
+                      <p style={{ margin: '10px 0 0 0', fontSize: '12px', color: '#64748b' }}>* Haz clic en una imagen para seleccionarla.</p>
                     </div>
                   )}
-                  <input type="text" name="image" value={formData.image || ''} onChange={handleChange} placeholder="URL de la imagen seleccionada" style={{ ...inputStyle, marginTop: '10px' }} />
                 </div>
               </div>
             )}

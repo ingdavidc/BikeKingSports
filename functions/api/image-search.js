@@ -6,42 +6,30 @@ export async function onRequestGet(context) {
     return Response.json({ success: false, error: "Término de búsqueda vacío" }, { status: 400 });
   }
 
-  const url = `https://www.bing.com/images/search?q=${encodeURIComponent(query)}&FORM=HDRSC2`;
-  
   try {
-    const res = await fetch(url, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
-      }
+    // 1. Obtener token VQD de DuckDuckGo
+    const ddgRes = await fetch('https://duckduckgo.com/?q=' + encodeURIComponent(query), {
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36' }
     });
+    const text = await ddgRes.text();
+    const vqdMatch = text.match(/vqd=[\"']?([^\"'&]+)[\"']?/);
+    if (!vqdMatch) throw new Error("No VQD token found from DuckDuckGo");
+    const vqd = vqdMatch[1];
     
-    if (!res.ok) throw new Error(`Bing returned ${res.status}`);
-
-    const text = await res.text();
-    const murlRegex = /murl&quot;:&quot;(.*?)&quot;/g;
-    let match;
-    const urls = [];
+    // 2. Obtener imágenes usando la API de DuckDuckGo
+    const imgRes = await fetch('https://duckduckgo.com/i.js?q=' + encodeURIComponent(query) + '&o=json&vqd=' + vqd, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36' }
+    });
+    const data = await imgRes.json();
     
-    while ((match = murlRegex.exec(text)) !== null) {
-      if (urls.length < 12) {
-        let extractedUrl = match[1];
-        if (extractedUrl.startsWith("http://")) {
-            extractedUrl = extractedUrl.replace("http://", "https://");
-        }
-        if (!urls.includes(extractedUrl)) {
-            urls.push(extractedUrl);
-        }
-      } else {
-        break;
-      }
+    if (!data || !data.results || data.results.length === 0) {
+      return Response.json({ success: false, error: "No se encontraron imágenes" });
     }
     
-    const results = urls.map(url => ({
-      url: url,
-      preview: url
+    const results = data.results.slice(0, 12).map(r => ({
+      url: r.image,
+      preview: r.thumbnail || r.image
     }));
-
-    if (results.length === 0) return Response.json({ success: false, error: "No se encontraron imágenes" });
 
     return Response.json({ success: true, images: results });
   } catch (err) {
