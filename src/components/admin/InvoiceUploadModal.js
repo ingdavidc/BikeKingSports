@@ -207,9 +207,9 @@ export default function InvoiceUploadModal({ onClose, onComplete }) {
               <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '10px' }}>
                 Si el nombre o SKU coincide con un producto existente, solo se sumará el stock. Si no, se creará uno nuevo.
               </p>
-              <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+              <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: '50vh', border: '1px solid #e2e8f0', borderRadius: '8px', position: 'relative' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '1000px' }}>
+                    <thead style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0', position: 'sticky', top: 0, zIndex: 10 }}>
                       <tr>
                         <th style={thStyle}>Estado</th>
                         <th style={thStyle}>Nombre del Repuesto</th>
