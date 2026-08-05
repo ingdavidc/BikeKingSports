@@ -134,7 +134,7 @@ export async function onRequest(context) {
         productId = crypto.randomUUID();
         isNew = true;
         await env.DB.prepare(
-          'INSERT INTO products (id, name, category, sku, price, stock, tax_rate) VALUES (?, ?, ?, ?, ?, ?, ?)'
+          'INSERT INTO products (id, name, category, sku, price, stock, tax) VALUES (?, ?, ?, ?, ?, ?, ?)'
         )
           .bind(
             productId, 
