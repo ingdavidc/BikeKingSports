@@ -4,7 +4,7 @@ import Logo from './Logo';
 import styles from './Navbar.module.css';
 
 export default function Navbar() {
-  const { cartItems } = useCart();
+  const { cartItems, openCart } = useCart();
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
@@ -20,9 +20,9 @@ export default function Navbar() {
             <Link href="/tienda" className={styles.navLink}>Tienda</Link>
             <Link href="/servicios" className={styles.navLink}>Taller</Link>
             <Link href="/tienda?ofertas=true" className={`${styles.navLink} ${styles.ofertasLink}`}>Super Ofertas</Link>
-            <Link href="/carrito" className={styles.navLink}>
+            <button onClick={openCart} className={styles.navLink} style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 'inherit' }}>
               🛒 Carrito {cartCount > 0 && <span className={styles.cartBadge}>{cartCount}</span>}
-            </Link>
+            </button>
           </nav>
         </div>
       </header>

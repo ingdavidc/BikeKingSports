@@ -5,6 +5,7 @@ const CartContext = createContext();
 
 export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
   
   // Load from local storage on mount
   useEffect(() => {
@@ -23,6 +24,10 @@ export function CartProvider({ children }) {
     localStorage.setItem('bikeking_cart', JSON.stringify(cartItems));
   }, [cartItems]);
 
+  const openCart = () => setIsCartOpen(true);
+  const closeCart = () => setIsCartOpen(false);
+  const toggleCart = () => setIsCartOpen(prev => !prev);
+
   const addToCart = (product) => {
     setCartItems(prev => {
       const existing = prev.find(item => item.id === product.id);
@@ -33,6 +38,7 @@ export function CartProvider({ children }) {
       }
       return [...prev, { ...product, quantity: 1 }];
     });
+    openCart(); // Automatically open drawer when adding to cart
   };
 
   const removeFromCart = (productId) => {
@@ -55,6 +61,10 @@ export function CartProvider({ children }) {
   return (
     <CartContext.Provider value={{
       cartItems,
+      isCartOpen,
+      openCart,
+      closeCart,
+      toggleCart,
       addToCart,
       removeFromCart,
       updateQuantity,
