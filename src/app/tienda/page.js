@@ -1,30 +1,46 @@
 'use client';
-import { useState } from 'react';
-import Image from 'next/image';
+import { useState, useEffect } from 'react';
 import { useCart } from '../../context/CartContext';
 import styles from './page.module.css';
 
-const MOCK_PRODUCTS = [
-  { id: 1, name: 'Trek Marlin 5', category: 'Bicicletas MTB', price: 2500000, image: 'https://images.unsplash.com/photo-1576435728678-68d0fbf94e91?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60' },
-  { id: 2, name: 'Specialized Allez', category: 'Bicicletas Ruta', price: 4200000, image: 'https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60' },
-  { id: 3, name: 'Casco Giro Fixture', category: 'Accesorios', price: 280000, image: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60' },
-  { id: 4, name: 'Llanta Maxxis Ikon 29', category: 'Repuestos', price: 180000, image: 'https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60' },
-  { id: 5, name: 'Luces LED Recargables', category: 'Accesorios', price: 85000, image: 'https://images.unsplash.com/photo-1511994298241-608e28f14fde?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60' },
-  { id: 6, name: 'Cadena Shimano 11v', category: 'Repuestos', price: 145000, image: 'https://images.unsplash.com/photo-1582200236087-0b5433a0026e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60' }
-];
-
 export default function Tienda() {
   const { addToCart } = useCart();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('Todos');
 
-  const categories = ['Todos', 'Bicicletas MTB', 'Bicicletas Ruta', 'Repuestos', 'Accesorios'];
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch('/api/store/products');
+        const data = await res.json();
+        if (data.success) {
+          setProducts(data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  const categories = ['Todos', ...new Set(products.map(p => p.category).filter(Boolean))];
 
   const filteredProducts = filter === 'Todos' 
-    ? MOCK_PRODUCTS 
-    : MOCK_PRODUCTS.filter(p => p.category === filter);
+    ? products 
+    : products.filter(p => p.category === filter);
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(price);
+  };
+
+  const handleWhatsAppRequest = (productName) => {
+    const text = encodeURIComponent(`Hola BikeKing, quiero encargar el producto que está agotado: ${productName}`);
+    // Temporary test number as per user instruction
+    const whatsappNumber = '573000000000';
+    window.open(`https://wa.me/${whatsappNumber}?text=${text}`, '_blank');
   };
 
   return (
@@ -43,27 +59,68 @@ export default function Tienda() {
         ))}
       </div>
 
-      <div className={styles.productGrid}>
-        {filteredProducts.map(product => (
-          <div key={product.id} className={styles.productCard}>
-            <div className={styles.imageContainer}>
-              <img src={product.image} alt={product.name} className={styles.productImage} />
-            </div>
-            <div className={styles.productInfo}>
-              <span className={styles.category}>{product.category}</span>
-              <h3 className={styles.productName}>{product.name}</h3>
-              <p className={styles.price}>{formatPrice(product.price)}</p>
-              <button 
-                className="btn btn-primary" 
-                style={{width: '100%'}}
-                onClick={() => addToCart(product)}
-              >
-                Agregar al Carrito
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '50px', color: '#64748b' }}>Cargando catálogo...</div>
+      ) : (
+        <div className={styles.productGrid}>
+          {filteredProducts.map(product => {
+            const isOutOfStock = (product.stock || 0) <= (product.min_stock_limit || 0);
+
+            return (
+              <div key={product.id} className={styles.productCard}>
+                <div className={styles.imageContainer}>
+                  <img src={product.image_url || 'https://images.unsplash.com/photo-1576435728678-68d0fbf94e91?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60'} alt={product.name} className={styles.productImage} />
+                  {isOutOfStock && (
+                    <span style={{
+                      position: 'absolute',
+                      top: '10px',
+                      right: '10px',
+                      backgroundColor: '#ef4444',
+                      color: 'white',
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      fontSize: '0.8rem',
+                      fontWeight: 'bold',
+                      zIndex: 10
+                    }}>
+                      Agotado
+                    </span>
+                  )}
+                </div>
+                <div className={styles.productInfo}>
+                  <span className={styles.category}>{product.category}</span>
+                  <h3 className={styles.productName}>{product.name}</h3>
+                  <p className={styles.price}>{formatPrice(product.price)}</p>
+                  
+                  {isOutOfStock ? (
+                    <button 
+                      className="btn btn-secondary" 
+                      style={{width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', backgroundColor: '#25D366', color: 'white', borderColor: '#25D366'}}
+                      onClick={() => handleWhatsAppRequest(product.name)}
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21" /><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1" /></svg>
+                      Solicitar Pedido
+                    </button>
+                  ) : (
+                    <button 
+                      className="btn btn-primary" 
+                      style={{width: '100%'}}
+                      onClick={() => addToCart(product)}
+                    >
+                      Agregar al Carrito
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      {!loading && filteredProducts.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '50px', color: '#64748b' }}>
+          No hay productos disponibles en esta categoría.
+        </div>
+      )}
     </div>
   );
 }
