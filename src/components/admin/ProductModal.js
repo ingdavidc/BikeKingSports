@@ -20,6 +20,19 @@ export default function ProductModal({ onClose, onSave, initialData }) {
 
 
 
+  const initCost = initialData?.cost || 0;
+  const initTax = initialData?.tax || 19;
+  const initUtility = initialData?.profit_margin || 30;
+  let initSuggested = 0;
+  const initCostWithTax = initCost * (1 + initTax / 100);
+  const initU = 1 - (initUtility / 100);
+  if (initCostWithTax > 0 && initU > 0) {
+    initSuggested = Math.ceil((initCostWithTax / initU) / 1000) * 1000;
+  }
+  
+  const initPrice = initialData?.price || 0;
+  const isOverridden = initPrice > 0 && initPrice !== initSuggested;
+
   const [formData, setFormData] = useState({
     // Tab 1
     name: initialData?.name || '',
@@ -33,10 +46,10 @@ export default function ProductModal({ onClose, onSave, initialData }) {
     maxLimit: initialData?.max_stock_limit || 100,
     location: initialData?.location || '',
     // Tab 3
-    cost: initialData?.cost || 0,
-    utilityPercent: initialData?.profit_margin || 30,
-    tax_rate: initialData?.tax || 19,
-    price: initialData?.price || 0,
+    cost: initCost,
+    utilityPercent: initUtility,
+    tax_rate: initTax,
+    price: isOverridden ? initPrice : '',
     // Tab 4
     provider: initialData?.supplier_id || '',
     altProvider: initialData?.alt_supplier_id || '',
@@ -109,9 +122,19 @@ export default function ProductModal({ onClose, onSave, initialData }) {
     setProcessingAi(false);
   };
 
-  // Auto-calculate suggested price (just visual for now)
-  const rawPrice = parseFloat(formData.cost || 0) * (1 + parseFloat(formData.utilityPercent || 0) / 100) * (1 + parseFloat(formData.tax_rate || 0) / 100);
-  const suggestedPrice = rawPrice > 0 ? Math.ceil(rawPrice / 1000) * 1000 : 0;
+  // Auto-calculate suggested price
+  const cost = parseFloat(formData.cost || 0);
+  const taxRate = parseFloat(formData.tax_rate || 0);
+  const utilityPercent = parseFloat(formData.utilityPercent || 0);
+  
+  const costWithTax = cost * (1 + taxRate / 100);
+  const u = 1 - (utilityPercent / 100);
+  
+  let suggestedPrice = 0;
+  if (costWithTax > 0 && u > 0) {
+    const basePrice = costWithTax / u;
+    suggestedPrice = Math.ceil(basePrice / 1000) * 1000;
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -284,12 +307,18 @@ export default function ProductModal({ onClose, onSave, initialData }) {
                   COSTOS, IMPUESTOS Y PRECIO DE VENTA
                 </h3>
                 
-                <div style={{ backgroundColor: '#f1f5f9', padding: '20px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '24px' }}>
-                  <div style={{ fontSize: '3rem', color: '#f97316' }}>$</div>
+                <div style={{ backgroundColor: formData.price ? '#dcfce3' : '#f1f5f9', padding: '20px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '24px', transition: 'all 0.3s' }}>
+                  <div style={{ fontSize: '3rem', color: formData.price ? '#10b981' : '#f97316' }}>$</div>
                   <div>
-                    <div style={{ color: '#64748b', fontSize: '0.9rem' }}>Precio de Venta al Público (PVP) Sugerido</div>
-                    <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#1e293b' }}>${suggestedPrice.toLocaleString()}</div>
-                    <div style={{ color: '#64748b', fontSize: '0.8rem' }}>Calculado automáticamente según costo, utilidad e impuestos.</div>
+                    <div style={{ color: '#64748b', fontSize: '0.9rem' }}>
+                      {formData.price ? 'Precio de Venta (Ajuste Manual Aplicado)' : 'Precio de Venta al Público (PVP) Sugerido'}
+                    </div>
+                    <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#1e293b' }}>
+                      ${(parseFloat(formData.price) || suggestedPrice).toLocaleString()}
+                    </div>
+                    <div style={{ color: '#64748b', fontSize: '0.8rem' }}>
+                      {formData.price ? `El PVP sugerido por fórmula era $${suggestedPrice.toLocaleString()}` : 'Calculado automáticamente según costo, utilidad e impuestos.'}
+                    </div>
                   </div>
                 </div>
 
@@ -433,7 +462,7 @@ export default function ProductModal({ onClose, onSave, initialData }) {
                      `}</style>
                      <img src="/logo.png" alt="Logo" style={{ height: '35px', objectFit: 'contain', marginBottom: '8px' }} />
                      <div style={{ fontSize: '15px', fontWeight: 'bold', marginBottom: '2px' }}>{formData.name || 'Nuevo Producto'}</div>
-                     <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '8px', color: '#1e293b' }}>Precio: ${(formData.price || suggestedPrice).toLocaleString()}</div>
+                     <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '8px', color: '#1e293b' }}>Precio: ${(parseFloat(formData.price) || suggestedPrice).toLocaleString()}</div>
                      <Barcode value={formData.sku} height={50} fontSize={14} />
                   </div>
                 ) : (
