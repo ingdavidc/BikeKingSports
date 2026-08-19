@@ -37,9 +37,9 @@ export async function onRequestPost(context) {
         id, name, sku, category, brand, 
         stock, unit, min_stock_limit, max_stock_limit, location,
         cost, profit_margin, tax, price, 
-        supplier_id, alt_supplier_id
+        supplier_id, alt_supplier_id, image_url
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
       id,
       body.name || '',
@@ -56,7 +56,8 @@ export async function onRequestPost(context) {
       body.tax_rate || 19,
       body.price || 0,
       body.provider || null,
-      body.altProvider || null
+      body.altProvider || null,
+      body.image || null
     ).run();
 
     return Response.json({ success: true, id });
@@ -75,7 +76,7 @@ export async function onRequestPut(context) {
       SET name = ?, sku = ?, category = ?, brand = ?, 
           stock = ?, unit = ?, min_stock_limit = ?, max_stock_limit = ?, location = ?,
           cost = ?, profit_margin = ?, tax = ?, price = ?, 
-          supplier_id = ?, alt_supplier_id = ?
+          supplier_id = ?, alt_supplier_id = ?, image_url = ?
       WHERE id = ?
     `).bind(
       body.name || '',
@@ -93,6 +94,7 @@ export async function onRequestPut(context) {
       body.price || 0,
       body.provider || null,
       body.altProvider || null,
+      body.image || null,
       body.id
     ).run();
 
