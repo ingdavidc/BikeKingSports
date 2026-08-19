@@ -68,25 +68,45 @@ export default function ProductModal({ onClose, onSave, initialData }) {
   const [searching, setSearching] = useState(false);
 
   const searchImage = async () => {
-    const q = `${formData.name || ''} ${formData.brand || ''} ${formData.sku || ''}`.trim();
-    if (!q) {
-      alert("Por favor ingresa primero el nombre del producto");
+    if (!formData.name) {
+      alert("Por favor ingresa primero el Nombre del producto");
       return;
     }
+    // Build query using name + brand, without SKU to avoid Bing auto-correcting codes
+    const q = `${formData.name || ''} ${formData.brand || ''}`.trim();
     setSearching(true);
     setSearchResults([]);
     try {
-      const res = await fetch(`/api/image-search?q=${encodeURIComponent(q)}`);
+      // Call Bing directly from the browser (avoids Cloudflare datacenter IP detection by Bing)
+      // allorigins.win is a free CORS proxy that forwards the request from the user's browser IP
+      const bingUrl = `https://www.bing.com/images/search?q=${encodeURIComponent(q)}&FORM=HDRSC2`;
+      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(bingUrl)}`;
+      
+      const res = await fetch(proxyUrl);
+      if (!res.ok) throw new Error(`Error: ${res.status}`);
       const data = await res.json();
-      if (data.success) {
-        setSearchResults(data.images);
+      const text = data.contents || '';
+
+      // Extract image URLs using Bing's HTML-encoded JSON pattern
+      const murlRegex = /murl&quot;:&quot;(.*?)&quot;/g;
+      let match;
+      const urls = [];
+      while ((match = murlRegex.exec(text)) !== null && urls.length < 8) {
+        let url = match[1];
+        if (url.startsWith("http://")) url = url.replace("http://", "https://");
+        if (!urls.includes(url)) urls.push(url);
+      }
+
+      if (urls.length > 0) {
+        setSearchResults(urls.map(url => ({ url, preview: url })));
       } else {
-        alert(data.error);
+        alert("No se encontraron imágenes para este producto. Intenta con solo el nombre o marca.");
       }
     } catch(err) {
-      alert("Error buscando imagenes");
+      alert("Error al buscar imágenes: " + err.message);
+    } finally {
+      setSearching(false);
     }
-    setSearching(false);
   };
 
   // --- AI AUTOFILL ---
@@ -397,10 +417,7 @@ export default function ProductModal({ onClose, onSave, initialData }) {
                     <button type="button" onClick={searchImage} disabled={searching} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', backgroundColor: 'transparent', color: '#1e293b', border: '1px solid #1e293b', borderRadius: '6px', cursor: 'pointer', whiteSpace: 'nowrap', fontWeight: '500' }}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
                       {searching ? 'Buscando...' : 'Asistente IA'}
-                    </button>
-                  </div>
-
-                  {searchResults.length > 0 && (
+                              {searchResults.length > 0 && (
                     <div style={{ marginTop: '16px', padding: '16px', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #cbd5e1' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                         <h4 style={{ margin: 0, fontSize: '14px', fontWeight: '600', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -411,15 +428,38 @@ export default function ProductModal({ onClose, onSave, initialData }) {
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                         </button>
                       </div>
-                      <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '10px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: '8px' }}>
                         {searchResults.map((img, i) => (
-                          <div key={i} onClick={() => setFormData(prev => ({ ...prev, image: img.url }))} style={{ border: formData.image === img.url ? '3px solid #10b981' : '1px solid #cbd5e1', cursor: 'pointer', borderRadius: '6px', overflow: 'hidden', minWidth: '90px', height: '90px', flexShrink: 0, background: 'white' }}>
-                            <img src={img.preview} style={{ width: '100%', height: '100%', objectFit: 'contain' }} referrerPolicy="no-referrer" />
+                          <div
+                            key={i}
+                            onClick={() => {
+                              setFormData(prev => ({ ...prev, image: img.url }));
+                              setSearchResults([]);
+                            }}
+                            style={{
+                              position: 'relative',
+                              aspectRatio: '1',
+                              border: formData.image === img.url ? '3px solid #10b981' : '2px solid transparent',
+                              cursor: 'pointer',
+                              borderRadius: '6px',
+                              overflow: 'hidden',
+                              background: 'white',
+                              transition: 'border 0.15s'
+                            }}
+                            onMouseOver={e => e.currentTarget.style.border = '2px solid #f97316'}
+                            onMouseOut={e => e.currentTarget.style.border = formData.image === img.url ? '3px solid #10b981' : '2px solid transparent'}
+                          >
+                            <img src={img.preview} style={{ width: '100%', height: '100%', objectFit: 'contain' }} referrerPolicy="no-referrer" loading="lazy" />
+                            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.75)', color: 'white', fontSize: '0.45rem', padding: '2px 3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {img.preview ? img.preview.substring(0, 30) : ''}
+                            </div>
                           </div>
                         ))}
                       </div>
                       <p style={{ margin: '10px 0 0 0', fontSize: '12px', color: '#64748b' }}>* Haz clic en una imagen para seleccionarla.</p>
                     </div>
+                  )}
+                </div>
                   )}
                 </div>
               </div>
