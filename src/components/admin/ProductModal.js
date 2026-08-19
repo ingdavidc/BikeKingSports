@@ -66,13 +66,101 @@ export default function ProductModal({ onClose, onSave, initialData }) {
   // --- IMAGES ---
   const [searchResults, setSearchResults] = useState([]);
   const [searching, setSearching] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Por favor selecciona un archivo de imagen');
+      return;
+    }
+
+    setUploadingImage(true);
+    
+    try {
+      // Client-side compression using Canvas
+      const compressedFile = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+          const img = new Image();
+          img.src = event.target.result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 1000;
+            const MAX_HEIGHT = 1000;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+              if (width > MAX_WIDTH) {
+                height *= MAX_WIDTH / width;
+                width = MAX_WIDTH;
+              }
+            } else {
+              if (height > MAX_HEIGHT) {
+                width *= MAX_HEIGHT / height;
+                height = MAX_HEIGHT;
+              }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            canvas.toBlob((blob) => {
+              if (blob) {
+                const newFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
+                  type: 'image/jpeg',
+                  lastModified: Date.now()
+                });
+                resolve(newFile);
+              } else {
+                reject(new Error("Error al comprimir la imagen"));
+              }
+            }, 'image/jpeg', 0.8);
+          };
+          img.onerror = (err) => reject(err);
+        };
+        reader.onerror = (err) => reject(err);
+      });
+
+      // Upload compressed file
+      const uploadData = new FormData();
+      uploadData.append('file', compressedFile);
+
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: uploadData
+      });
+
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.error || 'Error al subir la imagen');
+      }
+
+      setFormData(prev => ({ ...prev, image: data.url }));
+      
+    } catch (error) {
+      alert('Error: ' + error.message);
+    } finally {
+      setUploadingImage(false);
+      e.target.value = '';
+    }
+  };
 
   const searchImage = async () => {
     if (!formData.name) {
       alert("Por favor ingresa primero el Nombre del producto");
       return;
     }
-    // Use name + brand only (no SKU) - the server will clean up technical specs
     const q = `${formData.name || ''} ${formData.brand || ''}`.trim();
     setSearching(true);
     setSearchResults([]);
@@ -397,10 +485,38 @@ export default function ProductModal({ onClose, onSave, initialData }) {
                   
                   <div style={{ display: 'flex', gap: '10px', marginBottom: '10px', alignItems: 'center' }}>
                     <input type="text" name="image" value={formData.image || ''} onChange={handleChange} placeholder="URL directa de la imagen..." style={{...inputStyle, marginTop: 0}} />
+                    
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', backgroundColor: '#f1f5f9', color: '#334155', border: '1px solid #cbd5e1', borderRadius: '6px', cursor: 'pointer', whiteSpace: 'nowrap', fontWeight: '500' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                      Subir Foto
+                      <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
+                    </label>
+
                     <button type="button" onClick={searchImage} disabled={searching} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', backgroundColor: 'transparent', color: '#1e293b', border: '1px solid #1e293b', borderRadius: '6px', cursor: 'pointer', whiteSpace: 'nowrap', fontWeight: '500' }}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
                       {searching ? 'Buscando...' : 'Asistente IA'}
                     </button>
+                  </div>
+                  
+                  {uploadingImage && (
+                    <div style={{ fontSize: '13px', color: '#3b82f6', marginTop: '-5px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ animation: 'spin 1s linear infinite' }}>
+                        <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+                      </svg>
+                      <style>{`@keyframes spin { 100% { transform: rotate(360deg); } }`}</style>
+                      Comprimiendo y subiendo imagen de alta resolución...
+                    </div>
+                  )}
+
+                  <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '6px', padding: '12px', marginTop: '10px', marginBottom: '20px' }}>
+                    <div style={{ color: '#b45309', fontWeight: 'bold', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                      Requisitos de Instagram (Ofertas/Novedades):
+                    </div>
+                    <ul style={{ color: '#92400e', fontSize: '12px', margin: 0, paddingLeft: '24px' }}>
+                      <li>Las imágenes se comprimirán a JPEG (&lt;100KB) automáticamente para cumplir la norma.</li>
+                      <li>Evita subir fotos demasiado alargadas (deben estar entre proporción 4:5 y 1.91:1).</li>
+                    </ul>
                   </div>
                   
                   {searchResults.length > 0 && (
