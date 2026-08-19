@@ -71,9 +71,20 @@ async function handlePost(request, env) {
     }
 
     if (action === 'delete') {
-      // Because of ON DELETE CASCADE, this will also remove product_providers entries for this provider
-      await env.DB.prepare('DELETE FROM providers WHERE id = ?').bind(payload.id).run();
-      return Response.json({ success: true });
+      try {
+        // First, nullify any references in the products table to avoid FOREIGN KEY constraint failure
+        await env.DB.prepare('UPDATE products SET supplier_id = NULL WHERE supplier_id = ?').bind(payload.id).run();
+        await env.DB.prepare('UPDATE products SET alt_supplier_id = NULL WHERE alt_supplier_id = ?').bind(payload.id).run();
+        
+        // Then delete the provider
+        await env.DB.prepare('DELETE FROM providers WHERE id = ?').bind(payload.id).run();
+        return Response.json({ success: true });
+      } catch (err) {
+        if (err.message.includes('FOREIGN KEY')) {
+          return Response.json({ success: false, error: 'No se puede eliminar el proveedor porque está vinculado a otros registros (compras o histórico).' }, { status: 400 });
+        }
+        throw err;
+      }
     }
 
     return Response.json({ success: false, error: 'Acción inválida' }, { status: 400 });
