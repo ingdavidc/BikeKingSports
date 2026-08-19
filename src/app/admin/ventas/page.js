@@ -1,12 +1,14 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { Image as ImageIcon } from 'lucide-react';
 
 export default function VentasPage() {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState('');
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [previewImage, setPreviewImage] = useState(null);
   
   // Modal state
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
@@ -208,7 +210,21 @@ export default function VentasPage() {
                     onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
                   >
                     <div>
-                      <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '5px' }}>{product.sku || 'N/A'}</div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
+                        <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{product.sku || 'N/A'}</div>
+                        {product.image_url && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setPreviewImage(product.image_url);
+                            }}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', color: '#94a3b8' }}
+                            title="Ver imagen"
+                          >
+                            <ImageIcon size={18} />
+                          </button>
+                        )}
+                      </div>
                       <div style={{ fontWeight: 600, color: '#1e293b', marginBottom: '10px', fontSize: '0.95rem', lineHeight: '1.3' }}>{product.name}</div>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '10px' }}>
@@ -426,6 +442,27 @@ export default function VentasPage() {
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* MODAL DE PREVISUALIZACION DE IMAGEN */}
+      {previewImage && (
+        <div 
+          style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}
+          onClick={() => setPreviewImage(null)}
+        >
+          <img 
+            src={previewImage} 
+            alt="Preview" 
+            style={{ maxWidth: '100%', maxHeight: '90vh', borderRadius: '8px', objectFit: 'contain' }} 
+            onClick={(e) => e.stopPropagation()}
+          />
+          <button 
+            onClick={() => setPreviewImage(null)}
+            style={{ position: 'absolute', top: '20px', right: '30px', background: 'white', border: 'none', borderRadius: '50%', width: '40px', height: '40px', fontSize: '1.5rem', cursor: 'pointer', fontWeight: 'bold' }}
+          >
+            ×
+          </button>
         </div>
       )}
 
