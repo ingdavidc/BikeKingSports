@@ -26,8 +26,8 @@ export async function onRequestGet(context) {
       'Connection': 'keep-alive'
     };
 
-    // Step 1: Get VQD token from DuckDuckGo
-    const ddgRes = await fetch('https://duckduckgo.com/?q=' + encodeURIComponent(cleanQuery), {
+    // Step 1: Get VQD token from DuckDuckGo with safe search (p=1)
+    const ddgRes = await fetch('https://duckduckgo.com/?q=' + encodeURIComponent(cleanQuery) + '&p=1', {
       headers: browserHeaders
     });
 
@@ -38,9 +38,9 @@ export async function onRequestGet(context) {
     if (!vqdMatch) throw new Error("No se pudo obtener token de búsqueda de DuckDuckGo");
     const vqd = vqdMatch[1];
 
-    // Step 2: Fetch images using the VQD token
+    // Step 2: Fetch images using the VQD token with safe search (p=1)
     const imgRes = await fetch(
-      `https://duckduckgo.com/i.js?q=${encodeURIComponent(cleanQuery)}&o=json&vqd=${encodeURIComponent(vqd)}`,
+      `https://duckduckgo.com/i.js?q=${encodeURIComponent(cleanQuery)}&o=json&vqd=${encodeURIComponent(vqd)}&p=1`,
       {
         headers: {
           ...browserHeaders,
