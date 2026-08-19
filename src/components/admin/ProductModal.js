@@ -443,8 +443,6 @@ export default function ProductModal({ onClose, onSave, initialData }) {
                     </div>
                   )}
                 </div>
-                  )}
-                </div>
               </div>
             )}
 
