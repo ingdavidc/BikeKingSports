@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState, useCallback } from 'react';
 import LogoutButton from '@/components/admin/LogoutButton';
-import { LayoutDashboard, TrendingUp, Package, Globe, Users, ExternalLink, Bike } from 'lucide-react';
+import { LayoutDashboard, TrendingUp, Package, Globe, Users, ExternalLink, Bike, Truck } from 'lucide-react';
 
 export default function AdminLayout({ children }) {
   const router   = useRouter();
@@ -118,6 +118,7 @@ export default function AdminLayout({ children }) {
             <>
               <Link href="/admin/ventas"    style={activeStyle('/admin/ventas')}><TrendingUp size={18} /> Panel de Ventas</Link>
               <Link href="/admin/inventario" style={activeStyle('/admin/inventario')}><Package size={18} /> Inventario</Link>
+              <Link href="/admin/proveedores" style={activeStyle('/admin/proveedores')}><Truck size={18} /> Proveedores</Link>
               <Link href="/admin/sitio-web"  style={activeStyle('/admin/sitio-web')}><Globe size={18} /> Sitio Web</Link>
               <Link href="/admin/usuarios"   style={activeStyle('/admin/usuarios')}><Users size={18} /> Usuarios</Link>
             </>
