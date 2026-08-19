@@ -33,6 +33,6 @@ export async function onRequestGet(context) {
 
     return Response.json({ success: true, images: results });
   } catch (err) {
-    return Response.json({ success: false, error: "Error interno al buscar imágenes" }, { status: 500 });
+    return Response.json({ success: false, error: "Error interno: " + err.message }, { status: 500 });
   }
 }
