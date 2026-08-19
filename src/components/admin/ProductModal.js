@@ -400,7 +400,10 @@ export default function ProductModal({ onClose, onSave, initialData }) {
                     <button type="button" onClick={searchImage} disabled={searching} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', backgroundColor: 'transparent', color: '#1e293b', border: '1px solid #1e293b', borderRadius: '6px', cursor: 'pointer', whiteSpace: 'nowrap', fontWeight: '500' }}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
                       {searching ? 'Buscando...' : 'Asistente IA'}
-                              {searchResults.length > 0 && (
+                    </button>
+                  </div>
+                  
+                  {searchResults.length > 0 && (
                     <div style={{ marginTop: '16px', padding: '16px', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #cbd5e1' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                         <h4 style={{ margin: 0, fontSize: '14px', fontWeight: '600', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
