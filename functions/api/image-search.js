@@ -1,57 +1,74 @@
+// functions/api/image-search.js
+// Usa DuckDuckGo Image Search. Funciona correctamente desde Cloudflare Workers.
 export async function onRequestGet(context) {
   const { searchParams } = new URL(context.request.url);
   const query = searchParams.get('q');
-  
+
   if (!query) {
     return Response.json({ success: false, error: "Término de búsqueda vacío" }, { status: 400 });
   }
 
   try {
-    const searchQuery = query.trim();
-    const url = `https://www.bing.com/images/search?q=${encodeURIComponent(searchQuery)}&FORM=HDRSC2`;
-    
-    const res = await fetch(url, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
-      }
+    // Simplify query: remove technical specs that confuse search engines
+    // e.g. "CADENA 10 VEL 1/2X11/128 114L X10 NEGRA/PLATA KMC" → "CADENA KMC X10 10 VEL negra plata"
+    const cleanQuery = query
+      .replace(/\b\d+\/\d+[Xx]\d+\/\d+\b/g, '')  // Remove chain specs: 1/2X11/128
+      .replace(/\b\d{2,}L\b/g, '')                  // Remove link count: 114L 96L
+      .replace(/\bVEL\b/gi, 'velocidades')           // VEL → velocidades
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    const browserHeaders = {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      'Accept-Language': 'es-CO,es;q=0.9,en-US;q=0.8',
+      'Accept-Encoding': 'gzip, deflate, br',
+      'Connection': 'keep-alive'
+    };
+
+    // Step 1: Get VQD token from DuckDuckGo
+    const ddgRes = await fetch('https://duckduckgo.com/?q=' + encodeURIComponent(cleanQuery), {
+      headers: browserHeaders
     });
-    
-    if (!res.ok) {
-      throw new Error(`Bing returned ${res.status}`);
-    }
 
-    const text = await res.text();
-    
-    // Extraer URLs de las imágenes usando regex sobre el payload de Bing
-    const murlRegex = /murl&quot;:&quot;(.*?)&quot;/g;
-    let match;
-    const urls = [];
-    
-    while ((match = murlRegex.exec(text)) !== null) {
-      if (urls.length < 8) {
-        let extractedUrl = match[1];
-        if (extractedUrl.startsWith("http://")) {
-          extractedUrl = extractedUrl.replace("http://", "https://");
+    if (!ddgRes.ok) throw new Error(`DDG homepage returned ${ddgRes.status}`);
+    const ddgText = await ddgRes.text();
+
+    const vqdMatch = ddgText.match(/vqd=['"]?([^'"&\s]+)['"]?/);
+    if (!vqdMatch) throw new Error("No se pudo obtener token de búsqueda de DuckDuckGo");
+    const vqd = vqdMatch[1];
+
+    // Step 2: Fetch images using the VQD token
+    const imgRes = await fetch(
+      `https://duckduckgo.com/i.js?q=${encodeURIComponent(cleanQuery)}&o=json&vqd=${encodeURIComponent(vqd)}`,
+      {
+        headers: {
+          ...browserHeaders,
+          'Referer': 'https://duckduckgo.com/',
+          'Accept': 'application/json, text/javascript, */*; q=0.01',
+          'X-Requested-With': 'XMLHttpRequest'
         }
-        if (!urls.includes(extractedUrl)) {
-          urls.push(extractedUrl);
-        }
-      } else {
-        break;
       }
+    );
+
+    if (!imgRes.ok) throw new Error(`DDG images returned ${imgRes.status}`);
+    const imgData = await imgRes.json();
+
+    if (!imgData.results || imgData.results.length === 0) {
+      return Response.json({ success: false, error: "No se encontraron imágenes para este producto" });
     }
 
-    if (urls.length === 0) {
-      return Response.json({ success: false, error: "No se encontraron imágenes" });
-    }
-
-    const results = urls.map(url => ({
-      url: url,
-      preview: url
+    const results = imgData.results.slice(0, 8).map(r => ({
+      url: r.image.startsWith('http://') ? r.image.replace('http://', 'https://') : r.image,
+      preview: (r.thumbnail || r.image).startsWith('http://') 
+        ? (r.thumbnail || r.image).replace('http://', 'https://')
+        : (r.thumbnail || r.image)
     }));
 
-    return Response.json({ success: true, images: results });
+    return Response.json({ success: true, images: results, query: cleanQuery });
+
   } catch (err) {
-    return Response.json({ success: false, error: "Error interno: " + err.message }, { status: 500 });
+    console.error('Image search error:', err.message);
+    return Response.json({ success: false, error: "Error al buscar imágenes: " + err.message }, { status: 500 });
   }
 }

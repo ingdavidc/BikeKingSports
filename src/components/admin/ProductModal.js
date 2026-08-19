@@ -72,35 +72,18 @@ export default function ProductModal({ onClose, onSave, initialData }) {
       alert("Por favor ingresa primero el Nombre del producto");
       return;
     }
-    // Build query using name + brand, without SKU to avoid Bing auto-correcting codes
+    // Use name + brand only (no SKU) - the server will clean up technical specs
     const q = `${formData.name || ''} ${formData.brand || ''}`.trim();
     setSearching(true);
     setSearchResults([]);
     try {
-      // Call Bing directly from the browser (avoids Cloudflare datacenter IP detection by Bing)
-      // allorigins.win is a free CORS proxy that forwards the request from the user's browser IP
-      const bingUrl = `https://www.bing.com/images/search?q=${encodeURIComponent(q)}&FORM=HDRSC2`;
-      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(bingUrl)}`;
-      
-      const res = await fetch(proxyUrl);
-      if (!res.ok) throw new Error(`Error: ${res.status}`);
+      const res = await fetch(`/api/image-search?q=${encodeURIComponent(q)}`);
+      if (!res.ok) throw new Error(`Error del servidor: ${res.status}`);
       const data = await res.json();
-      const text = data.contents || '';
-
-      // Extract image URLs using Bing's HTML-encoded JSON pattern
-      const murlRegex = /murl&quot;:&quot;(.*?)&quot;/g;
-      let match;
-      const urls = [];
-      while ((match = murlRegex.exec(text)) !== null && urls.length < 8) {
-        let url = match[1];
-        if (url.startsWith("http://")) url = url.replace("http://", "https://");
-        if (!urls.includes(url)) urls.push(url);
-      }
-
-      if (urls.length > 0) {
-        setSearchResults(urls.map(url => ({ url, preview: url })));
+      if (data.success && data.images && data.images.length > 0) {
+        setSearchResults(data.images);
       } else {
-        alert("No se encontraron imágenes para este producto. Intenta con solo el nombre o marca.");
+        alert(data.error || "No se encontraron imágenes para este producto");
       }
     } catch(err) {
       alert("Error al buscar imágenes: " + err.message);
