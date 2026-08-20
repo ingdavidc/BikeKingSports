@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { Image as ImageIcon } from 'lucide-react';
+import SalesHistoryModal from '@/components/admin/SalesHistoryModal';
 
 export default function VentasPage() {
   const [products, setProducts] = useState([]);
@@ -12,6 +13,7 @@ export default function VentasPage() {
   
   // Modal state
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('Efectivo');
   const [activeOrders, setActiveOrders] = useState([]);
   const [selectedOrderId, setSelectedOrderId] = useState('');
@@ -178,7 +180,16 @@ export default function VentasPage() {
       <div style={{ flex: '6.5', display: 'flex', flexDirection: 'column', backgroundColor: 'white', color: '#0f172a', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
         
         <div style={{ padding: '20px', borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
-          <h2 style={{ margin: '0 0 15px 0', color: '#0f172a', fontSize: '1.5rem', fontWeight: '700' }}>Punto de Venta</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+            <h2 style={{ margin: 0, color: '#0f172a', fontSize: '1.5rem', fontWeight: '700' }}>Punto de Venta</h2>
+            <button 
+              onClick={() => setIsHistoryModalOpen(true)}
+              style={{ padding: '8px 16px', backgroundColor: 'white', color: '#10b981', border: '1px solid #10b981', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+              Historial de Ventas
+            </button>
+          </div>
           <input 
             type="text"
             placeholder="🔍 Buscar por nombre o código de barras (SKU)..."
@@ -466,6 +477,9 @@ export default function VentasPage() {
         </div>
       )}
 
+      {isHistoryModalOpen && (
+        <SalesHistoryModal onClose={() => setIsHistoryModalOpen(false)} />
+      )}
     </div>
   );
 }
