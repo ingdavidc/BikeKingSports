@@ -57,8 +57,7 @@ export default function Tienda() {
 
   const handleWhatsAppRequest = (productName) => {
     const text = encodeURIComponent(`Hola BikeKing, quiero encargar el producto que está agotado: ${productName}`);
-    // Temporary test number as per user instruction
-    const whatsappNumber = '573000000000';
+    const whatsappNumber = '573103291475';
     window.open(`https://wa.me/${whatsappNumber}?text=${text}`, '_blank');
   };
 

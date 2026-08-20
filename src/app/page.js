@@ -35,7 +35,7 @@ export default function Home() {
 
   const handleWhatsAppRequest = (productName) => {
     const text = encodeURIComponent(`Hola BikeKing, quiero encargar el producto que está agotado: ${productName}`);
-    const whatsappNumber = '573000000000'; // Número temporal por solicitud del usuario
+    const whatsappNumber = '573103291475';
     window.open(`https://wa.me/${whatsappNumber}?text=${text}`, '_blank');
   };
 

@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useCart } from '../context/CartContext';
 import styles from './SmartSearch.module.css';
 
@@ -110,7 +110,7 @@ export default function SmartSearch() {
                       ) : (
                         <button className={styles.whatsappButton} onClick={(e) => {
                           e.stopPropagation();
-                          window.open(`https://wa.me/573000000000?text=${encodeURIComponent('Hola, quiero encargar: ' + product.name)}`, '_blank');
+                          window.open(`https://wa.me/573103291475?text=${encodeURIComponent('Hola, quiero encargar: ' + product.name)}`, '_blank');
                         }}>
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21" /></svg>
                         </button>
