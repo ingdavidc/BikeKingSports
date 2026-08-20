@@ -7,16 +7,38 @@ import { useRouter } from 'next/navigation';
 export default function PromoPopup() {
   const [isVisible, setIsVisible] = useState(false);
   const [promoProduct, setPromoProduct] = useState(null);
+  const [popupSettings, setPopupSettings] = useState(null);
   const { addToCart } = useCart();
   const router = useRouter();
 
   useEffect(() => {
-    const fetchPromo = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch('/api/store/products?promo=true');
-        const data = await res.json();
-        if (data.success && data.data) {
-          setPromoProduct(data.data);
+        const [promoRes, settingsRes] = await Promise.all([
+          fetch('/api/store/products?promo=true'),
+          fetch('/api/content?type=settings')
+        ]);
+        
+        const promoData = await promoRes.json();
+        const settingsData = await settingsRes.json();
+        
+        if (promoData.success && promoData.data) {
+          setPromoProduct(promoData.data);
+          
+          if (settingsData && !settingsData.error) {
+            setPopupSettings({
+              badge: settingsData.popup_badge || '¡Producto Destacado!',
+              title: settingsData.popup_title || 'Recomendación Especial',
+              text: settingsData.popup_text || 'Lleva tu rendimiento al siguiente nivel con nuestro mejor producto disponible.'
+            });
+          } else {
+            // Default settings if fetch fails
+            setPopupSettings({
+              badge: '¡Producto Destacado!',
+              title: 'Recomendación Especial',
+              text: 'Lleva tu rendimiento al siguiente nivel con nuestro mejor producto disponible.'
+            });
+          }
           
           // Show popup after 3 seconds of page load
           setTimeout(() => {
@@ -24,11 +46,11 @@ export default function PromoPopup() {
           }, 3000);
         }
       } catch (err) {
-        console.error("Error fetching promo:", err);
+        console.error("Error fetching promo data:", err);
       }
     };
 
-    fetchPromo();
+    fetchData();
   }, []);
 
   const handleClose = () => {
@@ -49,6 +71,10 @@ export default function PromoPopup() {
 
   if (!isVisible || !promoProduct) return null;
 
+  const badge = popupSettings?.badge || '¡Producto Destacado!';
+  const title = popupSettings?.title || 'Recomendación Especial';
+  const text = popupSettings?.text || 'Lleva tu rendimiento al siguiente nivel con nuestro mejor producto disponible.';
+
   return (
     <div className={styles.popupOverlay} onClick={handleClose}>
       <div className={styles.popupContent} onClick={(e) => e.stopPropagation()}>
@@ -60,14 +86,14 @@ export default function PromoPopup() {
             alt={promoProduct.name} 
             className={styles.popupImage} 
           />
-          <div className={styles.popupBadge}>¡Producto Destacado!</div>
+          <div className={styles.popupBadge}>{badge}</div>
         </div>
         
         <div className={styles.popupDetails}>
-          <h2>Recomendación Especial</h2>
+          <h2>{title}</h2>
           <h3>{promoProduct.name}</h3>
           <p className={styles.popupPrice}>{formatPrice(promoProduct.price)}</p>
-          <p className={styles.popupDesc}>Lleva tu rendimiento al siguiente nivel con nuestro mejor producto disponible.</p>
+          <p className={styles.popupDesc}>{text}</p>
           
           <button className={`btn btn-primary ${styles.popupButton}`} onClick={handleAddToCart}>
             Añadir al Carrito Ahora

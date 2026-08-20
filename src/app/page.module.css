@@ -132,6 +132,126 @@
   color: var(--color-primary-dark);
 }
 
+/* Promo Banners (Dual) */
+.promoBannersSection {
+  padding: 40px 20px;
+}
+
+.promoBannersGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.promoCard {
+  background-color: #2b2b2b;
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+  height: 250px;
+  display: flex;
+  align-items: center;
+  transition: transform 0.3s ease;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.promoCard:hover {
+  transform: translateY(-5px);
+}
+
+.promoImage {
+  width: 50%;
+  height: 100%;
+  object-fit: contain;
+  position: absolute;
+  left: -5%;
+  z-index: 1;
+}
+
+.promoContentRight {
+  width: 60%;
+  margin-left: auto;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding-right: 30px;
+  text-align: right;
+}
+
+.promoPill {
+  background-color: var(--color-primary); /* Bike King Blue instead of yellow */
+  color: #fff; /* White text looks better on blue */
+  padding: 8px 20px;
+  border-radius: 30px;
+  font-weight: 900;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: inline-block;
+}
+
+.promoSubtitle {
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.promoBrand {
+  color: #fff;
+  font-size: 1.8rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  margin-top: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.playIcon {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 36px;
+  height: 36px;
+  background-color: var(--color-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  z-index: 3;
+}
+
+.playIcon svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+  margin-left: 3px;
+}
+
+.promoRibbon {
+  position: absolute;
+  top: 25px;
+  left: -35px;
+  background-color: var(--color-primary);
+  color: #fff;
+  font-weight: 900;
+  font-size: 0.9rem;
+  padding: 5px 40px;
+  transform: rotate(-45deg);
+  z-index: 3;
+  text-transform: uppercase;
+}
+
+@media (max-width: 900px) {
+  .promoBannersGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Featured Products */
 .featuredSection {
   padding: 80px 20px;
@@ -167,30 +287,31 @@
 }
 
 .featuredCard {
-  background-color: var(--color-bg);
+  background-color: #0f172a; /* Explicit dark background */
+  color: #f8fafc; /* Explicit light text */
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
   transition: var(--transition);
-  border: 1px solid var(--color-border);
+  border: 1px solid #334155; /* Explicit dark border */
 }
 
 .featuredCard:hover {
   transform: translateY(-5px);
   box-shadow: var(--shadow-md);
-  border-color: var(--color-primary-light);
+  border-color: var(--color-primary);
 }
 
 .featuredImage {
-  height: 200px;
+  height: 250px;
   overflow: hidden;
-  background-color: #f1f5f9;
+  background-color: #1e293b; /* Dark alt background for image area */
 }
 
 .featuredImage img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   transition: transform 0.5s ease;
 }
 
@@ -203,14 +324,16 @@
 }
 
 .featuredInfo h3 {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   margin-bottom: 8px;
+  color: #f8fafc; /* Explicit white title */
+  font-weight: 700;
 }
 
-.featuredInfo .price {
-  font-size: 1.3rem;
+.price {
+  font-size: 1.25rem;
   font-weight: 800;
-  color: var(--color-primary);
+  color: var(--color-primary); /* Primary blue for price */
 }
 
 /* Services Section */

@@ -42,15 +42,7 @@
   --transition: all 0.3s ease;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: var(--color-bg-dark);
-    --color-bg-alt: var(--color-bg-alt-dark);
-    --color-text: var(--color-text-dark);
-    --color-text-muted: var(--color-text-muted-dark);
-    --color-border: var(--color-border-dark);
-  }
-}
+/* Modo oscuro desactivado a petición del usuario para mantener el diseño blanco */
 
 * {
   box-sizing: border-box;

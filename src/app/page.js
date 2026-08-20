@@ -6,6 +6,7 @@ import PromoPopup from '../components/PromoPopup';
 import { useCart } from '../context/CartContext';
 import SmartSearch from '../components/SmartSearch';
 import ProductQuickView from '../components/ProductQuickView';
+import { Bike, Settings, Backpack, Shirt, Dumbbell } from 'lucide-react';
 import styles from './page.module.css';
 
 export default function Home() {
@@ -72,6 +73,39 @@ export default function Home() {
             <Link href="/tienda" className="btn btn-primary">Ver Catálogo</Link>
             <Link href="/servicios" className="btn btn-secondary">Nuestro Taller</Link>
           </div>
+        </div>
+      </section>
+
+      {/* Promo Banners */}
+      <section className={`container ${styles.promoBannersSection}`}>
+        <div className={styles.promoBannersGrid}>
+          {/* Banner 1: Componentes */}
+          <Link href="/tienda?categoria=repuestos" className={styles.promoCard}>
+            <img src="https://pngimg.com/uploads/bicycle_saddle/bicycle_saddle_PNG16.png" alt="Sillín" className={styles.promoImage} style={{filter: 'drop-shadow(5px 5px 15px rgba(0,0,0,0.5))'}} />
+            <div className={styles.promoContentRight}>
+              <div className={styles.promoPill}>
+                COMPONENTES
+                <br/>Y REPUESTOS
+              </div>
+            </div>
+            <div className={styles.playIcon}>
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+          </Link>
+
+          {/* Banner 2: Frenos */}
+          <Link href="/tienda?categoria=repuestos" className={styles.promoCard}>
+            <div className={styles.promoRibbon}>NUEVOS</div>
+            <img src="https://pngimg.com/uploads/bicycle/bicycle_PNG5377.png" alt="Frenos Shimano" className={styles.promoImage} style={{filter: 'drop-shadow(5px 5px 15px rgba(0,0,0,0.5))', left: '-15%'}} />
+            <div className={styles.promoContentRight}>
+              <div className={styles.promoPill}>FRENOS XTR Y XT</div>
+              <p className={styles.promoSubtitle}>POTENCIA Y CONTROL<br/>SIN LÍMITES</p>
+              <div className={styles.promoBrand}>SHIMANO</div>
+            </div>
+            <div className={styles.playIcon}>
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+          </Link>
         </div>
       </section>
 
@@ -154,27 +188,37 @@ export default function Home() {
         <h2 className={styles.sectionTitle}>Nuestros Servicios</h2>
         <div className={styles.grid}>
           <div className={styles.card}>
-            <div className={styles.cardIcon}>🚲</div>
+            <div className={styles.cardIcon}>
+              <Bike size={48} color="var(--color-primary)" strokeWidth={1.5} />
+            </div>
             <h3>Bicicletas</h3>
             <p>Encuentra las mejores marcas en bicicletas para todos los niveles y disciplinas.</p>
           </div>
           <div className={styles.card}>
-            <div className={styles.cardIcon}>⚙️</div>
+            <div className={styles.cardIcon}>
+              <Settings size={48} color="var(--color-primary)" strokeWidth={1.5} />
+            </div>
             <h3>Componentes</h3>
             <p>Repuestos y partes de alta calidad para optimizar el rendimiento de tu bicicleta.</p>
           </div>
           <div className={styles.card}>
-            <div className={styles.cardIcon}>🎒</div>
+            <div className={styles.cardIcon}>
+              <Backpack size={48} color="var(--color-primary)" strokeWidth={1.5} />
+            </div>
             <h3>Accesorios</h3>
             <p>Todo lo que necesitas como complemento ideal para rodar seguro y preparado.</p>
           </div>
           <div className={styles.card}>
-            <div className={styles.cardIcon}>👕</div>
+            <div className={styles.cardIcon}>
+              <Shirt size={48} color="var(--color-primary)" strokeWidth={1.5} />
+            </div>
             <h3>Ropa</h3>
             <p>Indumentaria técnica, cómoda y aerodinámica diseñada para ciclistas.</p>
           </div>
           <div className={styles.card}>
-            <div className={styles.cardIcon}>🏋️</div>
+            <div className={styles.cardIcon}>
+              <Dumbbell size={48} color="var(--color-primary)" strokeWidth={1.5} />
+            </div>
             <h3>Gym</h3>
             <p>Equipos y accesorios para potenciar tu entrenamiento físico y gimnasio en casa.</p>
           </div>

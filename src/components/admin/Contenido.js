@@ -116,6 +116,67 @@ export default function ContenidoWeb() {
             </button>
           </div>
         </div>
+
+        <h2 style={{ fontSize: '1.2rem', marginBottom: '20px', marginTop: '40px', borderBottom: '1px solid #e2e8f0', paddingBottom: '10px', color: '#0f172a', fontWeight: '700' }}>Ventana de Publicidad (Pop-up)</h2>
+        
+        {/* Etiqueta del Popup */}
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px' }}>Etiqueta (Ej. ¡Producto Destacado!)</label>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <input 
+              type="text" 
+              value={settings.popup_badge || ''}
+              onChange={(e) => handleChange('popup_badge', e.target.value)}
+              style={{ flex: 1, padding: '10px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+            />
+            <button 
+              onClick={() => handleSave('popup_badge')}
+              disabled={saving}
+              style={{ backgroundColor: '#1964a6', color: 'white', padding: '0 20px', borderRadius: '4px', border: 'none', cursor: 'pointer' }}
+            >
+              Guardar
+            </button>
+          </div>
+        </div>
+
+        {/* Título del Popup */}
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px' }}>Título (Ej. Recomendación Especial)</label>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <input 
+              type="text" 
+              value={settings.popup_title || ''}
+              onChange={(e) => handleChange('popup_title', e.target.value)}
+              style={{ flex: 1, padding: '10px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+            />
+            <button 
+              onClick={() => handleSave('popup_title')}
+              disabled={saving}
+              style={{ backgroundColor: '#1964a6', color: 'white', padding: '0 20px', borderRadius: '4px', border: 'none', cursor: 'pointer' }}
+            >
+              Guardar
+            </button>
+          </div>
+        </div>
+
+        {/* Texto del Popup */}
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px' }}>Descripción del Pop-up</label>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <textarea 
+              value={settings.popup_text || ''}
+              onChange={(e) => handleChange('popup_text', e.target.value)}
+              style={{ flex: 1, padding: '10px', borderRadius: '4px', border: '1px solid #cbd5e1', minHeight: '60px', fontFamily: 'inherit' }}
+            />
+            <button 
+              onClick={() => handleSave('popup_text')}
+              disabled={saving}
+              style={{ backgroundColor: '#1964a6', color: 'white', padding: '0 20px', borderRadius: '4px', border: 'none', cursor: 'pointer' }}
+            >
+              Guardar
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
