@@ -1,12 +1,27 @@
 ﻿'use client';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Logo from './Logo';
 import styles from './Footer.module.css';
 
 export default function Footer() {
+  const [settings, setSettings] = useState(null);
+
+  useEffect(() => {
+    fetch('/api/content?type=settings')
+      .then(res => res.json())
+      .then(data => {
+        if (!data.error) setSettings(data);
+      });
+  }, []);
+
+  const getVal = (key, fallback) => {
+    return settings && settings[key] ? settings[key] : fallback;
+  };
+
   return (
     <footer className={styles.footer}>
-      <div className={container }>
+      <div className={container \}>
         <div className={styles.column}>
           <Logo />
           <p className={styles.text} style={{marginTop: '16px'}}>Tu tienda de confianza para ciclismo en Saravena. Encuentra las mejores marcas, servicio técnico especializado y todo lo que necesitas para rodar.</p>
@@ -27,16 +42,16 @@ export default function Footer() {
         </div>
         <div className={styles.column}>
           <h4 className={styles.subtitle}>Contacto</h4>
-          <p className={styles.text}>📍 Cl. 22 #13-27, Saravena, Arauca</p>
-          <p className={styles.text}>📱 +57 310 329 1475</p>
-          <p className={styles.text}>✉️ tienda@bikekingsports.com</p>
+          <p className={styles.text}>📍 {getVal('contact_address', 'Cl. 22 #13-27, Saravena, Arauca')}</p>
+          <p className={styles.text}>📱 {getVal('contact_phone', '+57 310 329 1475')}</p>
+          <p className={styles.text}>✉️ {getVal('contact_email', 'tienda@bikekingsports.com')}</p>
           <div style={{ marginTop: '15px' }}>
             <p className={styles.text} style={{fontWeight: 'bold', marginBottom: '5px'}}>Horario de Atención:</p>
-            <p className={styles.text}>Lunes a Sábado: 8:00 AM - 6:00 PM</p>
+            <p className={styles.text}>Lunes a Sábado: {getVal('contact_hours_week', '8:00 AM - 6:00 PM')}</p>
           </div>
         </div>
       </div>
-      <div className={container }>
+      <div className={container \}>
         <p>
           &copy; {new Date().getFullYear()} BIKE KING. Todos los derechos reservados.
           <span className={styles.divider}>|</span>
