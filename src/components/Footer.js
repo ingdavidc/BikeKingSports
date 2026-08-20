@@ -20,7 +20,7 @@ export default function Footer() {
           <h4 className={styles.subtitle}>Contacto</h4>
           <p className={styles.text}>📍 Cl. 22 #13-27, Saravena, Arauca</p>
           <p className={styles.text}>📱 +57 3103291475</p>
-          <p className={styles.text}>✉️ bk.bikeking@gmail.com</p>
+          <p className={styles.text}>✉️ tienda@bikekingsports.com</p>
           
           <div style={{ marginTop: '20px', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)' }}>
             <iframe 

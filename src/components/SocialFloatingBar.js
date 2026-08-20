@@ -6,7 +6,7 @@ export default function SocialFloatingBar() {
   const WHATSAPP = '573103291475';
   const FACEBOOK = 'https://www.facebook.com/bikekingsport/';
   const INSTAGRAM = 'https://www.instagram.com/bikeking.sports?igsh=bnNkd2M5dTFnemht';
-  const EMAIL = 'mailto:bk.bikeking@gmail.com';
+  const EMAIL = 'mailto:tienda@bikekingsports.com';
 
   return (
     <div className={styles.floatingBar}>
