@@ -28,7 +28,7 @@ export default function Footer() {
           <h4 className={styles.subtitle}>Contacto</h4>
           <p className={styles.text}>📍 Cl. 22 #13-27, Saravena, Arauca</p>
           <p className={styles.text}>📱 +57 310 329 1475</p>
-          <p className={styles.text}>✉️ info@bikekingsports.com</p>
+          <p className={styles.text}>✉️ tienda@bikekingsports.com</p>
           <div style={{ marginTop: '15px' }}>
             <p className={styles.text} style={{fontWeight: 'bold', marginBottom: '5px'}}>Horario de Atención:</p>
             <p className={styles.text}>Lunes a Sábado: 8:00 AM - 6:00 PM</p>
