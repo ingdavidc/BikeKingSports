@@ -72,7 +72,7 @@ export default function SmartSearch() {
         <input
           type="text"
           className={styles.searchInput}
-          placeholder="Â¿QuÃ© estÃ¡s buscando? Ej: Cadena 12 vel..."
+          placeholder="¿Qué estás buscando? Ej: Cadena 12 vel..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => { if (results.length > 0) setShowResults(true); }}
