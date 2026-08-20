@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useCart } from '../context/CartContext';
+import ProductQuickView from './ProductQuickView';
 import styles from './SmartSearch.module.css';
 
 export default function SmartSearch() {
@@ -7,6 +8,7 @@ export default function SmartSearch() {
   const [results, setResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const wrapperRef = useRef(null);
   const { addToCart, openCart } = useCart();
 
@@ -87,7 +89,17 @@ export default function SmartSearch() {
               {results.map(product => {
                 const isOutOfStock = (product.stock || 0) <= 0;
                 return (
-                  <div key={product.id} className={`${styles.resultItem} ${isOutOfStock ? styles.outOfStock : ''}`}>
+                  <div 
+                    key={product.id} 
+                    className={`${styles.resultItem} ${isOutOfStock ? styles.outOfStock : ''}`}
+                    onClick={() => {
+                      if (!isOutOfStock) {
+                        setSelectedProduct(product);
+                        setShowResults(false);
+                      }
+                    }}
+                    style={{ cursor: isOutOfStock ? 'not-allowed' : 'pointer' }}
+                  >
                     <div className={styles.resultImage}>
                       {product.image_url ? (
                         <img src={product.image_url} alt={product.name} />
@@ -127,6 +139,13 @@ export default function SmartSearch() {
             </div>
           )}
         </div>
+      )}
+
+      {selectedProduct && (
+        <ProductQuickView 
+          product={selectedProduct} 
+          onClose={() => setSelectedProduct(null)} 
+        />
       )}
     </div>
   );
