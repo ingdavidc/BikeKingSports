@@ -34,15 +34,16 @@ export async function onRequestPost(context) {
 
     await DB.prepare(`
       INSERT INTO products (
-        id, name, sku, category, brand, 
+        id, name, description, sku, category, brand, 
         stock, unit, min_stock_limit, max_stock_limit, location,
         cost, profit_margin, tax, price, 
         supplier_id, alt_supplier_id, image_url, is_published
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
       id,
       body.name || '',
+      body.description || '',
       body.sku || '',
       body.category || 'General',
       body.brand || '',
@@ -79,13 +80,14 @@ export async function onRequestPut(context) {
 
     await DB.prepare(`
       UPDATE products 
-      SET name = ?, sku = ?, category = ?, brand = ?, 
+      SET name = ?, description = ?, sku = ?, category = ?, brand = ?, 
           stock = ?, unit = ?, min_stock_limit = ?, max_stock_limit = ?, location = ?,
           cost = ?, profit_margin = ?, tax = ?, price = ?, 
           supplier_id = ?, alt_supplier_id = ?, image_url = ?, is_published = ?
       WHERE id = ?
     `).bind(
       body.name || '',
+      body.description || '',
       body.sku || '',
       body.category || 'General',
       body.brand || '',

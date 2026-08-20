@@ -5,11 +5,13 @@ import WorkGallery from '../components/WorkGallery';
 import PromoPopup from '../components/PromoPopup';
 import { useCart } from '../context/CartContext';
 import SmartSearch from '../components/SmartSearch';
+import ProductQuickView from '../components/ProductQuickView';
 import styles from './page.module.css';
 
 export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const { addToCart } = useCart();
 
   useEffect(() => {
@@ -88,7 +90,12 @@ export default function Home() {
               const isOutOfStock = (product.stock || 0) <= 0;
 
               return (
-                <div key={product.id} className={styles.featuredCard} style={{ display: 'flex', flexDirection: 'column' }}>
+                <div 
+                  key={product.id} 
+                  className={styles.featuredCard} 
+                  style={{ display: 'flex', flexDirection: 'column', cursor: 'pointer' }}
+                  onClick={() => setSelectedProduct(product)}
+                >
                   <div className={styles.featuredImage} style={{ position: 'relative' }}>
                     <img src={product.image_url || 'https://images.unsplash.com/photo-1576435728678-68d0fbf94e91?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60'} alt={product.name} />
                     {isOutOfStock && (
@@ -119,7 +126,7 @@ export default function Home() {
                         <button 
                           className="btn btn-secondary" 
                           style={{width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', backgroundColor: '#25D366', color: 'white', borderColor: '#25D366', padding: '10px'}}
-                          onClick={() => handleWhatsAppRequest(product.name)}
+                          onClick={(e) => { e.stopPropagation(); handleWhatsAppRequest(product.name); }}
                         >
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21" /><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1" /></svg>
                           Solicitar Pedido
@@ -128,7 +135,7 @@ export default function Home() {
                         <button 
                           className="btn btn-primary" 
                           style={{width: '100%', padding: '10px'}}
-                          onClick={() => addToCart(product)}
+                          onClick={(e) => { e.stopPropagation(); addToCart(product); }}
                         >
                           Agregar al Carrito
                         </button>
@@ -232,6 +239,13 @@ export default function Home() {
           </div>
         </div>
       </section>
+      {/* Quick View Modal */}
+      {selectedProduct && (
+        <ProductQuickView 
+          product={selectedProduct} 
+          onClose={() => setSelectedProduct(null)} 
+        />
+      )}
     </div>
   );
 }

@@ -307,8 +307,18 @@ export default function ProductModal({ onClose, onSave, initialData }) {
                   INFORMACIÓN GENERAL Y DE IDENTIFICACIÓN
                 </h3>
                 <div style={{ marginBottom: '20px' }}>
-                  <label style={labelStyle}>Nombre o Descripción del Producto *</label>
+                  <label style={labelStyle}>Nombre del Producto *</label>
                   <input required name="name" value={formData.name} onChange={handleChange} style={inputStyle} placeholder="Ej: Breaker Termomagnético 1x20A" />
+                </div>
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={labelStyle}>Descripción Detallada (Opcional)</label>
+                  <textarea 
+                    name="description" 
+                    value={formData.description || ''} 
+                    onChange={handleChange} 
+                    style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }} 
+                    placeholder="Especificaciones, colores, medidas, ficha técnica..."
+                  />
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
                   <div>

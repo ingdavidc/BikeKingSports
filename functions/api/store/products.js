@@ -8,7 +8,7 @@ export async function onRequestGet(context) {
     if (isPromo) {
       // Get the most expensive product for the promo
       const promoProduct = await DB.prepare(`
-        SELECT id, name, category, price, stock, image_url, min_stock_limit 
+        SELECT id, name, description, category, price, stock, image_url, min_stock_limit 
         FROM products 
         WHERE is_published = 1 OR is_published IS NULL
         ORDER BY price DESC 
@@ -21,7 +21,7 @@ export async function onRequestGet(context) {
     const q = searchParams.get('q');
     
     let query = `
-      SELECT id, name, category, price, stock, image_url, min_stock_limit 
+      SELECT id, name, description, category, price, stock, image_url, min_stock_limit 
       FROM products 
       WHERE (is_published = 1 OR is_published IS NULL)
     `;
