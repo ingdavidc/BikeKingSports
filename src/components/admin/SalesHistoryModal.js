@@ -1,9 +1,16 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function SalesHistoryModal({ onClose }) {
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedSale, setSelectedSale] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredSales = sales.filter(sale => 
+    !searchQuery || 
+    (sale.customer_document && sale.customer_document.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    sale.id.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   useEffect(() => {
     fetchSales();
@@ -99,7 +106,7 @@ export default function SalesHistoryModal({ onClose }) {
     let tableRows = '';
     let grandTotal = 0;
 
-    sales.forEach(sale => {
+    filteredSales.forEach(sale => {
       grandTotal += sale.total;
       tableRows += `
         <tr>
@@ -177,13 +184,23 @@ export default function SalesHistoryModal({ onClose }) {
 
         {/* Content */}
         <div style={{ padding: '20px', overflowY: 'auto', flex: 1, backgroundColor: '#f8fafc' }}>
+          <div style={{ marginBottom: '15px' }}>
+            <input 
+              type="text" 
+              placeholder="🔍 Buscar por N° Documento o Recibo..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ width: '100%', padding: '10px 15px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.95rem' }}
+            />
+          </div>
+          
           {loading ? (
             <p>Cargando historial...</p>
-          ) : sales.length === 0 ? (
-            <p style={{ textAlign: 'center', color: '#64748b', padding: '40px 0' }}>No hay ventas registradas.</p>
+          ) : filteredSales.length === 0 ? (
+            <p style={{ textAlign: 'center', color: '#64748b', padding: '40px 0' }}>No se encontraron ventas.</p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {sales.map((sale) => {
+              {filteredSales.map((sale) => {
                 let parsedItems = [];
                 try { parsedItems = JSON.parse(sale.items || '[]'); } catch(e){}
                 const isExpanded = selectedSale === sale.id;
