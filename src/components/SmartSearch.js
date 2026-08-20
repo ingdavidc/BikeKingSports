@@ -85,7 +85,7 @@ export default function SmartSearch() {
                 Sugerencias de productos
               </div>
               {results.map(product => {
-                const isOutOfStock = (product.stock || 0) <= (product.min_stock_limit || 0);
+                const isOutOfStock = (product.stock || 0) <= 0;
                 return (
                   <div key={product.id} className={`${styles.resultItem} ${isOutOfStock ? styles.outOfStock : ''}`}>
                     <div className={styles.resultImage}>

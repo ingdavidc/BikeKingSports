@@ -82,7 +82,7 @@ export default function Tienda() {
       ) : (
         <div className={styles.productGrid}>
           {filteredProducts.map(product => {
-            const isOutOfStock = (product.stock || 0) <= (product.min_stock_limit || 0);
+            const isOutOfStock = (product.stock || 0) <= 0;
 
             return (
               <div key={product.id} className={styles.productCard}>

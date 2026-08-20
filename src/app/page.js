@@ -85,7 +85,7 @@ export default function Home() {
         ) : (
           <div className={styles.featuredGrid}>
             {featuredProducts.map(product => {
-              const isOutOfStock = (product.stock || 0) <= (product.min_stock_limit || 0);
+              const isOutOfStock = (product.stock || 0) <= 0;
 
               return (
                 <div key={product.id} className={styles.featuredCard} style={{ display: 'flex', flexDirection: 'column' }}>
