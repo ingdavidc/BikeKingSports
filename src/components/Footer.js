@@ -36,7 +36,11 @@ export default function Footer() {
         </div>
       </div>
       <div className={`container ${styles.footerBottom}`}>
-        <p>&copy; {new Date().getFullYear()} BIKE KING. Todos los derechos reservados.</p>
+        <p>
+          &copy; {new Date().getFullYear()} BIKE KING. Todos los derechos reservados.
+          <span style={{ margin: '0 10px', opacity: 0.5 }}>|</span>
+          <Link href="/admin" style={{ color: 'inherit', textDecoration: 'none', fontWeight: 'bold' }}>Acceso Corporativo</Link>
+        </p>
         <a href="https://www.dctelematica.com" target="_blank" rel="noopener noreferrer" className={styles.poweredBy}>
           <span>Powered by</span>
           <img src="/dc-logo.png" alt="DC Telematica" className={styles.developerLogo} />
