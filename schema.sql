@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS products (
     
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    is_published BOOLEAN DEFAULT 1,
     
     FOREIGN KEY (supplier_id) REFERENCES providers(id),
     FOREIGN KEY (alt_supplier_id) REFERENCES providers(id)

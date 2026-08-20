@@ -37,9 +37,9 @@ export async function onRequestPost(context) {
         id, name, sku, category, brand, 
         stock, unit, min_stock_limit, max_stock_limit, location,
         cost, profit_margin, tax, price, 
-        supplier_id, alt_supplier_id, image_url
+        supplier_id, alt_supplier_id, image_url, is_published
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
       id,
       body.name || '',
@@ -57,7 +57,8 @@ export async function onRequestPost(context) {
       body.price || 0,
       body.provider || null,
       body.altProvider || null,
-      body.image || null
+      body.image || null,
+      body.is_published !== undefined ? (body.is_published ? 1 : 0) : 1
     ).run();
 
     return Response.json({ success: true, id });
@@ -71,12 +72,17 @@ export async function onRequestPut(context) {
     const DB = context.env.DB;
     const body = await context.request.json();
 
+    if (body.action === 'toggle_publish') {
+      await DB.prepare('UPDATE products SET is_published = ? WHERE id = ?').bind(body.is_published ? 1 : 0, body.id).run();
+      return Response.json({ success: true });
+    }
+
     await DB.prepare(`
       UPDATE products 
       SET name = ?, sku = ?, category = ?, brand = ?, 
           stock = ?, unit = ?, min_stock_limit = ?, max_stock_limit = ?, location = ?,
           cost = ?, profit_margin = ?, tax = ?, price = ?, 
-          supplier_id = ?, alt_supplier_id = ?, image_url = ?
+          supplier_id = ?, alt_supplier_id = ?, image_url = ?, is_published = ?
       WHERE id = ?
     `).bind(
       body.name || '',
@@ -95,6 +101,7 @@ export async function onRequestPut(context) {
       body.provider || null,
       body.altProvider || null,
       body.image || null,
+      body.is_published !== undefined ? (body.is_published ? 1 : 0) : 1,
       body.id
     ).run();
 

@@ -117,6 +117,32 @@ export default function InventarioPage() {
     }
   };
 
+  const handleTogglePublish = async (item) => {
+    try {
+      // Optimistic update
+      setItems(prev => prev.map(p => p.id === item.id ? { ...p, is_published: !p.is_published } : p));
+      
+      const res = await fetch('/api/inventory', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          action: 'toggle_publish', 
+          id: item.id, 
+          is_published: !item.is_published 
+        })
+      });
+      
+      if (!res.ok) {
+        // Revert on error
+        setItems(prev => prev.map(p => p.id === item.id ? { ...p, is_published: item.is_published } : p));
+        alert('Error al actualizar el estado del producto');
+      }
+    } catch (err) {
+      console.error(err);
+      setItems(prev => prev.map(p => p.id === item.id ? { ...p, is_published: item.is_published } : p));
+    }
+  };
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
@@ -201,6 +227,9 @@ export default function InventarioPage() {
                 <th onClick={() => requestSort('provider_name')} style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600, cursor: 'pointer', userSelect: 'none' }}>
                   PROVEEDOR {sortConfig.key === 'provider_name' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
                 </th>
+                <th onClick={() => requestSort('is_published')} style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600, cursor: 'pointer', userSelect: 'none', textAlign: 'center' }}>
+                  WEB {sortConfig.key === 'is_published' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
+                </th>
                 <th style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600 }}>ACCIONES</th>
               </tr>
             </thead>
@@ -227,6 +256,15 @@ export default function InventarioPage() {
                   <td style={{ padding: '12px 16px', color: '#475569', fontSize: '0.9rem' }}>
                     {item.provider_name || '-'}
                   </td>
+                  <td style={{ padding: '12px 16px', textAlign: 'center' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={item.is_published !== 0 && item.is_published !== false} 
+                      onChange={() => handleTogglePublish(item)} 
+                      style={{ cursor: 'pointer', width: '18px', height: '18px', accentColor: '#10b981' }}
+                      title={item.is_published !== 0 && item.is_published !== false ? "Ocultar en la página web" : "Publicar en la página web"}
+                    />
+                  </td>
                   <td style={{ padding: '12px 16px', display: 'flex', gap: '8px' }}>
                     <button onClick={() => handleEditClick(item)} style={{ padding: '6px 12px', backgroundColor: '#1964a6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}>Editar</button>
                     <button onClick={() => handleDelete(item.id)} style={{ padding: '6px 12px', backgroundColor: '#e5142b', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}>Eliminar</button>
@@ -235,7 +273,7 @@ export default function InventarioPage() {
               ))}
               {items.length === 0 && (
                 <tr>
-                  <td colSpan="5" style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>
+                  <td colSpan="8" style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>
                     No hay productos en el inventario.
                   </td>
                 </tr>
