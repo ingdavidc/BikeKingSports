@@ -1,8 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
 import styles from './page.module.css';
 import { MapPin, Phone, Mail, Clock, Send } from 'lucide-react';
 
@@ -33,8 +31,7 @@ export default function Contacto() {
 
   return (
     <div className={styles.container}>
-      <Navbar />
-      
+            
       <section className={styles.hero}>
         <h1>Contacto</h1>
         <p>Estamos aquí para ayudarte. Escríbenos o visítanos en nuestra tienda física.</p>
@@ -180,7 +177,6 @@ export default function Contacto() {
         </div>
       </main>
 
-      <Footer />
-    </div>
+          </div>
   );
 }

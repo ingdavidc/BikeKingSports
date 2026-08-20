@@ -1,5 +1,3 @@
-﻿import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
 import styles from './page.module.css';
 import { Target, Eye } from 'lucide-react';
 
@@ -11,8 +9,7 @@ export const metadata = {
 export default function Nosotros() {
   return (
     <div className={styles.container}>
-      <Navbar />
-      
+            
       <section className={styles.hero}>
         <h1>Nosotros</h1>
         <p>Pasión por el ciclismo, experiencia a tu servicio.</p>
@@ -49,7 +46,6 @@ export default function Nosotros() {
         </div>
       </main>
 
-      <Footer />
-    </div>
+          </div>
   );
 }
