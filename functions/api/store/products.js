@@ -18,18 +18,27 @@ export async function onRequestGet(context) {
       return Response.json({ success: true, data: promoProduct });
     }
 
+    const q = searchParams.get('q');
+    
     let query = `
       SELECT id, name, category, price, stock, image_url, min_stock_limit 
       FROM products 
-      WHERE is_published = 1 OR is_published IS NULL
-      ORDER BY created_at DESC
+      WHERE (is_published = 1 OR is_published IS NULL)
     `;
+    let params = [];
+
+    if (q) {
+      query += ` AND (name LIKE ? OR sku LIKE ? OR category LIKE ?)`;
+      params.push(`%${q}%`, `%${q}%`, `%${q}%`);
+    }
+
+    query += ` ORDER BY created_at DESC`;
 
     if (limit) {
       query += ` LIMIT ${limit}`;
     }
 
-    const { results } = await DB.prepare(query).all();
+    const { results } = await DB.prepare(query).bind(...params).all();
 
     return Response.json({ success: true, data: results });
   } catch (error) {

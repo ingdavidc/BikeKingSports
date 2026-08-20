@@ -4,6 +4,7 @@ import Link from 'next/link';
 import WorkGallery from '../components/WorkGallery';
 import PromoPopup from '../components/PromoPopup';
 import { useCart } from '../context/CartContext';
+import SmartSearch from '../components/SmartSearch';
 import styles from './page.module.css';
 
 export default function Home() {
@@ -63,6 +64,8 @@ export default function Home() {
           <p className={styles.heroDesc}>
             Especialistas en MTB y Ruta en Saravena. Tienda de bicicletas, repuestos, accesorios y servicio técnico profesional.
           </p>
+          
+          <SmartSearch />
           <div className={styles.heroButtons}>
             <Link href="/tienda" className="btn btn-primary">Ver Catálogo</Link>
             <Link href="/servicios" className="btn btn-secondary">Nuestro Taller</Link>
