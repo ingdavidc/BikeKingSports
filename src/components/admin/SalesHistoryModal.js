@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+ï»¿import { useState, useEffect } from 'react';
 
 export default function SalesHistoryModal({ onClose }) {
   const [sales, setSales] = useState([]);
@@ -78,10 +78,10 @@ export default function SalesHistoryModal({ onClose }) {
           </table>
           <div class="divider"></div>
           <div class="total">TOTAL: $${sale.total.toLocaleString()}</div>
-          <div>Método de pago: ${sale.payment_method}</div>
+          <div>MÃ©todo de pago: ${sale.payment_method}</div>
           <div class="divider"></div>
           <div class="footer">
-            ¡Gracias por su compra!<br>
+            Â¡Gracias por su compra!<br>
             www.bikekingsports.com
           </div>
           <script>
@@ -125,7 +125,7 @@ export default function SalesHistoryModal({ onClose }) {
         </head>
         <body>
           <div class="header">
-            <h2>Reporte General de Ventas (Últimos Registros)</h2>
+            <h2>Reporte General de Ventas (Ãšltimos Registros)</h2>
             <div style="font-size: 20px; font-weight: bold;">Total Acumulado: $${grandTotal.toLocaleString()}</div>
           </div>
           <table>
@@ -134,7 +134,7 @@ export default function SalesHistoryModal({ onClose }) {
                 <th>Fecha</th>
                 <th>ID Venta</th>
                 <th>Cliente (Doc)</th>
-                <th>Método de Pago</th>
+                <th>MÃ©todo de Pago</th>
                 <th style="text-align: right;">Total</th>
               </tr>
             </thead>
@@ -197,8 +197,8 @@ export default function SalesHistoryModal({ onClose }) {
                       <div>
                         <div style={{ fontWeight: 'bold', color: '#0f172a' }}>Recibo: {sale.id.substring(0, 8).toUpperCase()}</div>
                         <div style={{ color: '#64748b', fontSize: '0.85rem' }}>
-                          {new Date(sale.created_at).toLocaleString()} • {sale.payment_method}
-                          {sale.customer_document ? ` • Cliente: ${sale.customer_document}` : ''}
+                          {new Date(sale.created_at).toLocaleString()} â€¢ {sale.payment_method}
+                          {sale.customer_document ? ` â€¢ Cliente: ${sale.customer_document}` : ''}
                         </div>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
@@ -217,7 +217,7 @@ export default function SalesHistoryModal({ onClose }) {
                     
                     {isExpanded && (
                       <div style={{ padding: '16px', borderTop: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
-                        <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#334155' }}>Artículos:</h4>
+                        <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', color: '#334155' }}>ArtÃ­culos:</h4>
                         <table style={{ width: '100%', fontSize: '0.9rem', color: '#475569' }}>
                           <tbody>
                             {parsedItems.map((item, idx) => (
