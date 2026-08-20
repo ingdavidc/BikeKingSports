@@ -1,3 +1,4 @@
+﻿'use client';
 import { useState, useEffect, useRef } from 'react';
 import { useCart } from '../context/CartContext';
 import ProductQuickView from './ProductQuickView';
@@ -71,7 +72,7 @@ export default function SmartSearch() {
         <input
           type="text"
           className={styles.searchInput}
-          placeholder="¿Qué estás buscando? Ej: Cadena 12 vel..."
+          placeholder="Â¿QuÃ© estÃ¡s buscando? Ej: Cadena 12 vel..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => { if (results.length > 0) setShowResults(true); }}
@@ -150,3 +151,4 @@ export default function SmartSearch() {
     </div>
   );
 }
+
