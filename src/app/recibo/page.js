@@ -1,26 +1,28 @@
 ﻿'use client';
-import { useEffect, useState } from 'react';
-import { useParams, useSearchParams } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 
-export default function ReceiptPage() {
-  const params = useParams();
+function ReceiptContent() {
   const searchParams = useSearchParams();
+  const id = searchParams.get('id');
   const print = searchParams.get('print');
   
   const [sale, setSale] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (params.id) {
-      fetch(`/api/sales/${params.id}`)
+    if (id) {
+      fetch(`/api/sales/${id}`)
         .then(res => res.json())
         .then(data => {
           if (!data.error) setSale(data);
           setLoading(false);
         })
         .catch(() => setLoading(false));
+    } else {
+      setLoading(false);
     }
-  }, [params.id]);
+  }, [id]);
 
   useEffect(() => {
     if (sale && print === 'true') {
@@ -47,7 +49,6 @@ export default function ReceiptPage() {
       fontSize: '12px',
       lineHeight: '1.4'
     }}>
-      {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: '15px' }}>
         <h2 style={{ margin: '0 0 5px 0', fontSize: '18px' }}>BIKE KING SPORTS</h2>
         <div style={{ fontSize: '10px' }}>NIT: Pendiente</div>
@@ -58,7 +59,6 @@ export default function ReceiptPage() {
         </div>
       </div>
 
-      {/* Info Venta */}
       <div style={{ marginBottom: '15px' }}>
         <div><strong>Recibo N°:</strong> {sale.id.substring(0, 8).toUpperCase()}</div>
         <div><strong>Fecha:</strong> {new Date(sale.created_at).toLocaleString('es-CO')}</div>
@@ -70,7 +70,6 @@ export default function ReceiptPage() {
         )}
       </div>
 
-      {/* Items */}
       <table style={{ width: '100%', marginBottom: '15px', borderCollapse: 'collapse' }}>
         <thead>
           <tr style={{ borderBottom: '1px dashed #000' }}>
@@ -95,7 +94,6 @@ export default function ReceiptPage() {
         </tbody>
       </table>
 
-      {/* Totals */}
       <div style={{ borderTop: '1px dashed #000', paddingTop: '10px', marginBottom: '15px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontWeight: 'bold' }}>
           <span>TOTAL A PAGAR:</span>
@@ -141,13 +139,11 @@ export default function ReceiptPage() {
         )}
       </div>
 
-      {/* Footer */}
       <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '10px' }}>
         <p>¡Gracias por tu compra en Bike King Sports!</p>
         <p>Los artículos eléctricos tienen garantía de 30 días.</p>
       </div>
 
-      {/* Print styles */}
       <style jsx global>{`
         @media print {
           body { margin: 0; padding: 0; background: #fff; }
@@ -155,5 +151,13 @@ export default function ReceiptPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Cargando...</div>}>
+      <ReceiptContent />
+    </Suspense>
   );
 }

@@ -198,7 +198,7 @@ export default function VentasPage() {
         // Enviar WhatsApp si hay teléfono
         if (customerPhone) {
           const itemsText = cart.map(i => `${i.quantity}x ${i.name}`).join('%0A');
-          const receiptUrl = `https://bikekingsports.com/recibo/${data.id}`;
+          const receiptUrl = `https://bikekingsports.com/recibo?id=${data.id}`;
           const msg = `Hola${customerName ? ' ' + customerName : ''}, gracias por tu compra en BIKE KING SPORTS.%0A%0A*Detalle de Venta:*%0A${itemsText}%0A%0A*Total:* $${cartTotal.toLocaleString()}%0AMétodo: ${paymentMethod}%0A%0A📄 Puedes ver y descargar tu recibo oficial en el siguiente enlace:%0A${receiptUrl}%0A%0A¡Te esperamos pronto!`;
           const phone = customerPhone.replace(/\D/g, ''); // Solo números
           window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
@@ -206,7 +206,7 @@ export default function VentasPage() {
 
         // Imprimir recibo
         if (printVoucher) {
-          window.open(`/recibo/${data.id}?print=true`, '_blank', 'width=350,height=600');
+          window.open(`/recibo?id=${data.id}&print=true`, '_blank', 'width=350,height=600');
         }
 
         // Limpiar formulario
