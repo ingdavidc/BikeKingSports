@@ -24,6 +24,7 @@ export default function VentasPage() {
   const [customerName, setCustomerName] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
+  const [initialPayment, setInitialPayment] = useState('');
   const [isSearchingCustomer, setIsSearchingCustomer] = useState(false);
 
   useEffect(() => {
@@ -127,15 +128,20 @@ export default function VentasPage() {
   const cartTotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
   const handleCheckout = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (cart.length === 0) return;
-
+    if (paymentMethod === 'Apartado (Plan Separe)' && (!initialPayment || parseFloat(initialPayment) < 0)) {
+      alert("Por favor ingresa un abono inicial válido.");
+      return;
+    }
     setIsProcessing(true);
     try {
       const payload = {
         items: cart.map(i => ({ id: i.id, sku: i.sku, name: i.name, quantity: i.quantity, price: i.price })),
         payment_method: paymentMethod,
         total: cartTotal,
+        amount_paid: paymentMethod === 'Apartado (Plan Separe)' ? (parseFloat(initialPayment) || 0) : cartTotal,
+        status: paymentMethod === 'Apartado (Plan Separe)' ? 'layaway' : 'completed',
         work_order_id: selectedOrderId || null,
         customer: customerDoc ? {
           document: customerDoc,
@@ -438,15 +444,15 @@ export default function VentasPage() {
                   <div style={{ marginBottom: '25px' }}>
                     <label style={{ display: 'block', marginBottom: '15px', fontWeight: 600, color: '#334155' }}>Método de Pago</label>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                      {['Efectivo', 'Tarjeta', 'Transferencia'].map(method => (
+                      {['Efectivo', 'Tarjeta', 'Transferencia', 'Apartado (Plan Separe)'].map(method => (
                         <div 
                           key={method}
                           onClick={() => setPaymentMethod(method)}
                           style={{
                             padding: '15px', textAlign: 'center', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold',
-                            border: paymentMethod === method ? '2px solid #1964a6' : '2px solid #e2e8f0',
-                            backgroundColor: paymentMethod === method ? '#f0f9ff' : 'white',
-                            color: paymentMethod === method ? '#1964a6' : '#64748b',
+                            border: paymentMethod === method ? (method === 'Apartado (Plan Separe)' ? '2px solid #f97316' : '2px solid #1964a6') : '2px solid #e2e8f0',
+                            backgroundColor: paymentMethod === method ? (method === 'Apartado (Plan Separe)' ? '#fff7ed' : '#f0f9ff') : 'white',
+                            color: paymentMethod === method ? (method === 'Apartado (Plan Separe)' ? '#f97316' : '#1964a6') : '#64748b',
                             transition: 'all 0.2s'
                           }}
                         >
@@ -454,6 +460,19 @@ export default function VentasPage() {
                         </div>
                       ))}
                     </div>
+                    {paymentMethod === 'Apartado (Plan Separe)' && (
+                      <div style={{ marginTop: '15px' }}>
+                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem', color: '#64748b' }}>Abono Inicial *</label>
+                        <input 
+                          type="number" 
+                          required
+                          value={initialPayment}
+                          onChange={e => setInitialPayment(e.target.value)}
+                          placeholder="Ej. 50000"
+                          style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '1.1rem', boxSizing: 'border-box' }}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
 

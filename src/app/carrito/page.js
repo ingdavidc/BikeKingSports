@@ -43,6 +43,20 @@ export default function Carrito() {
     );
   }
 
+  const handleLayaway = () => {
+    let message = `Hola BikeKing, me gustaría apartar (Plan Separe) los siguientes productos:\n\n`;
+    cartItems.forEach(item => {
+      message += `- ${item.name} (x${item.quantity}) - ${formatPrice(item.price * item.quantity)}\n`;
+    });
+    message += `\n*Total a Apartar: ${formatPrice(getCartTotal())}*\n\n¿Cuáles son los pasos para dar el abono inicial?`;
+    
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappNumber = '573103291475';
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+    
+    window.open(whatsappUrl, '_blank');
+  };
+
   return (
     <div className={`container ${styles.cartContainer}`}>
       <h1 className={styles.title}>Carrito de Compras</h1>
@@ -52,7 +66,7 @@ export default function Carrito() {
           {cartItems.map(item => (
             <div key={item.id} className={styles.cartItem}>
               <div className={styles.itemImageContainer}>
-                <img src={item.image} alt={item.name} className={styles.itemImage} />
+                <img src={item.image_url || item.image} alt={item.name} className={styles.itemImage} />
               </div>
               <div className={styles.itemDetails}>
                 <h3 className={styles.itemName}>{item.name}</h3>
@@ -97,6 +111,10 @@ export default function Carrito() {
 
           <button onClick={handleCheckout} className={`btn btn-primary ${styles.checkoutBtn}`}>
             Confirmar Pedido vía WhatsApp
+          </button>
+          
+          <button onClick={handleLayaway} className={`btn btn-secondary ${styles.checkoutBtn}`} style={{ marginTop: '10px', backgroundColor: '#fff', color: '#0f172a', border: '2px solid #cbd5e1' }}>
+            Apartar (Plan Separe)
           </button>
           <p className={styles.checkoutNote}>
             Serás redirigido a WhatsApp para finalizar tu compra directamente con nosotros.

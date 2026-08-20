@@ -5,6 +5,13 @@ export default function SalesHistoryModal({ onClose }) {
   const [loading, setLoading] = useState(true);
   const [selectedSale, setSelectedSale] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // States for Layaway Payment Modal
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [selectedLayaway, setSelectedLayaway] = useState(null);
+  const [paymentAmount, setPaymentAmount] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('Efectivo');
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   const filteredSales = sales.filter(sale => 
     !searchQuery || 
@@ -29,6 +36,38 @@ export default function SalesHistoryModal({ onClose }) {
       console.error(err);
     }
     setLoading(false);
+  };
+
+  const handleRegisterPayment = async () => {
+    if (!paymentAmount || parseFloat(paymentAmount) <= 0) {
+      alert('Ingresa un monto válido');
+      return;
+    }
+    setIsProcessingPayment(true);
+    try {
+      const payload = {
+        id: selectedLayaway.id,
+        payment_amount: paymentAmount,
+        payment_method: paymentMethod
+      };
+      const res = await fetch('/api/sales', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Abono registrado exitosamente');
+        setPaymentModalOpen(false);
+        fetchSales(); // Refresh list
+      } else {
+        alert('Error: ' + data.error);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error al registrar abono');
+    }
+    setIsProcessingPayment(false);
   };
 
   const handlePrint = (sale) => {
@@ -212,16 +251,42 @@ export default function SalesHistoryModal({ onClose }) {
                       style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', ':hover': { backgroundColor: '#f8fafc' } }}
                     >
                       <div>
-                        <div style={{ fontWeight: 'bold', color: '#0f172a' }}>Recibo: {sale.id.substring(0, 8).toUpperCase()}</div>
+                        <div style={{ fontWeight: 'bold', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          Recibo: {sale.id.substring(0, 8).toUpperCase()}
+                          {sale.status === 'layaway' && (
+                            <span style={{ backgroundColor: '#f97316', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '0.75rem' }}>Apartado</span>
+                          )}
+                        </div>
                         <div style={{ color: '#64748b', fontSize: '0.85rem' }}>
                           {new Date(sale.created_at).toLocaleString()} • {sale.payment_method}
                           {sale.customer_document ? ` • Cliente: ${sale.customer_document}` : ''}
                         </div>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                        <div style={{ fontWeight: 'bold', color: '#10b981', fontSize: '1.1rem' }}>
+                        <div style={{ fontWeight: 'bold', color: '#10b981', fontSize: '1.1rem', textAlign: 'right' }}>
                           ${sale.total.toLocaleString()}
+                          {sale.status === 'layaway' && (
+                            <div style={{ fontSize: '0.8rem', color: '#f97316' }}>
+                              Deuda: ${(sale.total - (sale.amount_paid || 0)).toLocaleString()}
+                            </div>
+                          )}
                         </div>
+                        
+                        {sale.status === 'layaway' && (
+                          <button 
+                            onClick={(e) => { 
+                              e.stopPropagation(); 
+                              setSelectedLayaway(sale); 
+                              setPaymentAmount(sale.total - (sale.amount_paid || 0));
+                              setPaymentModalOpen(true); 
+                            }}
+                            style={{ padding: '6px 10px', backgroundColor: '#fff7ed', color: '#f97316', border: '1px solid #fed7aa', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.85rem' }}
+                            title="Registrar Abono"
+                          >
+                            Abonar
+                          </button>
+                        )}
+
                         <button 
                           onClick={(e) => { e.stopPropagation(); handlePrint(sale); }}
                           style={{ padding: '6px', backgroundColor: 'transparent', color: '#3b82f6', border: '1px solid #bfdbfe', borderRadius: '4px', cursor: 'pointer' }}
@@ -255,6 +320,63 @@ export default function SalesHistoryModal({ onClose }) {
           )}
         </div>
       </div>
+
+      {/* Payment Modal */}
+      {paymentModalOpen && selectedLayaway && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000 }}>
+          <div style={{ backgroundColor: 'white', padding: '25px', borderRadius: '12px', width: '400px', maxWidth: '90%' }}>
+            <h3 style={{ marginTop: 0, marginBottom: '20px', color: '#0f172a' }}>Registrar Abono</h3>
+            
+            <div style={{ marginBottom: '15px' }}>
+              <div style={{ fontSize: '0.9rem', color: '#64748b' }}>Deuda Pendiente</div>
+              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#f97316' }}>
+                ${(selectedLayaway.total - (selectedLayaway.amount_paid || 0)).toLocaleString()}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem', color: '#334155', fontWeight: 'bold' }}>Monto a Abonar</label>
+              <input 
+                type="number" 
+                value={paymentAmount}
+                onChange={e => setPaymentAmount(e.target.value)}
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '1.1rem', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem', color: '#334155', fontWeight: 'bold' }}>Método de Pago</label>
+              <select 
+                value={paymentMethod}
+                onChange={e => setPaymentMethod(e.target.value)}
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '1rem', boxSizing: 'border-box' }}
+              >
+                <option value="Efectivo">Efectivo</option>
+                <option value="Nequi">Nequi</option>
+                <option value="Daviplata">Daviplata</option>
+                <option value="Transferencia">Transferencia Bancaria</option>
+                <option value="Tarjeta">Tarjeta</option>
+              </select>
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button 
+                onClick={() => setPaymentModalOpen(false)}
+                style={{ padding: '10px 15px', backgroundColor: '#f1f5f9', color: '#475569', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={handleRegisterPayment}
+                disabled={isProcessingPayment}
+                style={{ padding: '10px 15px', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+              >
+                {isProcessingPayment ? 'Procesando...' : 'Confirmar Abono'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

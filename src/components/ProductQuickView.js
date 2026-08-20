@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import styles from './ProductQuickView.module.css';
 
@@ -58,13 +58,25 @@ export default function ProductQuickView({ product, onClose }) {
 
             <div className={styles.actions}>
               {!isOutOfStock ? (
-                <button 
-                  className={`btn btn-primary ${styles.actionBtn}`} 
-                  onClick={handleAddToCart}
-                  disabled={isAdding}
-                >
-                  {isAdding ? 'Añadiendo...' : 'Añadir al Carrito'}
-                </button>
+                <div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
+                  <button 
+                    className={`btn btn-primary ${styles.actionBtn}`} 
+                    onClick={handleAddToCart}
+                    disabled={isAdding}
+                  >
+                    {isAdding ? 'Añadiendo...' : 'Añadir al Carrito'}
+                  </button>
+                  <button 
+                    className={`btn btn-secondary ${styles.actionBtn}`} 
+                    onClick={() => {
+                      const text = encodeURIComponent(`Hola BikeKing, me gustaría apartar (Plan Separe) el producto: ${product.name} por ${formatPrice(product.price)}. ¿Cuáles son los pasos para dar el abono inicial?`);
+                      window.open(`https://wa.me/573103291475?text=${text}`, '_blank');
+                    }}
+                    style={{ backgroundColor: '#fff', color: '#0f172a', border: '1px solid #cbd5e1' }}
+                  >
+                    Apartar (Plan Separe)
+                  </button>
+                </div>
               ) : (
                 <button 
                   className={`btn btn-secondary ${styles.actionBtn} ${styles.waBtn}`} 
