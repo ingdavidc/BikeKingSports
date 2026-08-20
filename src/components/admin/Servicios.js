@@ -133,7 +133,7 @@ export default function Servicios() {
               </div>
             )}
           </div>
-          <button type="submit" disabled={saving || uploading} style={{ backgroundColor: '#1964a6', color: 'white', padding: '12px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: 'bold', marginTop: '10px', boxShadow: '0 2px 4px rgba(25,100,166,0.2)', transition: 'background-color 0.2s' }}>
+          <button type="submit" disabled={saving || uploading} style={{ backgroundColor: '#005BBE', color: 'white', padding: '12px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: 'bold', marginTop: '10px', boxShadow: '0 2px 4px rgba(0, 91, 190,0.2)', transition: 'background-color 0.2s' }}>
             Guardar Servicio
           </button>
         </form>

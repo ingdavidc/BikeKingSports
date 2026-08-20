@@ -100,7 +100,7 @@ export default function ProviderModal({ onClose, onSave, initialData }) {
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
             <button type="button" onClick={onClose} style={{ padding: '10px 15px', borderRadius: '4px', border: '1px solid #cbd5e1', backgroundColor: 'white', cursor: 'pointer' }}>Cancelar</button>
-            <button type="submit" disabled={loading} style={{ padding: '10px 15px', borderRadius: '4px', border: 'none', backgroundColor: '#1964a6', color: 'white', fontWeight: 'bold', cursor: 'pointer' }}>
+            <button type="submit" disabled={loading} style={{ padding: '10px 15px', borderRadius: '4px', border: 'none', backgroundColor: '#005BBE', color: 'white', fontWeight: 'bold', cursor: 'pointer' }}>
               {loading ? 'Guardando...' : 'Guardar'}
             </button>
           </div>

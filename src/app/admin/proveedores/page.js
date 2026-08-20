@@ -124,7 +124,7 @@ export default function ProveedoresPage() {
         <h1 style={{ fontSize: '1.8rem', color: '#0f172a', margin: 0, fontWeight: 700 }}>Directorio de Proveedores</h1>
         <button 
           onClick={openAddModal}
-          style={{ padding: '10px 18px', backgroundColor: '#1964a6', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 600, cursor: 'pointer', boxShadow: '0 2px 4px rgba(25,100,166,0.2)' }}
+          style={{ padding: '10px 18px', backgroundColor: '#005BBE', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 600, cursor: 'pointer', boxShadow: '0 2px 4px rgba(0, 91, 190,0.2)' }}
         >
           + Añadir Proveedor
         </button>
@@ -230,7 +230,7 @@ export default function ProveedoresPage() {
                 <button type="button" onClick={closeModal} style={{ padding: '10px 20px', border: '1px solid #e2e8f0', backgroundColor: 'white', color: '#0f172a', borderRadius: '6px', cursor: 'pointer', fontWeight: 500 }}>
                   Cancelar
                 </button>
-                <button type="submit" style={{ padding: '10px 20px', backgroundColor: '#1964a6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}>
+                <button type="submit" style={{ padding: '10px 20px', backgroundColor: '#005BBE', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}>
                   {isEditing ? 'Guardar Cambios' : 'Crear Proveedor'}
                 </button>
               </div>
@@ -250,7 +250,7 @@ export default function ProveedoresPage() {
               <button onClick={() => setConfirmDialog({ open: false })} style={{ padding: '9px 18px', border: '1px solid #e2e8f0', backgroundColor: 'white', color: '#0f172a', borderRadius: '6px', cursor: 'pointer' }}>
                 Cancelar
               </button>
-              <button onClick={confirmDialog.onConfirm} style={{ padding: '9px 18px', backgroundColor: confirmDialog.destructive ? '#ef4444' : '#1964a6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}>
+              <button onClick={confirmDialog.onConfirm} style={{ padding: '9px 18px', backgroundColor: confirmDialog.destructive ? '#ef4444' : '#005BBE', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}>
                 Confirmar
               </button>
             </div>

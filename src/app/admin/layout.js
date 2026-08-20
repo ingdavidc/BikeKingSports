@@ -93,7 +93,7 @@ export default function AdminLayout({ children }) {
   return (
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f1f5f9' }}>
       {/* Sidebar */}
-      <aside style={{ width: '240px', minWidth: '240px', backgroundColor: '#124b7d', color: 'white', display: 'flex', flexDirection: 'column', position: 'sticky', top: 0, height: '100vh', boxShadow: '2px 0 8px rgba(0,0,0,0.1)' }}>
+      <aside style={{ width: '240px', minWidth: '240px', backgroundColor: '#003d7c', color: 'white', display: 'flex', flexDirection: 'column', position: 'sticky', top: 0, height: '100vh', boxShadow: '2px 0 8px rgba(0,0,0,0.1)' }}>
         {/* Logo + usuario */}
         <div style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
           <h2 style={{ margin: '0 0 6px', fontSize: '1.05rem', color: '#ffffff', fontWeight: 700, letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '8px' }}>

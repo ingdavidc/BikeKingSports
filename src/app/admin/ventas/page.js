@@ -384,7 +384,7 @@ export default function VentasPage() {
             disabled={cart.length === 0}
             onClick={() => setIsCheckoutModalOpen(true)}
             style={{ 
-              width: '100%', padding: '20px', backgroundColor: cart.length === 0 ? '#cbd5e1' : '#1964a6', 
+              width: '100%', padding: '20px', backgroundColor: cart.length === 0 ? '#cbd5e1' : '#005BBE', 
               color: 'white', border: 'none', borderRadius: '8px', fontSize: '1.5rem', fontWeight: 'bold', 
               cursor: cart.length === 0 ? 'not-allowed' : 'pointer', transition: 'background-color 0.2s', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
             }}
@@ -501,9 +501,9 @@ export default function VentasPage() {
                           onClick={() => setPaymentMethod(method)}
                           style={{
                             padding: '15px', textAlign: 'center', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold',
-                            border: paymentMethod === method ? (method === 'Apartado (Plan Separe)' ? '2px solid #f97316' : '2px solid #1964a6') : '2px solid #e2e8f0',
+                            border: paymentMethod === method ? (method === 'Apartado (Plan Separe)' ? '2px solid #f97316' : '2px solid #005BBE') : '2px solid #e2e8f0',
                             backgroundColor: paymentMethod === method ? (method === 'Apartado (Plan Separe)' ? '#fff7ed' : '#f0f9ff') : 'white',
-                            color: paymentMethod === method ? (method === 'Apartado (Plan Separe)' ? '#f97316' : '#1964a6') : '#64748b',
+                            color: paymentMethod === method ? (method === 'Apartado (Plan Separe)' ? '#f97316' : '#005BBE') : '#64748b',
                             transition: 'all 0.2s'
                           }}
                         >
@@ -571,7 +571,7 @@ export default function VentasPage() {
                     type="submit"
                     disabled={isProcessing}
                     style={{
-                      width: '100%', padding: '18px', backgroundColor: isProcessing ? '#94a3b8' : '#1964a6', 
+                      width: '100%', padding: '18px', backgroundColor: isProcessing ? '#94a3b8' : '#005BBE', 
                       color: 'white', border: 'none', borderRadius: '8px', fontSize: '1.1rem', fontWeight: 'bold', cursor: isProcessing ? 'wait' : 'pointer'
                     }}
                   >

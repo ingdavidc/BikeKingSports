@@ -62,7 +62,7 @@ export default function ContenidoWeb() {
         <button
           onClick={() => handleSave(id)}
           disabled={saving[id]}
-          style={{ backgroundColor: '#1964a6', color: 'white', padding: '0 20px', borderRadius: '4px', border: 'none', cursor: 'pointer' }}
+          style={{ backgroundColor: '#005BBE', color: 'white', padding: '0 20px', borderRadius: '4px', border: 'none', cursor: 'pointer' }}
         >
           {saving[id] ? '...' : 'Guardar'}
         </button>

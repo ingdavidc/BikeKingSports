@@ -157,7 +157,7 @@ export default function InventarioPage() {
           />
           <button 
             onClick={() => setIsProviderModalOpen(true)}
-            style={{ padding: '10px 16px', backgroundColor: 'white', color: '#1964a6', border: '1px solid #1964a6', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', transition: 'background-color 0.2s' }}
+            style={{ padding: '10px 16px', backgroundColor: 'white', color: '#005BBE', border: '1px solid #005BBE', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', transition: 'background-color 0.2s' }}
           >
             + Añadir Proveedor
           </button>
@@ -169,7 +169,7 @@ export default function InventarioPage() {
           </button>
           <button 
             onClick={handleAddClick}
-            style={{ padding: '10px 16px', backgroundColor: '#1964a6', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 2px 4px rgba(25,100,166,0.2)', transition: 'background-color 0.2s' }}
+            style={{ padding: '10px 16px', backgroundColor: '#005BBE', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0, 91, 190,0.2)', transition: 'background-color 0.2s' }}
           >
             + Añadir Producto
           </button>
@@ -266,7 +266,7 @@ export default function InventarioPage() {
                     />
                   </td>
                   <td style={{ padding: '12px 16px', display: 'flex', gap: '8px' }}>
-                    <button onClick={() => handleEditClick(item)} style={{ padding: '6px 12px', backgroundColor: '#1964a6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}>Editar</button>
+                    <button onClick={() => handleEditClick(item)} style={{ padding: '6px 12px', backgroundColor: '#005BBE', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}>Editar</button>
                     <button onClick={() => handleDelete(item.id)} style={{ padding: '6px 12px', backgroundColor: '#e5142b', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}>Eliminar</button>
                   </td>
                 </tr>

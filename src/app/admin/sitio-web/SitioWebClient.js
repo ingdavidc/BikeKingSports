@@ -28,15 +28,15 @@ export default function AdministracionWeb() {
             onClick={() => setActiveTab(tab.id)}
             style={{
               padding: '10px 24px',
-              backgroundColor: activeTab === tab.id ? '#1964a6' : '#f8fafc',
+              backgroundColor: activeTab === tab.id ? '#005BBE' : '#f8fafc',
               color: activeTab === tab.id ? 'white' : '#475569',
-              border: activeTab === tab.id ? '1px solid #1964a6' : '1px solid #cbd5e1',
+              border: activeTab === tab.id ? '1px solid #005BBE' : '1px solid #cbd5e1',
               borderRadius: '6px',
               cursor: 'pointer',
               fontWeight: '600',
               fontSize: '0.95rem',
               transition: 'all 0.2s',
-              boxShadow: activeTab === tab.id ? '0 4px 6px -1px rgba(25,100,166,0.2)' : 'none'
+              boxShadow: activeTab === tab.id ? '0 4px 6px -1px rgba(0, 91, 190,0.2)' : 'none'
             }}
           >
             {tab.label}

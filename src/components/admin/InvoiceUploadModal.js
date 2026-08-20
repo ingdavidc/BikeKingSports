@@ -139,7 +139,7 @@ export default function InvoiceUploadModal({ onClose, onComplete }) {
             <button 
               onClick={processInvoice}
               disabled={!file}
-              style={{ padding: '12px 24px', backgroundColor: file ? '#1964a6' : '#cbd5e1', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: file ? 'pointer' : 'not-allowed', fontSize: '1.1rem' }}
+              style={{ padding: '12px 24px', backgroundColor: file ? '#005BBE' : '#cbd5e1', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: file ? 'pointer' : 'not-allowed', fontSize: '1.1rem' }}
             >
               Extraer Datos con IA ✨
             </button>
@@ -162,7 +162,7 @@ export default function InvoiceUploadModal({ onClose, onComplete }) {
               }
             `}</style>
             <div style={{ position: 'relative', width: '70px', height: '70px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-               <Bot size={64} color="#1964a6" style={{ animation: 'bounceBot 2s ease-in-out infinite' }} />
+               <Bot size={64} color="#005BBE" style={{ animation: 'bounceBot 2s ease-in-out infinite' }} />
                <div style={{ position: 'absolute', left: '-10%', width: '120%', height: '3px', backgroundColor: '#10b981', boxShadow: '0 0 10px #10b981', animation: 'scanLine 1.5s linear infinite', borderRadius: '4px', zIndex: 2 }}></div>
             </div>
             <h3 style={{ margin: 0, color: '#0f172a' }}>La Inteligencia Artificial está leyendo la factura...</h3>

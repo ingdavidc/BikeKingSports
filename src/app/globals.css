@@ -1,8 +1,8 @@
 :root {
   /* Corporate Colors */
-  --color-primary: #1964a6; /* Bike King Blue */
-  --color-primary-light: #2c80c9;
-  --color-primary-dark: #124b7d;
+  --color-primary: #005BBE; /* Bike King Blue */
+  --color-primary-light: #3385e0;
+  --color-primary-dark: #003d7c;
   
   /* UCI Accent Colors */
   --color-accent-blue: #0072C6;
@@ -37,7 +37,7 @@
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-primary: 0 10px 15px -3px rgba(25, 100, 166, 0.3);
+  --shadow-primary: 0 10px 15px -3px rgba(0, 91, 190, 0.3);
   
   --transition: all 0.3s ease;
 }
