@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import Link from 'next/link';
 import { useCart } from '../context/CartContext';
 import Logo from './Logo';
@@ -12,7 +12,7 @@ export default function Navbar() {
   return (
     <>
       <div className={styles.topbar}>
-        <div className={container }>
+        <div className={`container ${styles.topbarInner}`}>
           <div className={styles.topbarLeft}>
             <Link href="/nosotros" className={styles.topLink}>NOSOTROS</Link>
             <span className={styles.divider}>|</span>
@@ -36,7 +36,7 @@ export default function Navbar() {
       </div>
 
       <nav className={styles.navbar}>
-        <div className={container }>
+        <div className={`container ${styles.navInner}`}>
           <div className={styles.logoContainer}>
             <Logo />
           </div>

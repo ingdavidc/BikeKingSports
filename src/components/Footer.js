@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Logo from './Logo';
@@ -21,7 +21,7 @@ export default function Footer() {
 
   return (
     <footer className={styles.footer}>
-      <div className={container \}>
+      <div className={`container ${styles.footerContainer}`}>
         <div className={styles.column}>
           <Logo />
           <p className={styles.text} style={{marginTop: '16px'}}>Tu tienda de confianza para ciclismo en Saravena. Encuentra las mejores marcas, servicio técnico especializado y todo lo que necesitas para rodar.</p>
@@ -51,7 +51,7 @@ export default function Footer() {
           </div>
         </div>
       </div>
-      <div className={container \}>
+      <div className={`container ${styles.footerBottom}`}>
         <p>
           &copy; {new Date().getFullYear()} BIKE KING. Todos los derechos reservados.
           <span className={styles.divider}>|</span>

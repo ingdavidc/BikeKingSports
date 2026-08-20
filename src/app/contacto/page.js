@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import styles from './page.module.css';
@@ -57,7 +57,7 @@ export default function Contacto() {
           <div className={styles.infoBlock}>
             <h3>Información de Contacto</h3>
             
-            <a href={https://www.google.com/maps/dir/?api=1&destination=\} target="_blank" rel="noopener noreferrer" className={styles.infoLink} style={{textDecoration: 'none', color: 'inherit'}}>
+            <a href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`} target="_blank" rel="noopener noreferrer" className={styles.infoLink} style={{textDecoration: 'none', color: 'inherit'}}>
               <div className={styles.infoItem}>
                 <MapPin size={24} />
                 <div>
@@ -67,7 +67,7 @@ export default function Contacto() {
               </div>
             </a>
             
-            <a href={https://wa.me/\?text=Hola%20Bike%20King,%20quisiera%20recibir%20m%C3%A1s%20informaci%C3%B3n} target="_blank" rel="noopener noreferrer" className={styles.infoLink} style={{textDecoration: 'none', color: 'inherit'}}>
+            <a href={`https://wa.me/${phoneLink}?text=Hola%20Bike%20King,%20quisiera%20recibir%20m%C3%A1s%20informaci%C3%B3n`} target="_blank" rel="noopener noreferrer" className={styles.infoLink} style={{textDecoration: 'none', color: 'inherit'}}>
               <div className={styles.infoItem}>
                 <Phone size={24} />
                 <div>
@@ -77,7 +77,7 @@ export default function Contacto() {
               </div>
             </a>
             
-            <a href={mailto:\?subject=Contacto%20desde%20la%20p%C3%A1gina%20web} className={styles.infoLink} style={{textDecoration: 'none', color: 'inherit'}}>
+            <a href={`mailto:${email}?subject=Contacto%20desde%20la%20p%C3%A1gina%20web`} className={styles.infoLink} style={{textDecoration: 'none', color: 'inherit'}}>
               <div className={styles.infoItem}>
                 <Mail size={24} />
                 <div>
@@ -132,7 +132,7 @@ export default function Contacto() {
               <label htmlFor="message">Mensaje</label>
               <textarea id="message" name="message" className={styles.formControl} value={formData.message} onChange={handleChange} required placeholder="Escribe tu mensaje aquí..."></textarea>
             </div>
-            <button type="submit" className={tn btn-primary \} disabled={status === 'sending'}>
+            <button type="submit" className={`btn btn-primary ${styles.submitBtn}`} disabled={status === 'sending'}>
               {status === 'sending' ? 'Enviando...' : (
                 <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
                   Enviar Mensaje <Send size={20} />
