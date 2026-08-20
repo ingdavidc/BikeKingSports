@@ -26,6 +26,11 @@ export default function VentasPage() {
   const [customerPhone, setCustomerPhone] = useState('');
   const [initialPayment, setInitialPayment] = useState('');
   const [isSearchingCustomer, setIsSearchingCustomer] = useState(false);
+  
+  // New POS states
+  const [cashReceived, setCashReceived] = useState('');
+  const [transactionRef, setTransactionRef] = useState('');
+  const [printVoucher, setPrintVoucher] = useState(true);
 
   useEffect(() => {
     fetchProducts();
@@ -92,6 +97,34 @@ export default function VentasPage() {
     );
   }, [products, search]);
 
+  const handleExpressService = () => {
+    const desc = prompt('Descripción del Servicio / Mano de Obra:');
+    if (!desc) return;
+    const price = prompt('Valor del servicio ($):');
+    if (!price || isNaN(price)) return;
+    setCart(prev => [...prev, {
+      id: `SERVICE-${Date.now()}`,
+      sku: 'SER',
+      name: desc,
+      price: parseFloat(price),
+      quantity: 1,
+      stock: 999, // infinite stock for services
+      is_service: true
+    }]);
+  };
+
+  const handleSearchChange = (val) => {
+    setSearch(val);
+    if (!val) return;
+    
+    // Barcode scanner exact match
+    const exactMatch = products.find(p => p.sku === val);
+    if (exactMatch && exactMatch.stock > 0) {
+      addToCart(exactMatch);
+      setSearch(''); // clear search after adding
+    }
+  };
+
   const addToCart = (product) => {
     if (product.stock <= 0) return;
     setCart(prev => {
@@ -142,6 +175,9 @@ export default function VentasPage() {
         total: cartTotal,
         amount_paid: paymentMethod === 'Apartado (Plan Separe)' ? (parseFloat(initialPayment) || 0) : cartTotal,
         status: paymentMethod === 'Apartado (Plan Separe)' ? 'layaway' : 'completed',
+        transaction_ref: (paymentMethod !== 'Efectivo' && paymentMethod !== 'Apartado (Plan Separe)') ? transactionRef : null,
+        cash_received: paymentMethod === 'Efectivo' && cashReceived ? parseFloat(cashReceived) : null,
+        change_given: paymentMethod === 'Efectivo' && cashReceived ? parseFloat(cashReceived) - cartTotal : null,
         work_order_id: selectedOrderId || null,
         customer: customerDoc ? {
           document: customerDoc,
@@ -161,10 +197,16 @@ export default function VentasPage() {
       if (data.success) {
         // Enviar WhatsApp si hay teléfono
         if (customerPhone) {
-          const itemsText = cart.map(i => `${i.quantity}x ${i.name} ($${i.price})`).join('%0A');
-          const msg = `Hola${customerName ? ' ' + customerName : ''}, gracias por tu compra en BIKE KING SPORTS.%0A%0A*Detalle de Venta:*%0A${itemsText}%0A%0A*Total:* $${cartTotal.toLocaleString()}%0AMétodo: ${paymentMethod}%0A%0A¡Te esperamos pronto!`;
+          const itemsText = cart.map(i => `${i.quantity}x ${i.name}`).join('%0A');
+          const receiptUrl = `https://bikekingsports.com/recibo/${data.id}`;
+          const msg = `Hola${customerName ? ' ' + customerName : ''}, gracias por tu compra en BIKE KING SPORTS.%0A%0A*Detalle de Venta:*%0A${itemsText}%0A%0A*Total:* $${cartTotal.toLocaleString()}%0AMétodo: ${paymentMethod}%0A%0A📄 Puedes ver y descargar tu recibo oficial en el siguiente enlace:%0A${receiptUrl}%0A%0A¡Te esperamos pronto!`;
           const phone = customerPhone.replace(/\D/g, ''); // Solo números
           window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+        }
+
+        // Imprimir recibo
+        if (printVoucher) {
+          window.open(`/recibo/${data.id}?print=true`, '_blank', 'width=350,height=600');
         }
 
         // Limpiar formulario
@@ -176,8 +218,9 @@ export default function VentasPage() {
         setCustomerName('');
         setCustomerEmail('');
         setCustomerPhone('');
+        setCashReceived('');
+        setTransactionRef('');
         fetchProducts();
-        alert('✅ Venta registrada exitosamente.');
       } else {
         alert('Error: ' + data.error);
       }
@@ -197,20 +240,28 @@ export default function VentasPage() {
         <div style={{ padding: '20px', borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
             <h2 style={{ margin: 0, color: '#0f172a', fontSize: '1.5rem', fontWeight: '700' }}>Punto de Venta</h2>
-            <button 
-              onClick={() => setIsHistoryModalOpen(true)}
-              style={{ padding: '8px 16px', backgroundColor: 'white', color: '#10b981', border: '1px solid #10b981', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-              Historial de Ventas
-            </button>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button 
+                onClick={handleExpressService}
+                style={{ padding: '8px 16px', backgroundColor: '#e0e7ff', color: '#4f46e5', border: '1px solid #c7d2fe', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+              >
+                + Servicio Express
+              </button>
+              <button 
+                onClick={() => setIsHistoryModalOpen(true)}
+                style={{ padding: '8px 16px', backgroundColor: 'white', color: '#10b981', border: '1px solid #10b981', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                Historial de Ventas
+              </button>
+            </div>
           </div>
           <input 
-            type="text"
-            placeholder="🔍 Buscar por nombre o código de barras (SKU)..."
+            type="text" 
+            placeholder="Buscar por nombre, categoría o SKU (o usa el lector de código de barras)..." 
             value={search}
-            onChange={e => setSearch(e.target.value)}
-            style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '1rem', boxSizing: 'border-box' }}
+            onChange={e => handleSearchChange(e.target.value)}
+            style={{ width: '100%', padding: '12px 15px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', boxSizing: 'border-box' }}
           />
         </div>
 
@@ -473,14 +524,47 @@ export default function VentasPage() {
                         />
                       </div>
                     )}
+                    {paymentMethod === 'Efectivo' && (
+                      <div style={{ marginTop: '15px' }}>
+                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem', color: '#64748b' }}>Efectivo Recibido</label>
+                        <input 
+                          type="number" 
+                          value={cashReceived}
+                          onChange={e => setCashReceived(e.target.value)}
+                          placeholder="Ej. 100000"
+                          style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '1.1rem', boxSizing: 'border-box' }}
+                        />
+                        {cashReceived && parseFloat(cashReceived) >= cartTotal && (
+                          <div style={{ marginTop: '8px', color: '#10b981', fontWeight: 'bold', fontSize: '1.1rem', textAlign: 'right' }}>
+                            Cambio: ${(parseFloat(cashReceived) - cartTotal).toLocaleString()}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    {['Tarjeta', 'Transferencia', 'Nequi', 'Daviplata'].includes(paymentMethod) && (
+                      <div style={{ marginTop: '15px' }}>
+                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem', color: '#64748b' }}>N° Comprobante / Referencia (Opcional)</label>
+                        <input 
+                          type="text" 
+                          value={transactionRef}
+                          onChange={e => setTransactionRef(e.target.value)}
+                          placeholder="Ej. 123456789"
+                          style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '1rem', boxSizing: 'border-box' }}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 {/* Botón Final */}
                 <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '15px', color: '#475569', fontSize: '0.9rem' }}>
+                    <input type="checkbox" checked={printVoucher} onChange={e => setPrintVoucher(e.target.checked)} />
+                    🖨️ Imprimir recibo físico al confirmar
+                  </label>
                   {customerPhone && (
                     <div style={{ textAlign: 'center', marginBottom: '10px', fontSize: '0.85rem', color: '#10b981', fontWeight: 'bold' }}>
-                      <span style={{ fontSize: '1.2rem', verticalAlign: 'middle' }}>💬</span> Se abrirá WhatsApp al finalizar
+                      <span style={{ fontSize: '1.2rem', verticalAlign: 'middle' }}>💬</span> Se enviará recibo por WhatsApp al finalizar
                     </div>
                   )}
                   <button 

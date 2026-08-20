@@ -24,9 +24,9 @@ export async function onRequestPost(context) {
 
   let body;
   try { body = await context.request.json(); }
-  catch { return Response.json({ error: 'Cuerpo inválido' }, { status: 400 }); }
+  catch { return Response.json({ error: 'Cuerpo invÃ¡lido' }, { status: 400 }); }
 
-  const { items, payment_method, work_order_id, total, customer, amount_paid, status } = body;
+  const { items, payment_method, work_order_id, total, customer, amount_paid, status, transaction_ref, cash_received, change_given } = body;
   
   if (!items || !Array.isArray(items) || items.length === 0) {
     return Response.json({ error: 'La venta debe contener artículos' }, { status: 400 });
@@ -63,13 +63,14 @@ export async function onRequestPost(context) {
     const initialPaymentHistory = saleAmountPaid > 0 ? JSON.stringify([{
       date: new Date().toISOString(),
       amount: saleAmountPaid,
-      method: payment_method
+      method: payment_method,
+      reference: transaction_ref || null
     }]) : '[]';
 
     // 1. Crear el registro de la venta
     stmts.push(
-      DB.prepare('INSERT INTO sales (id, total, payment_method, work_order_id, customer_document, items, status, amount_paid, payment_history) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
-        .bind(saleId, total, payment_method, work_order_id || null, customerDoc, itemsJson, saleStatus, saleAmountPaid, initialPaymentHistory)
+      DB.prepare('INSERT INTO sales (id, total, payment_method, work_order_id, customer_document, items, status, amount_paid, payment_history, transaction_ref, cash_received, change_given) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+        .bind(saleId, total, payment_method, work_order_id || null, customerDoc, itemsJson, saleStatus, saleAmountPaid, initialPaymentHistory, transaction_ref || null, cash_received || null, change_given || null)
     );
 
     // 2. Deducir stock para cada item
@@ -107,7 +108,7 @@ export async function onRequestPut(context) {
 
   let body;
   try { body = await context.request.json(); }
-  catch { return Response.json({ error: 'Cuerpo inv�lido' }, { status: 400 }); }
+  catch { return Response.json({ error: 'Cuerpo inválido' }, { status: 400 }); }
 
   const { id, payment_amount, payment_method } = body;
   
