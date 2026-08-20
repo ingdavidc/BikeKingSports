@@ -10,6 +10,7 @@ export async function onRequestGet(context) {
       const promoProduct = await DB.prepare(`
         SELECT id, name, category, price, stock, image_url, min_stock_limit 
         FROM products 
+        WHERE is_published = 1 OR is_published IS NULL
         ORDER BY price DESC 
         LIMIT 1
       `).first();
@@ -20,6 +21,7 @@ export async function onRequestGet(context) {
     let query = `
       SELECT id, name, category, price, stock, image_url, min_stock_limit 
       FROM products 
+      WHERE is_published = 1 OR is_published IS NULL
       ORDER BY created_at DESC
     `;
 
