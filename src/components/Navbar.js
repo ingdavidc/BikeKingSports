@@ -10,9 +10,10 @@ export default function Navbar() {
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
-    <>
+    <header className={styles.header}>
+      {/* Top Bar */}
       <div className={styles.topbar}>
-        <div className={`container ${styles.topbarInner}`}>
+        <div className={`container ${styles.topbarContainer}`}>
           <div className={styles.topbarLeft}>
             <Link href="/nosotros" className={styles.topLink}>NOSOTROS</Link>
             <span className={styles.divider}>|</span>
@@ -35,36 +36,36 @@ export default function Navbar() {
         </div>
       </div>
 
-      <nav className={styles.navbar}>
-        <div className={`container ${styles.navInner}`}>
-          <div className={styles.logoContainer}>
+      {/* Main Header Area */}
+      <div className={styles.mainHeader}>
+        <div className={`container ${styles.mainHeaderContainer}`}>
+          <Link href="/" className={styles.logoLink}>
             <Logo />
+          </Link>
+          
+          <div className={styles.searchContainer}>
+            <SmartSearch />
           </div>
 
+          <div className={styles.cartContainer}>
+            <button onClick={openCart} className={styles.cartBtn}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+              {cartCount > 0 && <span className={styles.cartBadge}>{cartCount}</span>}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation Menu */}
+      <nav className={styles.navBar}>
+        <div className={`container ${styles.navMenu}`}>
           <div className={styles.navLinks}>
             <Link href="/" className={styles.navLink}>INICIO</Link>
             <Link href="/tienda" className={styles.navLink}>TIENDA</Link>
             <Link href="/servicios" className={styles.navLink}>TALLER</Link>
           </div>
-
-          <div className={styles.actions}>
-            <div style={{width: '300px'}}>
-              <SmartSearch />
-            </div>
-
-            <button className={styles.cartButton} onClick={openCart}>
-              <div className={styles.cartIconWrapper}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="9" cy="21" r="1"></circle>
-                  <circle cx="20" cy="21" r="1"></circle>
-                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                </svg>
-                {cartCount > 0 && <span className={styles.badge}>{cartCount}</span>}
-              </div>
-            </button>
-          </div>
         </div>
       </nav>
-    </>
+    </header>
   );
 }
