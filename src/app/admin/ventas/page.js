@@ -115,6 +115,15 @@ export default function VentasPage() {
     }).filter(Boolean));
   };
 
+  const updatePrice = (id, newPrice) => {
+    setCart(prev => prev.map(item => {
+      if (item.id === id) {
+        return { ...item, price: newPrice };
+      }
+      return item;
+    }));
+  };
+
   const cartTotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
   const handleCheckout = async (e) => {
@@ -273,8 +282,24 @@ export default function VentasPage() {
               {cart.map(item => (
                 <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', borderBottom: '1px solid #f1f5f9' }}>
                   <div style={{ flex: 1, paddingRight: '10px' }}>
-                    <div style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.9rem' }}>{item.name}</div>
-                    <div style={{ color: '#0ea5e9', fontWeight: 'bold' }}>${(item.price * item.quantity).toLocaleString()}</div>
+                    <div style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.9rem', marginBottom: '6px' }}>{item.name}</div>
+                    
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
+                      <span style={{ color: '#64748b', fontSize: '0.9rem' }}>$</span>
+                      <input 
+                        type="number" 
+                        value={item.price} 
+                        onChange={(e) => updatePrice(item.id, parseFloat(e.target.value) || 0)}
+                        style={{ width: '90px', padding: '4px 6px', borderRadius: '4px', border: '1px solid #cbd5e1', fontWeight: 'bold', color: '#0ea5e9', outline: 'none' }}
+                      />
+                      <span style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: 'bold' }}>
+                        x {item.quantity} = ${(item.price * item.quantity).toLocaleString()}
+                      </span>
+                    </div>
+
+                    <div style={{ fontSize: '0.75rem', color: '#cbd5e1', cursor: 'help' }} title={`Costo base: $${(item.cost || 0).toLocaleString()} + IVA (${item.tax || 19}%)`}>
+                      Ref min: ${( (item.cost || 0) * (1 + (item.tax || 19) / 100) ).toLocaleString()}
+                    </div>
                   </div>
                   
                   <div style={{ display: 'flex', alignItems: 'center', gap: '15px', backgroundColor: '#f1f5f9', borderRadius: '8px', padding: '5px' }}>
