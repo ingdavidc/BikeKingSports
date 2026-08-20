@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import Navbar from '../../components/Navbar';
@@ -169,7 +169,7 @@ export default function Contacto() {
               ></textarea>
             </div>
 
-            <button type="submit" className={tn btn-primary } disabled={status === 'sending'}>
+            <button type="submit" className={`btn btn-primary ${styles.submitBtn}`} disabled={status === 'sending'}>
               {status === 'sending' ? 'Enviando...' : (
                 <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
                   Enviar Mensaje <Send size={20} />
