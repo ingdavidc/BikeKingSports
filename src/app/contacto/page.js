@@ -43,29 +43,35 @@ export default function Contacto() {
           <div className={styles.infoBlock}>
             <h3>Información de Contacto</h3>
             
-            <div className={styles.infoItem}>
-              <MapPin size={24} />
-              <div>
-                <strong>Dirección</strong>
-                <p>Cl. 22 #13-27, Saravena, Arauca</p>
+            <a href="https://www.google.com/maps/dir/?api=1&destination=Cl.+22+%2313-27,+Saravena,+Arauca" target="_blank" rel="noopener noreferrer" className={styles.infoLink} style={{textDecoration: 'none', color: 'inherit'}}>
+              <div className={styles.infoItem}>
+                <MapPin size={24} />
+                <div>
+                  <strong>Dirección</strong>
+                  <p>Cl. 22 #13-27, Saravena, Arauca</p>
+                </div>
               </div>
-            </div>
+            </a>
             
-            <div className={styles.infoItem}>
-              <Phone size={24} />
-              <div>
-                <strong>Teléfono / WhatsApp</strong>
-                <p>+57 310 329 1475</p>
+            <a href="https://wa.me/573103291475?text=Hola%20Bike%20King,%20quisiera%20recibir%20m%C3%A1s%20informaci%C3%B3n" target="_blank" rel="noopener noreferrer" className={styles.infoLink} style={{textDecoration: 'none', color: 'inherit'}}>
+              <div className={styles.infoItem}>
+                <Phone size={24} />
+                <div>
+                  <strong>Teléfono / WhatsApp</strong>
+                  <p>+57 310 329 1475</p>
+                </div>
               </div>
-            </div>
+            </a>
             
-            <div className={styles.infoItem}>
-              <Mail size={24} />
-              <div>
-                <strong>Correo Electrónico</strong>
-                <p>tienda@bikekingsports.com</p>
+            <a href="mailto:tienda@bikekingsports.com?subject=Contacto%20desde%20la%20p%C3%A1gina%20web" className={styles.infoLink} style={{textDecoration: 'none', color: 'inherit'}}>
+              <div className={styles.infoItem}>
+                <Mail size={24} />
+                <div>
+                  <strong>Correo Electrónico</strong>
+                  <p>tienda@bikekingsports.com</p>
+                </div>
               </div>
-            </div>
+            </a>
           </div>
 
           <div className={styles.infoBlock}>

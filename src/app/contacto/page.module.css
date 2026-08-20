@@ -156,3 +156,11 @@ textarea.formControl {
     font-size: 2.5rem;
   }
 }
+.infoLink {
+  display: block;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.infoLink:hover {
+  transform: translateX(5px);
+  opacity: 0.8;
+}
