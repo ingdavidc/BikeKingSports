@@ -233,8 +233,31 @@ export default function MecanicoPanel() {
             ✅ {successMsg}
           </div>
         )}
-        <div style={{ fontSize: '0.82rem', color: '#475569' }}>
-          {new Date().toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' })}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+          <div style={{ fontSize: '0.82rem', color: '#475569', display: 'none' /* Oculto en móviles muy pequeños, opcional */ }}>
+            {new Date().toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' })}
+          </div>
+          <button
+            onClick={async () => {
+              try { await fetch('/api/auth/logout', { method: 'POST' }); } catch (e) {}
+              window.location.href = '/login';
+            }}
+            style={{
+              backgroundColor: 'transparent',
+              color: '#ef4444',
+              border: '1px solid #ef4444',
+              padding: '6px 12px',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            🚪 Salir
+          </button>
         </div>
       </header>
 
