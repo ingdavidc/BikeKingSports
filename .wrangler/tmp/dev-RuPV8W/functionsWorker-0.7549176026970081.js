@@ -75,7 +75,7 @@ function checkURL2(request, init) {
 __name(checkURL2, "checkURL");
 var urls2;
 var init_checked_fetch = __esm({
-  "../.wrangler/tmp/bundle-DMx4Fi/checked-fetch.js"() {
+  "../.wrangler/tmp/bundle-Ch2dV4/checked-fetch.js"() {
     urls2 = /* @__PURE__ */ new Set();
     __name2(checkURL2, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -267,7 +267,7 @@ async function onRequestGet2(context) {
     const limit = searchParams.get("limit") ? parseInt(searchParams.get("limit")) : null;
     if (isPromo) {
       const promoProduct = await DB.prepare(`
-        SELECT id, name, description, category, price, stock, image_url, image_urls, min_stock_limit 
+        SELECT id, name, description, category, price, old_price, is_on_sale, stock, image_url, image_urls, min_stock_limit 
         FROM products 
         WHERE is_published = 1 OR is_published IS NULL
         ORDER BY price DESC 
@@ -277,7 +277,7 @@ async function onRequestGet2(context) {
     }
     const q = searchParams.get("q");
     let query = `
-      SELECT id, name, description, category, price, stock, image_url, image_urls, min_stock_limit 
+      SELECT id, name, description, category, price, old_price, is_on_sale, stock, image_url, image_urls, min_stock_limit 
       FROM products 
       WHERE (is_published = 1 OR is_published IS NULL)
     `;
@@ -391,13 +391,13 @@ async function onRequestGet5(context) {
     }
     if (type === "products") {
       const { results } = await DB.prepare(
-        "SELECT id, name, description, price, image_url, image_urls, category, created_at FROM products ORDER BY created_at DESC"
+        "SELECT id, name, description, price, image_url, image_urls, category, is_on_sale, old_price, created_at FROM products ORDER BY created_at DESC"
       ).all();
       return Response.json(results);
     }
     if (type === "services") {
       const { results } = await DB.prepare(
-        "SELECT id, name, description, price, video_url, created_at FROM services ORDER BY created_at DESC"
+        "SELECT id, title, description, price, image_url, created_at FROM services ORDER BY created_at DESC"
       ).all();
       return Response.json(results);
     }
@@ -409,7 +409,7 @@ async function onRequestGet5(context) {
     }
   } catch (error2) {
     console.error("GET /api/content error:", error2);
-    return Response.json({ error: "Error al obtener contenido" }, { status: 500 });
+    return Response.json({ error: "Error del servidor" }, { status: 500 });
   }
 }
 __name(onRequestGet5, "onRequestGet5");
@@ -447,17 +447,19 @@ async function onRequestPost3(context) {
       if (role !== "admin" && role !== "ventas") {
         return Response.json({ error: "Acceso denegado" }, { status: 403 });
       }
+      const id = crypto.randomUUID();
       const name = sanitize(payload.name, 200);
       const description = sanitize(payload.description, MAX_TEXT_LENGTH);
       const price = sanitizePrice(payload.price);
+      const old_price = sanitizePrice(payload.old_price);
+      const is_on_sale = payload.is_on_sale ? 1 : 0;
       const image_url = sanitize(payload.image_url, MAX_URL_LENGTH);
       const category = sanitize(payload.category, 100);
       if (!name) return Response.json({ error: "El nombre es requerido" }, { status: 400 });
       if (price <= 0) return Response.json({ error: "El precio debe ser mayor a 0" }, { status: 400 });
-      const id = crypto.randomUUID();
       await DB.prepare(
-        "INSERT INTO products (id, name, description, price, image_url, category) VALUES (?, ?, ?, ?, ?, ?)"
-      ).bind(id, name, description, price, image_url, category).run();
+        "INSERT INTO products (id, name, description, price, old_price, is_on_sale, image_url, category) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+      ).bind(id, name, description, price, old_price, is_on_sale, image_url, category).run();
       return Response.json({ success: true, id });
     }
     if (action === "update_product") {
@@ -469,12 +471,14 @@ async function onRequestPost3(context) {
       const name = sanitize(payload.name, 200);
       const description = sanitize(payload.description, MAX_TEXT_LENGTH);
       const price = sanitizePrice(payload.price);
+      const old_price = sanitizePrice(payload.old_price);
+      const is_on_sale = payload.is_on_sale ? 1 : 0;
       const image_url = sanitize(payload.image_url, MAX_URL_LENGTH);
       const category = sanitize(payload.category, 100);
       if (!name) return Response.json({ error: "El nombre es requerido" }, { status: 400 });
       await DB.prepare(
-        "UPDATE products SET name = ?, description = ?, price = ?, image_url = ?, category = ? WHERE id = ?"
-      ).bind(name, description, price, image_url, category, id).run();
+        "UPDATE products SET name = ?, description = ?, price = ?, old_price = ?, is_on_sale = ?, image_url = ?, category = ? WHERE id = ?"
+      ).bind(name, description, price, old_price, is_on_sale, image_url, category, id).run();
       return Response.json({ success: true });
     }
     if (action === "delete_product") {

@@ -95,6 +95,23 @@ export default function Tienda() {
               >
                 <div className={styles.imageContainer}>
                   <img src={product.image_url || 'https://images.unsplash.com/photo-1576435728678-68d0fbf94e91?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60'} alt={product.name} className={styles.productImage} />
+                  {product.is_on_sale === 1 && (
+                    <span style={{
+                      position: 'absolute',
+                      top: '10px',
+                      left: '10px',
+                      backgroundColor: '#ef4444',
+                      color: 'white',
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      fontSize: '0.8rem',
+                      fontWeight: 'bold',
+                      zIndex: 10,
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                    }}>
+                      ¡OFERTA!
+                    </span>
+                  )}
                   {isOutOfStock && (
                     <span style={{
                       position: 'absolute',
@@ -115,7 +132,14 @@ export default function Tienda() {
                 <div className={styles.productInfo}>
                   <span className={styles.category}>{product.category}</span>
                   <h3 className={styles.productName}>{product.name}</h3>
-                  <p className={styles.price}>{formatPrice(product.price)}</p>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '15px' }}>
+                    <p className={styles.price} style={{ marginBottom: 0 }}>{formatPrice(product.price)}</p>
+                    {product.old_price > 0 && (
+                      <p style={{ color: '#94a3b8', fontSize: '0.95rem', textDecoration: 'line-through', margin: 0 }}>
+                        {formatPrice(product.old_price)}
+                      </p>
+                    )}
+                  </div>
                   
                   {isOutOfStock ? (
                     <button 

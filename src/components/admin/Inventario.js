@@ -9,10 +9,11 @@ export default function Inventario() {
   const [uploading, setUploading] = useState(false);
 
   const [newProduct, setNewProduct] = useState({
-    name: '', description: '', price: '', category: 'bicicletas', image_url: ''
+    name: '', description: '', price: '', old_price: '', is_on_sale: false, category: 'bicicletas', image_url: ''
   });
   
   const fileInputRef = useRef(null);
+  const formRef = useRef(null);
 
   const loadProducts = () => {
     fetch('/api/content?type=products')
@@ -57,22 +58,23 @@ export default function Inventario() {
     setUploading(false);
   };
 
-  const handleAddProduct = async (e) => {
+  const handleSaveProduct = async (e) => {
     e.preventDefault();
     setSaving(true);
     try {
+      const isEditing = !!newProduct.id;
       const res = await fetch('/api/content', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          action: 'add_product',
+          action: isEditing ? 'update_product' : 'add_product',
           payload: newProduct
         })
       });
       const data = await res.json();
       if (data.success) {
-        alert('¡Producto agregado!');
-        setNewProduct({ name: '', description: '', price: '', category: 'bicicletas', image_url: '' });
+        alert(isEditing ? '¡Producto actualizado!' : '¡Producto agregado!');
+        setNewProduct({ name: '', description: '', price: '', old_price: '', is_on_sale: false, category: 'bicicletas', image_url: '' });
         if (fileInputRef.current) fileInputRef.current.value = '';
         loadProducts();
       } else {
@@ -82,6 +84,20 @@ export default function Inventario() {
       alert('Error al guardar el producto');
     }
     setSaving(false);
+  };
+
+  const handleEdit = (p) => {
+    setNewProduct({
+      id: p.id,
+      name: p.name || '',
+      description: p.description || '',
+      price: p.price || '',
+      old_price: p.old_price || '',
+      is_on_sale: !!p.is_on_sale,
+      category: p.category || 'bicicletas',
+      image_url: p.image_url || ''
+    });
+    if (formRef.current) formRef.current.scrollIntoView({ behavior: 'smooth' });
   };
 
   const handleDelete = async (id) => {
@@ -107,10 +123,16 @@ export default function Inventario() {
       <h1 style={{ fontSize: '2rem', marginBottom: '10px' }}>Inventario de Tienda</h1>
       <p style={{ color: '#64748b', marginBottom: '30px' }}>Agrega productos, sube fotos y gestiona la tienda.</p>
       
-      {/* Formulario para agregar producto */}
-      <div style={{ backgroundColor: 'white', color: '#0f172a', padding: '24px', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', marginBottom: '30px', border: '1px solid #e2e8f0' }}>
-        <h2 style={{ fontSize: '1.2rem', marginBottom: '20px', color: '#0f172a', fontWeight: '700' }}>Agregar Nuevo Producto</h2>
-        <form onSubmit={handleAddProduct} style={{ display: 'grid', gap: '15px' }}>
+      <div ref={formRef} style={{ backgroundColor: 'white', color: '#0f172a', padding: '24px', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', marginBottom: '30px', border: '1px solid #e2e8f0' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h2 style={{ fontSize: '1.2rem', margin: 0, color: '#0f172a', fontWeight: '700' }}>
+            {newProduct.id ? 'Editar Producto' : 'Agregar Nuevo Producto'}
+          </h2>
+          {newProduct.id && (
+            <button type="button" onClick={() => setNewProduct({ name: '', description: '', price: '', old_price: '', is_on_sale: false, category: 'bicicletas', image_url: '' })} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', textDecoration: 'underline' }}>Cancelar Edición</button>
+          )}
+        </div>
+        <form onSubmit={handleSaveProduct} style={{ display: 'grid', gap: '15px' }}>
           <div>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Nombre</label>
             <input required type="text" value={newProduct.name} onChange={(e) => setNewProduct({...newProduct, name: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
@@ -119,12 +141,16 @@ export default function Inventario() {
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Descripción</label>
             <textarea value={newProduct.description} onChange={(e) => setNewProduct({...newProduct, description: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #cbd5e1', minHeight: '80px' }} />
           </div>
-          <div style={{ display: 'flex', gap: '15px' }}>
-            <div style={{ flex: 1 }}>
-              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Precio ($)</label>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '15px' }}>
+            <div>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Precio Oferta ($)</label>
               <input required type="number" value={newProduct.price} onChange={(e) => setNewProduct({...newProduct, price: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
             </div>
-            <div style={{ flex: 1 }}>
+            <div>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Precio Anterior ($)</label>
+              <input type="number" value={newProduct.old_price} onChange={(e) => setNewProduct({...newProduct, old_price: e.target.value})} placeholder="Opcional" style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
+            </div>
+            <div>
               <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Categoría</label>
               <select value={newProduct.category} onChange={(e) => setNewProduct({...newProduct, category: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #cbd5e1' }}>
                 <option value="bicicletas">Bicicletas</option>
@@ -132,6 +158,12 @@ export default function Inventario() {
                 <option value="accesorios">Accesorios</option>
               </select>
             </div>
+          </div>
+          <div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 'bold', cursor: 'pointer', backgroundColor: '#fef3c7', padding: '10px', borderRadius: '6px', border: '1px solid #fde68a' }}>
+              <input type="checkbox" checked={newProduct.is_on_sale} onChange={(e) => setNewProduct({...newProduct, is_on_sale: e.target.checked})} style={{ width: '20px', height: '20px' }} />
+              🔥 ¡Anunciar este producto en Oferta!
+            </label>
           </div>
           <div>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Foto del Producto (Se sube a la nube automáticamente)</label>
@@ -144,7 +176,7 @@ export default function Inventario() {
             )}
           </div>
           <button type="submit" disabled={saving || uploading} style={{ backgroundColor: '#005BBE', color: 'white', padding: '12px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: 'bold', marginTop: '10px', boxShadow: '0 2px 4px rgba(0, 91, 190,0.2)', transition: 'background-color 0.2s' }}>
-            Guardar Producto
+            {newProduct.id ? 'Actualizar Producto' : 'Guardar Producto'}
           </button>
         </form>
       </div>
@@ -153,11 +185,24 @@ export default function Inventario() {
       <h2 style={{ fontSize: '1.2rem', marginBottom: '20px', color: '#0f172a', fontWeight: '700' }}>Productos Actuales ({products.length})</h2>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
         {products.map(p => (
-          <div key={p.id} style={{ backgroundColor: 'white', color: '#0f172a', padding: '15px', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
-            {p.image_url && <img src={p.image_url} alt={p.name} style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '4px', marginBottom: '10px' }} />}
+          <div key={p.id} style={{ backgroundColor: 'white', color: '#0f172a', padding: '15px', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ position: 'relative' }}>
+              {p.image_url && <img src={p.image_url} alt={p.name} style={{ width: '100%', height: '200px', objectFit: 'contain', borderRadius: '4px', marginBottom: '10px' }} />}
+              {p.is_on_sale === 1 && (
+                <span style={{ position: 'absolute', top: '10px', left: '10px', backgroundColor: '#ef4444', color: 'white', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold', fontSize: '0.8rem' }}>¡OFERTA!</span>
+              )}
+            </div>
             <h3 style={{ fontSize: '1.1rem', marginBottom: '5px', color: '#0f172a', fontWeight: '600' }}>{p.name}</h3>
-            <p style={{ color: '#475569', fontSize: '0.9rem', marginBottom: '10px' }}>{p.category} | ${p.price}</p>
-            <button onClick={() => handleDelete(p.id)} style={{ backgroundColor: '#e5142b', color: 'white', padding: '6px 12px', borderRadius: '4px', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '500' }}>Eliminar</button>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '10px' }}>
+              <p style={{ color: '#0ea5e9', fontSize: '1.1rem', fontWeight: 'bold', margin: 0 }}>${p.price}</p>
+              {p.old_price > 0 && (
+                <p style={{ color: '#94a3b8', fontSize: '0.9rem', textDecoration: 'line-through', margin: 0 }}>${p.old_price}</p>
+              )}
+            </div>
+            <div style={{ marginTop: 'auto', display: 'flex', gap: '10px' }}>
+              <button onClick={() => handleEdit(p)} style={{ flex: 1, backgroundColor: '#0ea5e9', color: 'white', padding: '6px 12px', borderRadius: '4px', border: 'none', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>Editar</button>
+              <button onClick={() => handleDelete(p.id)} style={{ flex: 1, backgroundColor: '#ef4444', color: 'white', padding: '6px 12px', borderRadius: '4px', border: 'none', cursor: 'pointer', fontSize: '0.85rem', fontWeight: '600' }}>Eliminar</button>
+            </div>
           </div>
         ))}
         {products.length === 0 && <p style={{ color: '#475569' }}>No hay productos registrados.</p>}

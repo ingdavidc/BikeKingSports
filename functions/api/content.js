@@ -42,14 +42,14 @@ export async function onRequestGet(context) {
 
     if (type === 'products') {
       const { results } = await DB.prepare(
-        'SELECT id, name, description, price, image_url, image_urls, category, created_at FROM products ORDER BY created_at DESC'
+        'SELECT id, name, description, price, image_url, image_urls, category, is_on_sale, old_price, created_at FROM products ORDER BY created_at DESC'
       ).all();
       return Response.json(results);
     }
 
     if (type === 'services') {
       const { results } = await DB.prepare(
-        'SELECT id, name, description, price, video_url, created_at FROM services ORDER BY created_at DESC'
+        'SELECT id, title, description, price, image_url, created_at FROM services ORDER BY created_at DESC'
       ).all();
       return Response.json(results);
     }
@@ -63,7 +63,7 @@ export async function onRequestGet(context) {
 
   } catch (error) {
     console.error('GET /api/content error:', error);
-    return Response.json({ error: 'Error al obtener contenido' }, { status: 500 });
+    return Response.json({ error: 'Error del servidor' }, { status: 500 });
   }
 }
 
@@ -110,19 +110,21 @@ export async function onRequestPost(context) {
       if (role !== 'admin' && role !== 'ventas') {
         return Response.json({ error: 'Acceso denegado' }, { status: 403 });
       }
+      const id = crypto.randomUUID();
       const name = sanitize(payload.name, 200);
       const description = sanitize(payload.description, MAX_TEXT_LENGTH);
       const price = sanitizePrice(payload.price);
+      const old_price = sanitizePrice(payload.old_price);
+      const is_on_sale = payload.is_on_sale ? 1 : 0;
       const image_url = sanitize(payload.image_url, MAX_URL_LENGTH);
       const category = sanitize(payload.category, 100);
 
       if (!name) return Response.json({ error: 'El nombre es requerido' }, { status: 400 });
       if (price <= 0) return Response.json({ error: 'El precio debe ser mayor a 0' }, { status: 400 });
 
-      const id = crypto.randomUUID();
       await DB.prepare(
-        'INSERT INTO products (id, name, description, price, image_url, category) VALUES (?, ?, ?, ?, ?, ?)'
-      ).bind(id, name, description, price, image_url, category).run();
+        'INSERT INTO products (id, name, description, price, old_price, is_on_sale, image_url, category) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+      ).bind(id, name, description, price, old_price, is_on_sale, image_url, category).run();
       return Response.json({ success: true, id });
     }
 
@@ -136,14 +138,16 @@ export async function onRequestPost(context) {
       const name = sanitize(payload.name, 200);
       const description = sanitize(payload.description, MAX_TEXT_LENGTH);
       const price = sanitizePrice(payload.price);
+      const old_price = sanitizePrice(payload.old_price);
+      const is_on_sale = payload.is_on_sale ? 1 : 0;
       const image_url = sanitize(payload.image_url, MAX_URL_LENGTH);
       const category = sanitize(payload.category, 100);
 
       if (!name) return Response.json({ error: 'El nombre es requerido' }, { status: 400 });
 
       await DB.prepare(
-        'UPDATE products SET name = ?, description = ?, price = ?, image_url = ?, category = ? WHERE id = ?'
-      ).bind(name, description, price, image_url, category, id).run();
+        'UPDATE products SET name = ?, description = ?, price = ?, old_price = ?, is_on_sale = ?, image_url = ?, category = ? WHERE id = ?'
+      ).bind(name, description, price, old_price, is_on_sale, image_url, category, id).run();
       return Response.json({ success: true });
     }
 
