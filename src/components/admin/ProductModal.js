@@ -158,11 +158,17 @@ export default function ProductModal({ onClose, onSave, initialData }) {
 
     // Helper to get image array
     const getImagesArray = () => {
-      if (Array.isArray(formData.image_urls)) return formData.image_urls;
-      if (typeof formData.image_urls === 'string') {
-        try { return JSON.parse(formData.image_urls); } catch(e) {}
+      let arr = [];
+      if (Array.isArray(formData.image_urls)) {
+        arr = formData.image_urls;
+      } else if (typeof formData.image_urls === 'string') {
+        try { arr = JSON.parse(formData.image_urls); } catch(e) {}
       }
-      return formData.image ? [formData.image] : [];
+      
+      if ((!arr || arr.length === 0) && formData.image) {
+        return [formData.image];
+      }
+      return arr || [];
     };
     
     const handleAddImage = (url) => {
