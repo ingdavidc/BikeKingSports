@@ -1,4 +1,4 @@
-// functions/api/inventory.js
+﻿// functions/api/inventory.js
 export async function onRequestGet(context) {
   try {
     const DB = context.env.DB;
@@ -37,9 +37,9 @@ export async function onRequestPost(context) {
         id, name, description, sku, category, brand, 
         stock, unit, min_stock_limit, max_stock_limit, location,
         cost, profit_margin, tax, price, 
-        supplier_id, alt_supplier_id, image_url, is_published
+        supplier_id, alt_supplier_id, image_url, image_urls, is_published
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
       id,
       body.name || '',
@@ -59,7 +59,8 @@ export async function onRequestPost(context) {
       body.provider || null,
       body.altProvider || null,
       body.image || null,
-      body.is_published !== undefined ? (body.is_published ? 1 : 0) : 1
+        JSON.stringify(body.images || []),
+        body.is_published !== undefined ? (body.is_published ? 1 : 0) : 1
     ).run();
 
     return Response.json({ success: true, id });
@@ -83,7 +84,7 @@ export async function onRequestPut(context) {
       SET name = ?, description = ?, sku = ?, category = ?, brand = ?, 
           stock = ?, unit = ?, min_stock_limit = ?, max_stock_limit = ?, location = ?,
           cost = ?, profit_margin = ?, tax = ?, price = ?, 
-          supplier_id = ?, alt_supplier_id = ?, image_url = ?, is_published = ?
+          supplier_id = ?, alt_supplier_id = ?, image_url = ?, image_urls = ?, is_published = ?
       WHERE id = ?
     `).bind(
       body.name || '',
@@ -103,7 +104,8 @@ export async function onRequestPut(context) {
       body.provider || null,
       body.altProvider || null,
       body.image || null,
-      body.is_published !== undefined ? (body.is_published ? 1 : 0) : 1,
+        JSON.stringify(body.images || []),
+        body.is_published !== undefined ? (body.is_published ? 1 : 0) : 1,
       body.id
     ).run();
 
@@ -127,3 +129,4 @@ export async function onRequestDelete(context) {
     return Response.json({ success: false, error: err.message }, { status: 500 });
   }
 }
+

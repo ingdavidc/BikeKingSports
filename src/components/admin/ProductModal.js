@@ -156,7 +156,32 @@ export default function ProductModal({ onClose, onSave, initialData }) {
     }
   };
 
-  const searchImage = async () => {
+    // Helper to get image array
+    const getImagesArray = () => {
+      if (Array.isArray(formData.image_urls)) return formData.image_urls;
+      if (typeof formData.image_urls === 'string') {
+        try { return JSON.parse(formData.image_urls); } catch(e) {}
+      }
+      return formData.image ? [formData.image] : [];
+    };
+    
+    const handleAddImage = (url) => {
+      const current = getImagesArray();
+      if (current.length >= 5) {
+        alert('Máximo 5 imágenes permitidas');
+        return;
+      }
+      const newImages = [...current, url];
+      setFormData(prev => ({ ...prev, image: newImages[0], image_urls: JSON.stringify(newImages) }));
+    };
+
+    const handleRemoveImage = (index) => {
+      const current = getImagesArray();
+      const newImages = current.filter((_, i) => i !== index);
+      setFormData(prev => ({ ...prev, image: newImages[0] || '', image_urls: JSON.stringify(newImages) }));
+    };
+
+    const searchImage = async () => {
     if (!formData.name) {
       alert("Por favor ingresa primero el Nombre del producto");
       return;
@@ -494,7 +519,19 @@ export default function ProductModal({ onClose, onSave, initialData }) {
                   </label>
                   
                   <div style={{ display: 'flex', gap: '10px', marginBottom: '10px', alignItems: 'center' }}>
-                    <input type="text" name="image" value={formData.image || ''} onChange={handleChange} placeholder="URL directa de la imagen..." style={{...inputStyle, marginTop: 0}} />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: getImagesArray().length > 0 ? '10px' : '0' }}>
+                        {getImagesArray().map((url, idx) => (
+                          <div key={idx} style={{ position: 'relative', width: '60px', height: '60px', border: '1px solid #cbd5e1', borderRadius: '6px', overflow: 'hidden' }}>
+                            <img src={url} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                            <button type="button" onClick={() => handleRemoveImage(idx)} style={{ position: 'absolute', top: '2px', right: '2px', background: 'rgba(239, 68, 68, 0.9)', color: 'white', border: 'none', borderRadius: '50%', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '12px', padding: 0, lineHeight: 1 }}>&times;</button>
+                          </div>
+                        ))}
+                      </div>
+                      {getImagesArray().length < 5 && (
+                        <input type="text" placeholder="Pegar URL y presionar Enter..." onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); if (e.target.value) { handleAddImage(e.target.value); e.target.value = ''; } } }} style={{...inputStyle, marginTop: 0, width: '100%'}} />
+                      )}
+                    </div>
                     
                     <label style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', backgroundColor: '#f1f5f9', color: '#334155', border: '1px solid #cbd5e1', borderRadius: '6px', cursor: 'pointer', whiteSpace: 'nowrap', fontWeight: '500' }}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
