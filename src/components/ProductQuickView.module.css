@@ -1,4 +1,4 @@
-﻿.overlay {
+.overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -61,7 +61,7 @@
 
 .imageContainer {
   flex: 1;
-  background-color: #f1f5f9;
+  background-color: #ffffff;
   position: relative;
   display: flex;
   align-items: center;

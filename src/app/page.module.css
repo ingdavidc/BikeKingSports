@@ -307,7 +307,7 @@
 .featuredImage {
   height: 250px;
   overflow: hidden;
-  background-color: #f1f5f9; /* Soft light background for image area */
+  background-color: #ffffff; /* Clean white background for image area to match product images */
 }
 
 .featuredImage img {
