@@ -53,7 +53,8 @@ export default function ProductModal({ onClose, onSave, initialData }) {
     // Tab 4
     provider: initialData?.supplier_id || '',
     altProvider: initialData?.alt_supplier_id || '',
-    image: initialData?.image || null,
+    image: initialData?.image_url || initialData?.image || null,
+    image_urls: initialData?.image_urls || null,
     // Add id for editing
     id: initialData?.id || null
   });

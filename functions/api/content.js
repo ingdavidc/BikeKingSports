@@ -42,7 +42,7 @@ export async function onRequestGet(context) {
 
     if (type === 'products') {
       const { results } = await DB.prepare(
-        'SELECT id, name, description, price, image_url, category, created_at FROM products ORDER BY created_at DESC'
+        'SELECT id, name, description, price, image_url, image_urls, category, created_at FROM products ORDER BY created_at DESC'
       ).all();
       return Response.json(results);
     }
