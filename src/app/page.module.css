@@ -287,25 +287,27 @@
 }
 
 .featuredCard {
-  background-color: #0f172a; /* Explicit dark background */
-  color: #f8fafc; /* Explicit light text */
+  background-color: var(--color-bg); /* Clean white background */
+  color: var(--color-text); /* Normal dark text */
   border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
   transition: var(--transition);
-  border: 1px solid #334155; /* Explicit dark border */
+  border: 1px solid var(--color-border); /* Light border */
+  display: flex;
+  flex-direction: column;
 }
 
 .featuredCard:hover {
   transform: translateY(-5px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--color-primary);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-primary-light);
 }
 
 .featuredImage {
   height: 250px;
   overflow: hidden;
-  background-color: #1e293b; /* Dark alt background for image area */
+  background-color: #f1f5f9; /* Soft light background for image area */
 }
 
 .featuredImage img {
@@ -321,12 +323,15 @@
 
 .featuredInfo {
   padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
 }
 
 .featuredInfo h3 {
   font-size: 1.1rem;
   margin-bottom: 8px;
-  color: #f8fafc; /* Explicit white title */
+  color: var(--color-text); /* Normal dark text for title */
   font-weight: 700;
 }
 
