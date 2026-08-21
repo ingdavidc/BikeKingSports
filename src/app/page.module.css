@@ -308,6 +308,7 @@
   height: 250px;
   overflow: hidden;
   background-color: #ffffff; /* Clean white background for image area to match product images */
+  padding: 2rem; /* Add padding to prevent images from touching the edges */
 }
 
 .featuredImage img {
