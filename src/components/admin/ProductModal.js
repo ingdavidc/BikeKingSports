@@ -582,13 +582,12 @@ export default function ProductModal({ onClose, onSave, initialData }) {
                           <div
                             key={i}
                             onClick={() => {
-                              setFormData(prev => ({ ...prev, image: img.url }));
-                              setSearchResults([]);
+                              handleAddImage(img.url);
                             }}
                             style={{
                               position: 'relative',
                               aspectRatio: '1',
-                              border: formData.image === img.url ? '3px solid #10b981' : '2px solid transparent',
+                              border: getImagesArray().includes(img.url) ? '3px solid #10b981' : '2px solid transparent',
                               cursor: 'pointer',
                               borderRadius: '6px',
                               overflow: 'hidden',
@@ -596,7 +595,7 @@ export default function ProductModal({ onClose, onSave, initialData }) {
                               transition: 'border 0.15s'
                             }}
                             onMouseOver={e => e.currentTarget.style.border = '2px solid #f97316'}
-                            onMouseOut={e => e.currentTarget.style.border = formData.image === img.url ? '3px solid #10b981' : '2px solid transparent'}
+                            onMouseOut={e => e.currentTarget.style.border = getImagesArray().includes(img.url) ? '3px solid #10b981' : '2px solid transparent'}
                           >
                             <img src={img.preview} style={{ width: '100%', height: '100%', objectFit: 'contain' }} referrerPolicy="no-referrer" loading="lazy" />
                             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.75)', color: 'white', fontSize: '0.45rem', padding: '2px 3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
