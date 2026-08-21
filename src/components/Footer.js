@@ -57,9 +57,10 @@ export default function Footer() {
           <span className={styles.divider}>|</span>
           <Link href="/admin" className={styles.adminLink}>Acceso Corporativo</Link>
         </p>
-        <div className={styles.poweredBy}>
-          Powered by <span className={styles.dc}>DC</span>
-        </div>
+          <a href="https://www.dctelematica.com" target="_blank" rel="noopener noreferrer" className={styles.poweredBy}>
+            <span>Powered by</span>
+            <img src="/dc-logo.png" alt="DC Telematica" className={styles.developerLogo} />
+          </a>
       </div>
     </footer>
   );
