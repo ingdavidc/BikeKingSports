@@ -1,4 +1,4 @@
-﻿// functions/api/inventory.js
+// functions/api/inventory.js
 export async function onRequestGet(context) {
   try {
     const DB = context.env.DB;
@@ -59,8 +59,8 @@ export async function onRequestPost(context) {
       body.provider || null,
       body.altProvider || null,
       body.image || null,
-        JSON.stringify(body.images || []),
-        body.is_published !== undefined ? (body.is_published ? 1 : 0) : 1
+      body.image_urls || '[]',
+      body.is_published !== undefined ? (body.is_published ? 1 : 0) : 1
     ).run();
 
     return Response.json({ success: true, id });
@@ -104,7 +104,7 @@ export async function onRequestPut(context) {
       body.provider || null,
       body.altProvider || null,
       body.image || null,
-        JSON.stringify(body.images || []),
+      body.image_urls || '[]',
         body.is_published !== undefined ? (body.is_published ? 1 : 0) : 1,
       body.id
     ).run();
