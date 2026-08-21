@@ -5,6 +5,20 @@ import styles from './ProductQuickView.module.css';
 export default function ProductQuickView({ product, onClose }) {
   const { addToCart, openCart } = useCart();
   const [isAdding, setIsAdding] = useState(false);
+  const [activeImgIndex, setActiveImgIndex] = useState(0);
+
+  const images = [];
+  try {
+    if (product.image_urls) {
+      const parsed = JSON.parse(product.image_urls);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        images.push(...parsed);
+      }
+    }
+  } catch(e) {}
+  if (images.length === 0 && product.image_url) {
+    images.push(product.image_url);
+  }
 
   const isOutOfStock = (product.stock || 0) <= 0;
 
@@ -34,8 +48,23 @@ export default function ProductQuickView({ product, onClose }) {
         
         <div className={styles.content}>
           <div className={styles.imageContainer}>
-            {product.image_url ? (
-              <img src={product.image_url} alt={product.name} className={styles.image} />
+            {images.length > 0 ? (
+              <>
+                <img src={images[activeImgIndex]} alt={product.name} className={styles.image} />
+                {images.length > 1 && (
+                  <div className={styles.thumbnails}>
+                    {images.map((img, idx) => (
+                      <button 
+                        key={idx} 
+                        className={`${styles.thumbnailBtn} ${activeImgIndex === idx ? styles.active : ''}`}
+                        onClick={(e) => { e.stopPropagation(); setActiveImgIndex(idx); }}
+                      >
+                        <img src={img} alt={`Thumbnail ${idx}`} />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </>
             ) : (
               <div className={styles.noImage}>??<br/><span>Sin imagen</span></div>
             )}
