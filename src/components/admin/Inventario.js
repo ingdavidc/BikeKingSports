@@ -124,7 +124,7 @@ export default function Inventario() {
       <p style={{ color: '#64748b', marginBottom: '30px' }}>Agrega productos, sube fotos y gestiona la tienda.</p>
       
       <div ref={formRef} style={{ backgroundColor: 'white', color: '#0f172a', padding: '24px', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', marginBottom: '30px', border: '1px solid #e2e8f0' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
           <h2 style={{ fontSize: '1.2rem', margin: 0, color: '#0f172a', fontWeight: '700' }}>
             {newProduct.id ? 'Editar Producto' : 'Agregar Nuevo Producto'}
           </h2>
@@ -132,6 +132,26 @@ export default function Inventario() {
             <button type="button" onClick={() => setNewProduct({ name: '', description: '', price: '', old_price: '', is_on_sale: false, category: 'bicicletas', image_url: '' })} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', textDecoration: 'underline' }}>Cancelar Edición</button>
           )}
         </div>
+        
+        {!newProduct.id && (
+          <div style={{ marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #e2e8f0' }}>
+            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px', color: '#0ea5e9' }}>¿Deseas editar o poner en oferta un producto existente?</label>
+            <input 
+              type="text" 
+              list="existing-products" 
+              placeholder="🔍 Busca el nombre de un producto existente para seleccionarlo..."
+              onChange={(e) => {
+                const p = products.find(prod => prod.name === e.target.value);
+                if(p) handleEdit(p);
+              }}
+              style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
+            />
+            <datalist id="existing-products">
+              {products.map(p => <option key={p.id} value={p.name} />)}
+            </datalist>
+          </div>
+        )}
+
         <form onSubmit={handleSaveProduct} style={{ display: 'grid', gap: '15px' }}>
           <div>
             <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Nombre</label>
