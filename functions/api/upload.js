@@ -76,7 +76,7 @@ export async function onRequestPost(context) {
       httpMetadata: { contentType: file.type },
     });
 
-    const url = `https://pub-bikekingmedia.r2.dev/${safeName}`;
+    const url = `/api/media/${safeName}`;
     return Response.json({ success: true, url, filename: safeName });
 
   } catch (error) {
