@@ -69,11 +69,12 @@
   gap: 8px;
   color: inherit;
   text-decoration: none;
-  transition: opacity 0.3s;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .poweredBy:hover {
-  opacity: 0.8;
+  transform: scale(1.05) translateY(-3px);
+  filter: drop-shadow(0 4px 8px rgba(229, 20, 43, 0.3));
 }
 
 .developerLogo {
