@@ -71,6 +71,7 @@ export default function ProductModal({ onClose, onSave, initialData }) {
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
+    const target = e.target; // Backup target to avoid React 17 nullification inside finally
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
@@ -89,43 +90,47 @@ export default function ProductModal({ onClose, onSave, initialData }) {
           const img = new Image();
           img.src = event.target.result;
           img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const MAX_WIDTH = 1000;
-            const MAX_HEIGHT = 1000;
-            let width = img.width;
-            let height = img.height;
+            try {
+              const canvas = document.createElement('canvas');
+              const MAX_WIDTH = 1000;
+              const MAX_HEIGHT = 1000;
+              let width = img.width;
+              let height = img.height;
 
-            if (width > height) {
-              if (width > MAX_WIDTH) {
-                height *= MAX_WIDTH / width;
-                width = MAX_WIDTH;
-              }
-            } else {
-              if (height > MAX_HEIGHT) {
-                width *= MAX_HEIGHT / height;
-                height = MAX_HEIGHT;
-              }
-            }
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            
-            canvas.toBlob((blob) => {
-              if (blob) {
-                const newFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
-                  type: 'image/jpeg',
-                  lastModified: Date.now()
-                });
-                resolve(newFile);
+              if (width > height) {
+                if (width > MAX_WIDTH) {
+                  height *= MAX_WIDTH / width;
+                  width = MAX_WIDTH;
+                }
               } else {
-                reject(new Error("Error al comprimir la imagen"));
+                if (height > MAX_HEIGHT) {
+                  width *= MAX_HEIGHT / height;
+                  height = MAX_HEIGHT;
+                }
               }
-            }, 'image/jpeg', 0.8);
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, width, height);
+              
+              canvas.toBlob((blob) => {
+                if (blob) {
+                  const newFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
+                    type: 'image/jpeg',
+                    lastModified: Date.now()
+                  });
+                  resolve(newFile);
+                } else {
+                  reject(new Error("Error al comprimir la imagen"));
+                }
+              }, 'image/jpeg', 0.8);
+            } catch (canvasErr) {
+              reject(new Error("Error al procesar la imagen: " + canvasErr.message));
+            }
           };
-          img.onerror = (err) => reject(err);
+          img.onerror = () => reject(new Error("Error al decodificar la imagen. Intenta con otro formato."));
         };
-        reader.onerror = (err) => reject(err);
+        reader.onerror = () => reject(new Error("Error al leer el archivo desde tu dispositivo."));
       });
 
       // Upload compressed file
@@ -144,16 +149,30 @@ export default function ProductModal({ onClose, onSave, initialData }) {
       const data = await res.json();
       
       if (!res.ok) {
-        throw new Error(data.error || 'Error al subir la imagen');
+        throw new Error(data.error || 'Error al subir la imagen al servidor');
       }
 
-      setFormData(prev => ({ ...prev, image: data.url }));
+      setFormData(prev => {
+        let arr = [];
+        if (Array.isArray(prev.image_urls)) arr = prev.image_urls;
+        else if (typeof prev.image_urls === 'string') {
+          try { arr = JSON.parse(prev.image_urls); } catch(e) {}
+        }
+        if ((!arr || arr.length === 0) && prev.image) arr = [prev.image];
+        
+        if (arr.length >= 5) {
+          alert('Foto subida con éxito, pero ya tienes el máximo de 5 imágenes permitidas.');
+          return prev;
+        }
+        const newImages = [...arr, data.url];
+        return { ...prev, image: newImages[0], image_urls: JSON.stringify(newImages) };
+      });
       
     } catch (error) {
-      alert('Error: ' + error.message);
+      alert('Hubo un problema al subir la foto: ' + error.message);
     } finally {
       setUploadingImage(false);
-      e.target.value = '';
+      if (target) target.value = '';
     }
   };
 
