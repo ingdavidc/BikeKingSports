@@ -93,14 +93,14 @@ export default function Tienda() {
                 onClick={() => setSelectedProduct(product)} 
                 style={{ cursor: 'pointer' }}
               >
-                <div className={styles.imageContainer}>
+                <div className={styles.imageContainer} style={{ position: 'relative' }}>
                   <img src={product.image_url || 'https://images.unsplash.com/photo-1576435728678-68d0fbf94e91?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60'} alt={product.name} className={styles.productImage} />
                   {product.is_on_sale === 1 && (
                     <span style={{
                       position: 'absolute',
                       top: '10px',
                       left: '10px',
-                      backgroundColor: '#ef4444',
+                      backgroundColor: '#e60000',
                       color: 'white',
                       padding: '4px 8px',
                       borderRadius: '4px',
@@ -117,7 +117,7 @@ export default function Tienda() {
                       position: 'absolute',
                       top: '10px',
                       right: '10px',
-                      backgroundColor: '#ef4444',
+                      backgroundColor: '#e60000',
                       color: 'white',
                       padding: '4px 8px',
                       borderRadius: '4px',

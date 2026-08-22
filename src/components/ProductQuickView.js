@@ -66,15 +66,22 @@ export default function ProductQuickView({ product, onClose }) {
                 )}
               </>
             ) : (
-              <div className={styles.noImage}>??<br/><span>Sin imagen</span></div>
+              <div className={styles.noImage}>📷<br/><span>Sin imagen</span></div>
             )}
-            {isOutOfStock && <span className={styles.badgeOut}>Agotado</span>}
+            
+            {product.is_on_sale === 1 && <span className={styles.badgeSale} style={{ backgroundColor: '#e60000', color: 'white', position: 'absolute', top: '10px', left: '10px', padding: '4px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 'bold', zIndex: 10, boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>¡OFERTA!</span>}
+            {isOutOfStock && <span className={styles.badgeOut} style={{ position: 'absolute', top: '10px', right: '10px', backgroundColor: '#e60000', color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 'bold', zIndex: 10 }}>Agotado</span>}
           </div>
           
           <div className={styles.details}>
             <div className={styles.category}>{product.category}</div>
             <h2 className={styles.title}>{product.name}</h2>
-            <div className={styles.price}>{formatPrice(product.price)}</div>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '15px' }}>
+              <div className={styles.price} style={{ marginBottom: 0 }}>{formatPrice(product.price)}</div>
+              {product.old_price > 0 && (
+                <div style={{ color: '#94a3b8', fontSize: '1.2rem', textDecoration: 'line-through' }}>{formatPrice(product.old_price)}</div>
+              )}
+            </div>
             
             <div className={styles.descriptionBox}>
               <h4 className={styles.descTitle}>Descripción Detallada</h4>
