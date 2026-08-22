@@ -169,7 +169,7 @@ export default function Home() {
                       <h3>{product.name}</h3>
                       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                         <p className={styles.price}>{formatPrice(product.price)}</p>
-                        {product.old_price > 0 && (
+                        {product.is_on_sale === 1 && product.old_price > 0 && (
                           <p style={{ color: '#94a3b8', fontSize: '0.95rem', textDecoration: 'line-through', margin: 0, fontWeight: 'normal' }}>
                             {formatPrice(product.old_price)}
                           </p>

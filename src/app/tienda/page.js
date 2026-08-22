@@ -12,6 +12,14 @@ export default function Tienda() {
   const { addToCart } = useCart();
 
   useEffect(() => {
+    // Check if the URL has ?ofertas=true
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('ofertas') === 'true') {
+        setFilter('Ofertas');
+      }
+    }
+
     const fetchProducts = async () => {
       try {
         const res = await fetch('/api/store/products');
@@ -36,7 +44,7 @@ export default function Tienda() {
     const cat = dbCategory.toLowerCase();
     
     if (cat.includes('bici')) return 'Bicicletas';
-    if (['transmisión', 'transmision', 'eje', 'sillin', 'sillín', 'manubrio', 'dirección', 'direccion', 'general', 'componente'].some(k => cat.includes(k))) return 'Componentes';
+    if (['transmisión', 'transmision', 'eje', 'sillin', 'sillín', 'manubrio', 'dirección', 'direccion', 'general', 'componente', 'repuesto'].some(k => cat.includes(k))) return 'Componentes';
     if (['accesorio', 'luz', 'casco', 'botella'].some(k => cat.includes(k))) return 'Accesorios';
     if (['ropa', 'jersey', 'zapatilla', 'guante'].some(k => cat.includes(k))) return 'Ropa';
     if (['gym', 'pesa', 'banda'].some(k => cat.includes(k))) return 'Gym';
@@ -44,14 +52,16 @@ export default function Tienda() {
     return dbCategory; // fallback
   };
 
-  const categories = ['Todos', ...MAIN_CATEGORIES];
+  const categories = ['Todos', 'Ofertas', ...MAIN_CATEGORIES];
 
   const filteredProducts = filter === 'Todos' 
     ? products 
-    : products.filter(p => {
-        const mainCat = mapToMainCategory(p.category);
-        return mainCat === filter || p.category === filter;
-      });
+    : filter === 'Ofertas'
+      ? products.filter(p => p.is_on_sale === 1)
+      : products.filter(p => {
+          const mainCat = mapToMainCategory(p.category);
+          return mainCat === filter || p.category === filter;
+        });
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(price);
@@ -134,7 +144,7 @@ export default function Tienda() {
                   <h3 className={styles.productName}>{product.name}</h3>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '15px' }}>
                     <p className={styles.price} style={{ marginBottom: 0 }}>{formatPrice(product.price)}</p>
-                    {product.old_price > 0 && (
+                    {product.is_on_sale === 1 && product.old_price > 0 && (
                       <p style={{ color: '#94a3b8', fontSize: '0.95rem', textDecoration: 'line-through', margin: 0 }}>
                         {formatPrice(product.old_price)}
                       </p>

@@ -78,7 +78,7 @@ export default function ProductQuickView({ product, onClose }) {
             <h2 className={styles.title}>{product.name}</h2>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '15px' }}>
               <div className={styles.price} style={{ marginBottom: 0 }}>{formatPrice(product.price)}</div>
-              {product.old_price > 0 && (
+              {product.is_on_sale === 1 && product.old_price > 0 && (
                 <div style={{ color: '#94a3b8', fontSize: '1.2rem', textDecoration: 'line-through' }}>{formatPrice(product.old_price)}</div>
               )}
             </div>
