@@ -9,7 +9,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  background-color: #111;
+  background-color: white;
   background-image: repeating-linear-gradient(
     -45deg,
     rgba(255, 255, 255, 0.02),
@@ -59,8 +59,8 @@
 
 .infoButton {
   background: transparent;
-  color: #fbbf24;
-  border: 2px solid #fbbf24;
+  color: #005BBE;
+  border: 2px solid #005BBE;
   padding: 12px 30px;
   border-radius: 30px;
   font-weight: bold;
@@ -72,8 +72,8 @@
 }
 
 .infoButton:hover {
-  background: #fbbf24;
-  color: #111;
+  background: #005BBE;
+  color: white;
 }
 
 /* Intro Section */
