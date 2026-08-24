@@ -66,7 +66,7 @@ export default function ProductQuickView({ product, onClose }) {
                 )}
               </>
             ) : (
-              <div className={styles.noImage}>📷<br/><span>Sin imagen</span></div>
+              <img src="/no-photo.jpg" alt="Sin imagen" className={styles.image} />
             )}
             
             {product.is_on_sale === 1 && <span className={styles.badgeSale} style={{ backgroundColor: '#e60000', color: 'white', position: 'absolute', top: '10px', left: '10px', padding: '4px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 'bold', zIndex: 10, boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>¡OFERTA!</span>}

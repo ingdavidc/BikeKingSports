@@ -129,7 +129,7 @@ export default function Home() {
                   onClick={() => setSelectedProduct(product)}
                 >
                   <div className={styles.featuredImage} style={{ position: 'relative' }}>
-                    <img src={product.image_url || 'https://images.unsplash.com/photo-1576435728678-68d0fbf94e91?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60'} alt={product.name} />
+                    <img src={product.image_url || '/no-photo.jpg'} alt={product.name} />
                     {product.is_on_sale === 1 && (
                       <span style={{
                         position: 'absolute',

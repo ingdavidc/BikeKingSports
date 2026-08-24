@@ -207,7 +207,7 @@ export default function Inventario() {
         {products.map(p => (
           <div key={p.id} style={{ backgroundColor: 'white', color: '#0f172a', padding: '15px', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' }}>
             <div style={{ position: 'relative' }}>
-              {p.image_url && <img src={p.image_url} alt={p.name} style={{ width: '100%', height: '200px', objectFit: 'contain', borderRadius: '4px', marginBottom: '10px' }} />}
+              <img src={p.image_url || '/no-photo.jpg'} alt={p.name} style={{ width: '100%', height: '200px', objectFit: 'contain', borderRadius: '4px', marginBottom: '10px' }} />
               {p.is_on_sale === 1 && (
                 <span style={{ position: 'absolute', top: '10px', left: '10px', backgroundColor: '#ef4444', color: 'white', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold', fontSize: '0.8rem' }}>¡OFERTA!</span>
               )}

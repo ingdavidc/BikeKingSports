@@ -82,7 +82,7 @@ export default function PromoPopup() {
         
         <div className={styles.popupImageContainer}>
           <img 
-            src={promoProduct.image_url || 'https://images.unsplash.com/photo-1576435728678-68d0fbf94e91?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60'} 
+            src={promoProduct.image_url || '/no-photo.jpg'} 
             alt={promoProduct.name} 
             className={styles.popupImage} 
           />

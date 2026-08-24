@@ -38,7 +38,7 @@ export default function CartDrawer() {
             <div className={styles.itemsList}>
               {cartItems.map(item => (
                 <div key={item.id} className={styles.cartItem}>
-                  <img src={item.image_url || item.image || 'https://images.unsplash.com/photo-1576435728678-68d0fbf94e91?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60'} alt={item.name} className={styles.itemImage} />
+                  <img src={item.image_url || item.image || '/no-photo.jpg'} alt={item.name} className={styles.itemImage} />
                   
                   <div className={styles.itemDetails}>
                     <h4 className={styles.itemName}>{item.name.toUpperCase()}</h4>
