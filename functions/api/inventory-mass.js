@@ -129,8 +129,13 @@ export async function onRequest(context) {
         // Auto-calculate new PVP
         const margin = prod.db_profit_margin || 30;
         const tax = prod.db_tax || 19;
-        const rawPvp = newCost * (1 + margin / 100) * (1 + tax / 100);
-        const newPvp = rawPvp > 0 ? Math.ceil(rawPvp / 1000) * 1000 : 0;
+        const costWithTax = newCost * (1 + tax / 100);
+        const u = 1 - (margin / 100);
+        let newPvp = 0;
+        if (costWithTax > 0 && u > 0) {
+          const basePrice = costWithTax / u;
+          newPvp = Math.ceil(basePrice / 1000) * 1000;
+        }
 
         if (quantityToAdd > 0 || priceAction !== 'keep' || prod.category) {
           // Sanitize potential empty string foreign keys that violate constraints on UPDATE
@@ -165,8 +170,14 @@ export async function onRequest(context) {
         
         const invoiceCost = Number(prod.price) || 0;
         const tax = Number(prod.tax) || 19;
-        const rawPvp = invoiceCost * (1 + 30 / 100) * (1 + tax / 100);
-        const newPvp = rawPvp > 0 ? Math.ceil(rawPvp / 1000) * 1000 : 0;
+        const margin = 30;
+        const costWithTax = invoiceCost * (1 + tax / 100);
+        const u = 1 - (margin / 100);
+        let newPvp = 0;
+        if (costWithTax > 0 && u > 0) {
+          const basePrice = costWithTax / u;
+          newPvp = Math.ceil(basePrice / 1000) * 1000;
+        }
 
         try {
           await env.DB.prepare(
