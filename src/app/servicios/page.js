@@ -56,10 +56,14 @@ export default function Servicios() {
     <div className={styles.container}>
       {/* Hero Section para Taller */}
       <section className={styles.heroTaller}>
-        <div className={styles.heroOverlay}></div>
-        <div className={`container ${styles.heroContent}`}>
-          <h1 className={styles.title}>Servicio Técnico <span className="text-gradient">Especializado</span></h1>
-          <p className={styles.subtitle}>Herramienta profesional y mecánicos expertos para tu bicicleta.</p>
+        <div className={styles.heroImage}></div>
+        <div className={styles.heroContent}>
+          <h1 className={styles.title}>
+            SERVICIO TÉCNICO<br />ESPECIALIZADO
+          </h1>
+          <a href="#contacto" className={styles.infoButton}>
+            MÁS INFORMACIÓN
+          </a>
         </div>
       </section>
 

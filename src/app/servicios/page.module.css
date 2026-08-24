@@ -5,46 +5,75 @@
 
 .heroTaller {
   position: relative;
-  min-height: 50vh;
+  min-height: 500px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  background-color: var(--color-bg-dark);
-  background-image: url('https://images.unsplash.com/photo-1588629202302-861c8a14ec8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80'); /* Imagen de herramientas/taller */
-  background-size: cover;
-  background-position: center;
-  text-align: center;
+  justify-content: flex-end;
+  background-color: #111;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.02),
+    rgba(255, 255, 255, 0.02) 20px,
+    transparent 20px,
+    transparent 40px
+  );
   color: white;
-  margin-top: -80px; /* Offset navbar */
+  margin-top: -80px; 
   padding-top: 80px;
+  overflow: hidden;
 }
 
-.heroOverlay {
+.heroImage {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
+  width: 55%;
   height: 100%;
-  background: rgba(15, 23, 42, 0.8);
+  background-image: url('/servicio-tecnico.jpg');
+  background-size: cover;
+  background-position: center;
+  mask-image: linear-gradient(to right, black 50%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black 60%, transparent 100%);
   z-index: 1;
 }
 
 .heroContent {
   position: relative;
   z-index: 2;
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px;
 }
 
 .title {
-  font-size: 4rem;
-  font-weight: 900;
-  margin-bottom: 16px;
-  font-style: italic;
-  letter-spacing: -1px;
+  font-size: 3.2rem;
+  font-weight: 800;
+  margin-bottom: 30px;
+  letter-spacing: 0px;
+  line-height: 1.1;
+  text-transform: uppercase;
 }
 
-.subtitle {
-  font-size: 1.5rem;
-  color: #cbd5e1;
+.infoButton {
+  background: transparent;
+  color: #fbbf24;
+  border: 2px solid #fbbf24;
+  padding: 12px 30px;
+  border-radius: 30px;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.infoButton:hover {
+  background: #fbbf24;
+  color: #111;
 }
 
 /* Intro Section */
@@ -214,5 +243,27 @@
 @media (max-width: 768px) {
   .title {
     font-size: 3rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .heroTaller {
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 450px;
+    padding-bottom: 30px;
+  }
+  .heroImage {
+    width: 100%;
+    height: 60%;
+    mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+  }
+  .heroContent {
+    width: 100%;
+    padding: 20px;
+  }
+  .title {
+    font-size: 2.2rem;
   }
 }
