@@ -36,6 +36,7 @@ export default function ProductModal({ onClose, onSave, initialData }) {
   const [formData, setFormData] = useState({
     // Tab 1
     name: initialData?.name || '',
+    description: initialData?.description || '',
     sku: initialData?.sku || '',
     category: initialData?.category || '',
     brand: initialData?.brand || '',
