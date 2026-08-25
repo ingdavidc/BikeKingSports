@@ -94,12 +94,10 @@ export default function SmartSearch() {
                     key={product.id} 
                     className={`${styles.resultItem} ${isOutOfStock ? styles.outOfStock : ''}`}
                     onClick={() => {
-                      if (!isOutOfStock) {
-                        setSelectedProduct(product);
-                        setShowResults(false);
-                      }
+                      setSelectedProduct(product);
+                      setShowResults(false);
                     }}
-                    style={{ cursor: isOutOfStock ? 'not-allowed' : 'pointer' }}
+                    style={{ cursor: 'pointer' }}
                   >
                     <div className={styles.resultImage}>
                       {product.image_url ? (
