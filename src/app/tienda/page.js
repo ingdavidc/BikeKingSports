@@ -75,7 +75,7 @@ export default function Tienda() {
 
   return (
     <div className={`container ${styles.tiendaContainer}`}>
-      <h1 className={styles.title}>Catálogo de Productos</h1>
+      <h1 className={styles.title}>CATÁLOGO DE PRODUCTOS</h1>
       
       <div className={styles.filters}>
         {categories.map(cat => (
