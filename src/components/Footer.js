@@ -27,11 +27,12 @@ export default function Footer() {
           <p className={styles.text} style={{marginTop: '16px'}}>Tu tienda de confianza para ciclismo en Saravena. Encuentra las mejores marcas, servicio técnico especializado y todo lo que necesitas para rodar.</p>
         </div>
         <div className={styles.column}>
-          <h4 className={styles.subtitle}>Categorías</h4>
-          <Link href="/tienda?categoria=bicicletas" className={styles.link}>Bicicletas</Link>
-          <Link href="/tienda?categoria=accesorios" className={styles.link}>Accesorios</Link>
-          <Link href="/tienda?categoria=repuestos" className={styles.link}>Repuestos</Link>
-          <Link href="/tienda?categoria=ropa" className={styles.link}>Indumentaria</Link>
+          <h4 className={styles.subtitle}>CATEGORÍAS</h4>
+          <Link href="/tienda?categoria=Bicicletas" className={styles.link}>Bicicletas</Link>
+          <Link href="/tienda?categoria=Componentes" className={styles.link}>Componentes</Link>
+          <Link href="/tienda?categoria=Accesorios" className={styles.link}>Accesorios</Link>
+          <Link href="/tienda?categoria=Ropa" className={styles.link}>Ropa</Link>
+          <Link href="/tienda?categoria=Gym" className={styles.link}>Gym</Link>
         </div>
         <div className={styles.column}>
           <h4 className={styles.subtitle}>Nosotros</h4>

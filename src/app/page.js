@@ -78,7 +78,7 @@ export default function Home() {
       <section className={`container ${styles.promoBannersSection}`}>
         <div className={styles.promoBannersGrid}>
           {/* Banner 1: Componentes */}
-          <Link href="/tienda?categoria=repuestos" className={styles.promoCard}>
+          <Link href="/tienda?categoria=componentes" className={styles.promoCard}>
             <img src="https://pngimg.com/uploads/bicycle_saddle/bicycle_saddle_PNG16.png" alt="Sillín" className={styles.promoImage} style={{filter: 'drop-shadow(5px 5px 15px rgba(0,0,0,0.5))'}} />
             <div className={styles.promoContentRight}>
               <div className={styles.promoPill}>
@@ -92,7 +92,7 @@ export default function Home() {
           </Link>
 
           {/* Banner 2: Frenos */}
-          <Link href="/tienda?categoria=repuestos" className={styles.promoCard}>
+          <Link href="/tienda?categoria=componentes" className={styles.promoCard}>
             <div className={styles.promoRibbon}>NUEVOS</div>
             <img src="https://pngimg.com/uploads/bicycle/bicycle_PNG5377.png" alt="Frenos Shimano" className={styles.promoImage} style={{filter: 'drop-shadow(5px 5px 15px rgba(0,0,0,0.5))', left: '-15%'}} />
             <div className={styles.promoContentRight}>

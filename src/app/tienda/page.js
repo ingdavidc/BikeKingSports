@@ -12,11 +12,18 @@ export default function Tienda() {
   const { addToCart } = useCart();
 
   useEffect(() => {
-    // Check if the URL has ?ofertas=true
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       if (params.get('ofertas') === 'true') {
         setFilter('Ofertas');
+      } else if (params.get('categoria')) {
+        const catParam = params.get('categoria');
+        // Find matching category case-insensitively
+        const MAIN_CATEGORIES = ['Bicicletas', 'Componentes', 'Accesorios', 'Ropa', 'Gym'];
+        const matched = MAIN_CATEGORIES.find(c => c.toLowerCase() === catParam.toLowerCase());
+        if (matched) {
+          setFilter(matched);
+        }
       }
     }
 
