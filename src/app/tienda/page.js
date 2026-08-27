@@ -1,10 +1,12 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useCart } from '../../context/CartContext';
 import ProductQuickView from '../../components/ProductQuickView';
 import styles from './page.module.css';
 
-export default function Tienda() {
+function TiendaContent() {
+  const searchParams = useSearchParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('Todos');
@@ -12,19 +14,20 @@ export default function Tienda() {
   const { addToCart } = useCart();
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('ofertas') === 'true') {
-        setFilter('Ofertas');
-      } else if (params.get('categoria')) {
-        const catParam = params.get('categoria');
-        // Find matching category case-insensitively
-        const MAIN_CATEGORIES = ['Bicicletas', 'Componentes', 'Accesorios', 'Ropa', 'Gym'];
-        const matched = MAIN_CATEGORIES.find(c => c.toLowerCase() === catParam.toLowerCase());
-        if (matched) {
-          setFilter(matched);
-        }
+    if (searchParams.get('ofertas') === 'true') {
+      setFilter('Ofertas');
+    } else if (searchParams.get('categoria')) {
+      const catParam = searchParams.get('categoria');
+      // Find matching category case-insensitively
+      const MAIN_CATEGORIES = ['Bicicletas', 'Componentes', 'Accesorios', 'Ropa', 'Gym'];
+      const matched = MAIN_CATEGORIES.find(c => c.toLowerCase() === catParam.toLowerCase());
+      if (matched) {
+        setFilter(matched);
+      } else {
+        setFilter('Todos');
       }
+    } else {
+      setFilter('Todos');
     }
 
     const fetchProducts = async () => {
@@ -41,7 +44,7 @@ export default function Tienda() {
       }
     };
     fetchProducts();
-  }, []);
+  }, [searchParams]);
 
   const MAIN_CATEGORIES = ['Bicicletas', 'Componentes', 'Accesorios', 'Ropa', 'Gym'];
 
@@ -195,5 +198,13 @@ export default function Tienda() {
         />
       )}
     </div>
+  );
+}
+
+export default function Tienda() {
+  return (
+    <Suspense fallback={<div style={{ textAlign: 'center', padding: '50px' }}>Cargando catálogo...</div>}>
+      <TiendaContent />
+    </Suspense>
   );
 }
