@@ -12,6 +12,9 @@ const PROTECTED_PREFIXES = [
   '/api/auth/me',
   '/api/sales',
   '/api/customers',
+  '/api/inventory',
+  '/api/providers',
+  '/api/image-search'
 ];
 
 // Base64Url → ArrayBuffer para verificación HMAC
@@ -61,9 +64,18 @@ export async function onRequest(context) {
   const isProtected = PROTECTED_PREFIXES.some(p => path.startsWith(p));
   if (!isProtected) return await context.next();
 
-  const cookieHeader = context.request.headers.get('cookie') || '';
-  const tokenMatch = cookieHeader.match(/auth_token=([^;]+)/);
-  const token = tokenMatch ? tokenMatch[1].trim() : null;
+  let token = null;
+
+  // Try Authorization header first
+  const authHeader = context.request.headers.get('Authorization') || '';
+  if (authHeader.startsWith('Bearer ')) {
+    token = authHeader.substring(7).trim();
+  } else {
+    // Fallback to cookie
+    const cookieHeader = context.request.headers.get('cookie') || '';
+    const tokenMatch = cookieHeader.match(/auth_token=([^;]+)/);
+    token = tokenMatch ? tokenMatch[1].trim() : null;
+  }
 
   if (!token) {
     return Response.json({ error: 'No autorizado' }, { status: 401 });

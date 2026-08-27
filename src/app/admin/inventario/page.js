@@ -21,14 +21,21 @@ export default function InventarioPage() {
     setLoading(true);
     try {
       const res = await fetch(`/api/inventory?q=${search}`);
+      
+      if (res.status === 401) {
+        window.location.href = '/admin/login';
+        return;
+      }
+
       const data = await res.json();
       if (data.success) {
         setItems(data.data);
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {

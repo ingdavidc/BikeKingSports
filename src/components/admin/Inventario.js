@@ -17,7 +17,13 @@ export default function Inventario() {
 
   const loadProducts = () => {
     fetch('/api/content?type=products')
-      .then(res => res.json())
+      .then(res => {
+        if (res.status === 401) {
+          window.location.href = '/admin/login';
+          throw new Error('No autorizado');
+        }
+        return res.json();
+      })
       .then(data => {
         if (!data.error) setProducts(data);
         setLoading(false);

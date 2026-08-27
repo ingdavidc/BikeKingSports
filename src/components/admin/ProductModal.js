@@ -139,11 +139,14 @@ export default function ProductModal({ onClose, onSave, initialData }) {
       uploadData.append('file', compressedFile);
 
       const token = localStorage.getItem('token');
+      const headers = {};
+      if (token && token !== 'null') {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const res = await fetch('/api/upload', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
+        headers,
         body: uploadData
       });
 
