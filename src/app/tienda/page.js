@@ -203,7 +203,7 @@ function TiendaContent() {
 
 export default function Tienda() {
   return (
-    <Suspense fallback={<div style={{ textAlign: 'center', padding: '50px' }}>Cargando catálogo...</div>}>
+    <Suspense fallback={<div style={{ textAlign: 'center', padding: '50px' }}>Cargando catï¿½logo...</div>}>
       <TiendaContent />
     </Suspense>
   );

@@ -209,41 +209,41 @@ export default function Home() {
       <section className={`container ${styles.servicesSection}`}>
         <h2 className={styles.sectionTitle}>Nuestros Servicios</h2>
         <div className={styles.grid}>
-          <div className={styles.card}>
+          <Link href="/tienda?categoria=Bicicletas" className={styles.card} style={{ textDecoration: 'none', color: 'inherit' }}>
             <div className={styles.cardIcon}>
               <Bike size={48} color="var(--color-primary)" strokeWidth={1.5} />
             </div>
             <h3>Bicicletas</h3>
             <p>Encuentra las mejores marcas en bicicletas para todos los niveles y disciplinas.</p>
-          </div>
-          <div className={styles.card}>
+          </Link>
+          <Link href="/tienda?categoria=Componentes" className={styles.card} style={{ textDecoration: 'none', color: 'inherit' }}>
             <div className={styles.cardIcon}>
               <Settings size={48} color="var(--color-primary)" strokeWidth={1.5} />
             </div>
             <h3>Componentes</h3>
             <p>Repuestos y partes de alta calidad para optimizar el rendimiento de tu bicicleta.</p>
-          </div>
-          <div className={styles.card}>
+          </Link>
+          <Link href="/tienda?categoria=Accesorios" className={styles.card} style={{ textDecoration: 'none', color: 'inherit' }}>
             <div className={styles.cardIcon}>
               <Backpack size={48} color="var(--color-primary)" strokeWidth={1.5} />
             </div>
             <h3>Accesorios</h3>
             <p>Todo lo que necesitas como complemento ideal para rodar seguro y preparado.</p>
-          </div>
-          <div className={styles.card}>
+          </Link>
+          <Link href="/tienda?categoria=Ropa" className={styles.card} style={{ textDecoration: 'none', color: 'inherit' }}>
             <div className={styles.cardIcon}>
               <Shirt size={48} color="var(--color-primary)" strokeWidth={1.5} />
             </div>
             <h3>Ropa</h3>
             <p>Indumentaria técnica, cómoda y aerodinámica diseñada para ciclistas.</p>
-          </div>
-          <div className={styles.card}>
+          </Link>
+          <Link href="/tienda?categoria=Gym" className={styles.card} style={{ textDecoration: 'none', color: 'inherit' }}>
             <div className={styles.cardIcon}>
               <Dumbbell size={48} color="var(--color-primary)" strokeWidth={1.5} />
             </div>
             <h3>Gym</h3>
             <p>Equipos y accesorios para potenciar tu entrenamiento físico y gimnasio en casa.</p>
-          </div>
+          </Link>
         </div>
       </section>
 
