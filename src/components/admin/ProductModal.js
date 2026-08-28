@@ -195,14 +195,38 @@ export default function ProductModal({ onClose, onSave, initialData }) {
       return arr || [];
     };
     
-    const handleAddImage = (url) => {
+    const handleAddImage = async (url) => {
       const current = getImagesArray();
       if (current.length >= 5) {
         alert('Máximo 5 imágenes permitidas');
         return;
       }
-      const newImages = [...current, url];
-      setFormData(prev => ({ ...prev, image: newImages[0], image_urls: JSON.stringify(newImages) }));
+      
+      if (url.startsWith('http') && !url.includes(window.location.host)) {
+        setUploadingImage(true);
+        try {
+          const res = await fetch('/api/upload-url', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url })
+          });
+          const data = await res.json();
+          if (data.success && data.url) {
+            const newImages = [...current, data.url];
+            setFormData(prev => ({ ...prev, image: newImages[0], image_urls: JSON.stringify(newImages) }));
+          } else {
+            alert('Error al descargar la imagen origen: ' + (data.error || 'Desconocido'));
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Hubo un problema al procesar la imagen de la IA.');
+        } finally {
+          setUploadingImage(false);
+        }
+      } else {
+        const newImages = [...current, url];
+        setFormData(prev => ({ ...prev, image: newImages[0], image_urls: JSON.stringify(newImages) }));
+      }
     };
 
     const handleRemoveImage = (index) => {
