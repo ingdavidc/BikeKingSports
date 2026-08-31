@@ -119,14 +119,18 @@ export default function AdminLayout({ children }) {
               <Link href="/admin/ventas"    style={activeStyle('/admin/ventas')}><TrendingUp size={18} /> Panel de Ventas</Link>
               <Link href="/admin/inventario" style={activeStyle('/admin/inventario')}><Package size={18} /> Inventario</Link>
               <Link href="/admin/proveedores" style={activeStyle('/admin/proveedores')}><Truck size={18} /> Proveedores</Link>
+              <Link href="/admin/clientes"   style={activeStyle('/admin/clientes')}><Users size={18} /> Clientes</Link>
               <Link href="/admin/sitio-web"  style={activeStyle('/admin/sitio-web')}><Globe size={18} /> Sitio Web</Link>
               <Link href="/admin/usuarios"   style={activeStyle('/admin/usuarios')}><Users size={18} /> Usuarios</Link>
             </>
           )}
 
-          {/* Ventas puede ver inventario */}
+          {/* Ventas puede ver inventario y clientes */}
           {isVentas && (
-            <Link href="/admin/inventario" style={activeStyle('/admin/inventario')}><Package size={18} /> Inventario</Link>
+            <>
+              <Link href="/admin/inventario" style={activeStyle('/admin/inventario')}><Package size={18} /> Inventario</Link>
+              <Link href="/admin/clientes"   style={activeStyle('/admin/clientes')}><Users size={18} /> Clientes</Link>
+            </>
           )}
 
           <div style={{ marginTop: '8px', borderTop: '1px solid #1e293b', paddingTop: '8px' }}>
