@@ -28,8 +28,13 @@ export async function onRequestGet(context) {
     let params = [];
 
     if (q) {
-      query += ` AND (name LIKE ? OR sku LIKE ? OR category LIKE ?)`;
-      params.push(`%${q}%`, `%${q}%`, `%${q}%`);
+      const terms = q.trim().split(/\s+/);
+      const conditions = [];
+      for (const term of terms) {
+        conditions.push('(name LIKE ? OR sku LIKE ? OR category LIKE ?)');
+        params.push(`%${term}%`, `%${term}%`, `%${term}%`);
+      }
+      query += ` AND (${conditions.join(' AND ')})`;
     }
 
     query += ` ORDER BY created_at DESC`;

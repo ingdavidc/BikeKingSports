@@ -96,11 +96,12 @@ export default function VentasPage() {
 
   const filteredProducts = useMemo(() => {
     if (!search) return products;
-    const s = search.toLowerCase();
-    return products.filter(p => 
-      (p.name && p.name.toLowerCase().includes(s)) || 
-      (p.sku && p.sku.toLowerCase().includes(s))
-    );
+    const terms = search.toLowerCase().trim().split(/\s+/);
+    return products.filter(p => {
+      const name = p.name ? p.name.toLowerCase() : '';
+      const sku = p.sku ? p.sku.toLowerCase() : '';
+      return terms.every(term => name.includes(term) || sku.includes(term));
+    });
   }, [products, search]);
 
   const toggleFullScreen = () => {

@@ -13,8 +13,13 @@ export async function onRequestGet(context) {
     let params = [];
 
     if (search) {
-      query += ' WHERE p.name LIKE ? OR p.sku LIKE ?';
-      params.push(`%${search}%`, `%${search}%`);
+      const terms = search.trim().split(/\s+/);
+      const conditions = [];
+      for (const term of terms) {
+        conditions.push('(p.name LIKE ? OR p.sku LIKE ? OR p.brand LIKE ? OR p.category LIKE ?)');
+        params.push(`%${term}%`, `%${term}%`, `%${term}%`, `%${term}%`);
+      }
+      query += ' WHERE ' + conditions.join(' AND ');
     }
 
     query += ' ORDER BY p.created_at DESC';
