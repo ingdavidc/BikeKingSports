@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { Image as ImageIcon } from 'lucide-react';
+import { Image as ImageIcon, Printer } from 'lucide-react';
 import SalesHistoryModal from '@/components/admin/SalesHistoryModal';
+import { connectPrinter, isPrinterConnected, printReceipt } from '@/utils/WebUSBPrinter';
 
 export default function VentasPage() {
   const [products, setProducts] = useState([]);
@@ -31,6 +32,7 @@ export default function VentasPage() {
   const [cashReceived, setCashReceived] = useState('');
   const [transactionRef, setTransactionRef] = useState('');
   const [printVoucher, setPrintVoucher] = useState(true);
+  const [usbPrinterLinked, setUsbPrinterLinked] = useState(false);
 
   useEffect(() => {
     fetchProducts();
@@ -96,6 +98,16 @@ export default function VentasPage() {
       (p.sku && p.sku.toLowerCase().includes(s))
     );
   }, [products, search]);
+
+  const handleLinkPrinter = async () => {
+    const success = await connectPrinter();
+    if (success) {
+      setUsbPrinterLinked(true);
+      alert('Impresora USB vinculada correctamente.');
+    } else {
+      alert('No se pudo vincular la impresora USB. Asegúrate de usar Chrome y tener permisos.');
+    }
+  };
 
   const handleExpressService = () => {
     const desc = prompt('Descripción del Servicio / Mano de Obra:');
@@ -206,7 +218,25 @@ export default function VentasPage() {
 
         // Imprimir recibo
         if (printVoucher) {
-          window.open(`/recibo?id=${data.id}&print=true`, '_blank', 'width=350,height=600');
+          if (usbPrinterLinked && isPrinterConnected()) {
+            try {
+              const saleData = {
+                transaction_ref: (paymentMethod !== 'Efectivo' && paymentMethod !== 'Apartado (Plan Separe)') ? transactionRef : null,
+                customer_name: customerName,
+                customer_phone: customerPhone,
+                total_amount: cartTotal,
+                payment_method: paymentMethod,
+                cash_received: paymentMethod === 'Efectivo' && cashReceived ? parseFloat(cashReceived) : null
+              };
+              await printReceipt(saleData, cart);
+            } catch (err) {
+              console.error("Error imprimiendo en USB:", err);
+              // Fallback
+              window.open(`/recibo?id=${data.id}&print=true`, '_blank', 'width=350,height=600');
+            }
+          } else {
+            window.open(`/recibo?id=${data.id}&print=true`, '_blank', 'width=350,height=600');
+          }
         }
 
         // Limpiar formulario
@@ -241,6 +271,13 @@ export default function VentasPage() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
             <h2 style={{ margin: 0, color: '#0f172a', fontSize: '1.5rem', fontWeight: '700' }}>Punto de Venta</h2>
             <div style={{ display: 'flex', gap: '10px' }}>
+              <button 
+                onClick={handleLinkPrinter}
+                style={{ padding: '8px 16px', backgroundColor: usbPrinterLinked ? '#10b981' : '#f1f5f9', color: usbPrinterLinked ? 'white' : '#475569', border: `1px solid ${usbPrinterLinked ? '#10b981' : '#cbd5e1'}`, borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}
+              >
+                <Printer size={16} />
+                {usbPrinterLinked ? 'Impresora USB OK' : 'Vincular Impresora USB'}
+              </button>
               <button 
                 onClick={handleExpressService}
                 style={{ padding: '8px 16px', backgroundColor: '#e0e7ff', color: '#4f46e5', border: '1px solid #c7d2fe', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
