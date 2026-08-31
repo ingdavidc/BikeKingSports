@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { Image as ImageIcon, Printer } from 'lucide-react';
+import { Image as ImageIcon, Printer, Maximize } from 'lucide-react';
 import SalesHistoryModal from '@/components/admin/SalesHistoryModal';
 import { connectPrinter, isPrinterConnected, printReceipt } from '@/utils/WebUSBPrinter';
 
@@ -98,6 +98,18 @@ export default function VentasPage() {
       (p.sku && p.sku.toLowerCase().includes(s))
     );
   }, [products, search]);
+
+  const toggleFullScreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.error(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  };
 
   const handleLinkPrinter = async () => {
     const success = await connectPrinter();
@@ -271,6 +283,13 @@ export default function VentasPage() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
             <h2 style={{ margin: 0, color: '#0f172a', fontSize: '1.5rem', fontWeight: '700' }}>Punto de Venta</h2>
             <div style={{ display: 'flex', gap: '10px' }}>
+              <button 
+                onClick={toggleFullScreen}
+                style={{ padding: '8px 16px', backgroundColor: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}
+                title="Pantalla Completa"
+              >
+                <Maximize size={16} />
+              </button>
               <button 
                 onClick={handleLinkPrinter}
                 style={{ padding: '8px 16px', backgroundColor: usbPrinterLinked ? '#10b981' : '#f1f5f9', color: usbPrinterLinked ? 'white' : '#475569', border: `1px solid ${usbPrinterLinked ? '#10b981' : '#cbd5e1'}`, borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}
