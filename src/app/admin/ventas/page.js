@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Image as ImageIcon, Printer, Maximize } from 'lucide-react';
 import SalesHistoryModal from '@/components/admin/SalesHistoryModal';
-import { connectPrinter, isPrinterConnected, printReceipt } from '@/utils/WebUSBPrinter';
+import { connectPrinter, isPrinterConnected, printReceipt, autoConnectPrinter } from '@/utils/WebUSBPrinter';
 
 export default function VentasPage() {
   const [products, setProducts] = useState([]);
@@ -37,6 +37,10 @@ export default function VentasPage() {
   useEffect(() => {
     fetchProducts();
     fetchActiveOrders();
+    // Intentar auto-conectar si ya tiene permisos previos
+    autoConnectPrinter().then(success => {
+      if (success) setUsbPrinterLinked(true);
+    });
   }, []);
 
   // Debounce customer search

@@ -13,6 +13,28 @@ const normalizeText = (text) => {
     .replace(/Ñ/g, "N");
 };
 
+export const autoConnectPrinter = async () => {
+  try {
+    if (!navigator.usb) return false;
+    const devices = await navigator.usb.getDevices();
+    if (devices.length > 0) {
+      const device = devices[0];
+      await device.open();
+      if (device.configuration === null) {
+        await device.selectConfiguration(1);
+      }
+      const ifaceNumber = device.configuration.interfaces[0].interfaceNumber;
+      await device.claimInterface(ifaceNumber);
+      usbDevice = device;
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error("Error auto-conectando impresora USB:", error);
+    return false;
+  }
+};
+
 export const connectPrinter = async () => {
   try {
     // 7 is printer class code in USB spec
