@@ -715,31 +715,27 @@ export default function ProductModal({ onClose, onSave, initialData }) {
                            justify-content: center !important;
                            box-sizing: border-box !important;
                          }
-                         #print-barcode-container img {
-                           height: 18px !important;
-                           margin-bottom: 2px !important;
+                         #print-barcode-container .brand-name {
+                           font-size: 11px !important;
+                           font-weight: 900 !important;
+                           margin-bottom: 1px !important;
                          }
                          #print-barcode-container .product-name {
-                           font-size: 10px !important;
-                           margin-bottom: 1px !important;
+                           font-size: 11px !important;
+                           margin-bottom: 2px !important;
                            white-space: nowrap !important;
                            overflow: hidden !important;
                            text-overflow: ellipsis !important;
                            max-width: 48mm !important;
                          }
-                         #print-barcode-container .product-price {
-                           font-size: 10px !important;
-                           margin-bottom: 2px !important;
-                         }
                          #print-barcode-container svg {
-                           height: 30px !important;
+                           height: 35px !important;
                          }
                        }
                      `}</style>
-                     <img src="/logo.png" alt="Logo" style={{ height: '35px', objectFit: 'contain', marginBottom: '8px' }} />
-                     <div className="product-name" style={{ fontSize: '15px', fontWeight: 'bold', marginBottom: '2px' }}>{formData.name || 'Nuevo Producto'}</div>
-                     <div className="product-price" style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '8px', color: '#1e293b' }}>Precio: ${(parseFloat(formData.price) || suggestedPrice).toLocaleString()}</div>
-                     <Barcode value={formData.sku} height={50} fontSize={14} />
+                     <div className="brand-name" style={{ fontSize: '13px', fontWeight: '900', marginBottom: '2px', letterSpacing: '1px' }}>BIKEKING</div>
+                     <div className="product-name" style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '6px', textAlign: 'center', lineHeight: '1.1' }}>{formData.name || 'Nuevo Producto'}</div>
+                     <Barcode value={formData.sku} height={45} fontSize={14} margin={0} />
                   </div>
                 ) : (
                   <div style={{ padding: '20px', backgroundColor: '#fee2e2', color: '#991b1b', borderRadius: '8px', marginBottom: '20px' }}>
