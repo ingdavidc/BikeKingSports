@@ -688,21 +688,57 @@ export default function ProductModal({ onClose, onSave, initialData }) {
                   <div id="print-barcode-container" style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                      <style>{`
                        @media print {
+                         @page {
+                           size: 50mm 25mm;
+                           margin: 0;
+                         }
+                         body {
+                           margin: 0;
+                           padding: 0;
+                           background: white;
+                         }
                          body * { visibility: hidden !important; }
                          #print-barcode-container, #print-barcode-container * { visibility: visible !important; }
                          #print-barcode-container {
-                           position: absolute;
-                           left: 50%;
-                           top: 50px;
-                           transform: translateX(-50%);
+                           position: absolute !important;
+                           left: 0 !important;
+                           top: 0 !important;
+                           width: 50mm !important;
+                           height: 25mm !important;
+                           margin: 0 !important;
+                           padding: 1mm !important;
                            border: none !important;
-                           padding: 0 !important;
+                           transform: none !important;
+                           display: flex !important;
+                           flex-direction: column !important;
+                           align-items: center !important;
+                           justify-content: center !important;
+                           box-sizing: border-box !important;
+                         }
+                         #print-barcode-container img {
+                           height: 18px !important;
+                           margin-bottom: 2px !important;
+                         }
+                         #print-barcode-container .product-name {
+                           font-size: 10px !important;
+                           margin-bottom: 1px !important;
+                           white-space: nowrap !important;
+                           overflow: hidden !important;
+                           text-overflow: ellipsis !important;
+                           max-width: 48mm !important;
+                         }
+                         #print-barcode-container .product-price {
+                           font-size: 10px !important;
+                           margin-bottom: 2px !important;
+                         }
+                         #print-barcode-container svg {
+                           height: 30px !important;
                          }
                        }
                      `}</style>
                      <img src="/logo.png" alt="Logo" style={{ height: '35px', objectFit: 'contain', marginBottom: '8px' }} />
-                     <div style={{ fontSize: '15px', fontWeight: 'bold', marginBottom: '2px' }}>{formData.name || 'Nuevo Producto'}</div>
-                     <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '8px', color: '#1e293b' }}>Precio: ${(parseFloat(formData.price) || suggestedPrice).toLocaleString()}</div>
+                     <div className="product-name" style={{ fontSize: '15px', fontWeight: 'bold', marginBottom: '2px' }}>{formData.name || 'Nuevo Producto'}</div>
+                     <div className="product-price" style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '8px', color: '#1e293b' }}>Precio: ${(parseFloat(formData.price) || suggestedPrice).toLocaleString()}</div>
                      <Barcode value={formData.sku} height={50} fontSize={14} />
                   </div>
                 ) : (
