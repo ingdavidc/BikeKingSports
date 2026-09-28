@@ -178,7 +178,7 @@ export default function VentasPage() {
         if (existing.quantity >= product.stock) return prev;
         return prev.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item);
       }
-      return [...prev, { ...product, quantity: 1 }];
+      return [...prev, { ...product, quantity: 1, original_price: product.price, discount_percentage: 0 }];
     });
   };
 
@@ -197,7 +197,22 @@ export default function VentasPage() {
   const updatePrice = (id, newPrice) => {
     setCart(prev => prev.map(item => {
       if (item.id === id) {
-        return { ...item, price: newPrice };
+        return { ...item, price: newPrice, discount_percentage: 0 };
+      }
+      return item;
+    }));
+  };
+
+  const applyDiscount = (id, percentage) => {
+    setCart(prev => prev.map(item => {
+      if (item.id === id) {
+        const basePrice = item.original_price ?? item.price;
+        const discountAmount = basePrice * (percentage / 100);
+        return { 
+          ...item, 
+          discount_percentage: percentage, 
+          price: Math.max(0, basePrice - discountAmount) 
+        };
       }
       return item;
     }));
@@ -420,7 +435,7 @@ export default function VentasPage() {
                   <div style={{ flex: 1, paddingRight: '10px' }}>
                     <div style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.9rem', marginBottom: '6px' }}>{item.name}</div>
                     
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px', flexWrap: 'wrap' }}>
                       <span style={{ color: '#64748b', fontSize: '0.9rem' }}>$</span>
                       <input 
                         type="number" 
@@ -428,7 +443,22 @@ export default function VentasPage() {
                         onChange={(e) => updatePrice(item.id, parseFloat(e.target.value) || 0)}
                         style={{ width: '90px', padding: '4px 6px', borderRadius: '4px', border: '1px solid #cbd5e1', fontWeight: 'bold', color: '#0ea5e9', outline: 'none' }}
                       />
-                      <span style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: 'bold' }}>
+                      
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginLeft: '5px' }}>
+                        <span style={{ color: '#64748b', fontSize: '0.8rem' }}>Desc:</span>
+                        <input 
+                          type="number" 
+                          min="0"
+                          max="100"
+                          value={item.discount_percentage || ''} 
+                          onChange={(e) => applyDiscount(item.id, parseFloat(e.target.value) || 0)}
+                          style={{ width: '55px', padding: '4px 6px', borderRadius: '4px', border: '1px solid #cbd5e1', fontWeight: 'bold', outline: 'none', fontSize: '0.85rem' }}
+                          placeholder="0"
+                        />
+                        <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 'bold' }}>%</span>
+                      </div>
+
+                      <span style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: 'bold', marginLeft: 'auto' }}>
                         x {item.quantity} = ${(item.price * item.quantity).toLocaleString()}
                       </span>
                     </div>
