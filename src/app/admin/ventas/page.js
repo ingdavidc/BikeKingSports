@@ -144,14 +144,30 @@ export default function VentasPage() {
 
   const handleSearchChange = (val) => {
     setSearch(val);
-    if (!val) return;
-    
-    // Barcode scanner exact match
-    const exactMatch = products.find(p => p.sku === val);
-    if (exactMatch && exactMatch.stock > 0) {
-      addToCart(exactMatch);
-      setSearch(''); // clear search after adding
+  };
+
+  // Barcode scanner: auto-add on Enter key or paste
+  const handleSearchKeyDown = (e) => {
+    if (e.key === 'Enter' && search.trim()) {
+      e.preventDefault();
+      const exactMatch = products.find(p => p.sku === search.trim());
+      if (exactMatch && exactMatch.stock > 0) {
+        addToCart(exactMatch);
+        setSearch('');
+      }
     }
+  };
+
+  const handleSearchPaste = (e) => {
+    setTimeout(() => {
+      const val = e.target.value.trim();
+      if (!val) return;
+      const exactMatch = products.find(p => p.sku === val);
+      if (exactMatch && exactMatch.stock > 0) {
+        addToCart(exactMatch);
+        setSearch('');
+      }
+    }, 50);
   };
 
   const addToCart = (product) => {
@@ -319,9 +335,11 @@ export default function VentasPage() {
           </div>
           <input 
             type="text" 
-            placeholder="Buscar por nombre, categoría o SKU (o usa el lector de código de barras)..." 
+            placeholder="Buscar por nombre, categoría o SKU (Enter o lector de barras para agregar)..." 
             value={search}
             onChange={e => handleSearchChange(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
+            onPaste={handleSearchPaste}
             style={{ width: '100%', padding: '12px 15px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', boxSizing: 'border-box' }}
           />
         </div>
