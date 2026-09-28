@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState, useEffect, useRef } from 'react';
 import { useCart } from '../context/CartContext';
 import ProductQuickView from './ProductQuickView';
@@ -110,7 +110,7 @@ export default function SmartSearch() {
                       <div className={styles.resultName}>{product.name}</div>
                       <div className={styles.resultPrice}>
                         {formatPrice(product.price)}
-                        {isOutOfStock && <span className={styles.badge}>Agotado</span>}
+                        {isOutOfStock && <span className={styles.badge}>PREVENTA</span>}
                       </div>
                     </div>
                     <div className={styles.resultAction}>
@@ -121,7 +121,7 @@ export default function SmartSearch() {
                       ) : (
                         <button className={styles.whatsappButton} onClick={(e) => {
                           e.stopPropagation();
-                          window.open(`https://wa.me/573103291475?text=${encodeURIComponent('Hola, quiero encargar: ' + product.name)}`, '_blank');
+                          window.open(`https://wa.me/573103291475?text=${encodeURIComponent('Hola, quiero reservar en preventa: ' + product.name)}`, '_blank');
                         }}>
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21" /></svg>
                         </button>
@@ -149,4 +149,5 @@ export default function SmartSearch() {
     </div>
   );
 }
+
 

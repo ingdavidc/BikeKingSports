@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import styles from './ProductQuickView.module.css';
 
@@ -32,7 +32,7 @@ export default function ProductQuickView({ product, onClose }) {
   };
 
   const handleWhatsAppRequest = () => {
-    const text = encodeURIComponent(`Hola BikeKing, me interesa el producto que está agotado: ${product.name}`);
+    const text = encodeURIComponent(`Hola BikeKing, me interesa el producto que está en preventa: ${product.name}`);
     const whatsappNumber = '573103291475';
     window.open(`https://wa.me/${whatsappNumber}?text=${text}`, '_blank');
   };
@@ -70,7 +70,7 @@ export default function ProductQuickView({ product, onClose }) {
             )}
             
             {product.is_on_sale === 1 && <span className={styles.badgeSale} style={{ backgroundColor: '#e60000', color: 'white', position: 'absolute', top: '10px', left: '10px', padding: '4px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 'bold', zIndex: 10, boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>¡OFERTA!</span>}
-            {isOutOfStock && <span className={styles.badgeOut} style={{ position: 'absolute', top: '10px', right: '10px', backgroundColor: '#e60000', color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 'bold', zIndex: 10 }}>Agotado</span>}
+            {isOutOfStock && <span className={styles.badgeOut} style={{ position: 'absolute', top: '10px', right: '10px', backgroundColor: '#e60000', color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 'bold', zIndex: 10 }}>PREVENTA</span>}
           </div>
           
           <div className={styles.details}>
@@ -118,7 +118,7 @@ export default function ProductQuickView({ product, onClose }) {
                   className={`btn btn-secondary ${styles.actionBtn} ${styles.waBtn}`} 
                   onClick={handleWhatsAppRequest}
                 >
-                  Encargar por WhatsApp
+                  RESERVAR AHORA
                 </button>
               )}
             </div>
@@ -128,3 +128,4 @@ export default function ProductQuickView({ product, onClose }) {
     </div>
   );
 }
+
