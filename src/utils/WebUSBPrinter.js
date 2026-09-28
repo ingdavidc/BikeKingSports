@@ -109,6 +109,9 @@ export const printReceipt = async (saleData, cartItems) => {
     const qty = String(item.quantity).padEnd(3);
     const total = String(item.price * item.quantity).padStart(12);
     pushStr(`${qty}x ${name}\n`);
+    if (item.sku) {
+      pushStr(`    SKU: ${item.sku}\n`);
+    }
     pushStr(`    $${item.price.toLocaleString('es-CO')} c/u -> $${total.trim()}\n`);
   });
 

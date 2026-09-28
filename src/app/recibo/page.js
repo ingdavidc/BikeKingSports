@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
@@ -84,6 +84,7 @@ function ReceiptContent() {
               <td style={{ verticalAlign: 'top', paddingTop: '5px' }}>{item.quantity}</td>
               <td style={{ verticalAlign: 'top', paddingTop: '5px', paddingRight: '5px' }}>
                 {item.name} <br/>
+                {item.sku && <small style={{ color: '#777', display: 'block', marginBottom: '2px' }}>SKU: {item.sku}</small>}
                 <small style={{ color: '#555' }}>${item.price.toLocaleString()}</small>
               </td>
               <td style={{ verticalAlign: 'top', textAlign: 'right', paddingTop: '5px' }}>
