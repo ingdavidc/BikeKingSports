@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect, useMemo } from 'react';
 import { Search, UserPlus, FileEdit, UserCircle } from 'lucide-react';
@@ -87,7 +87,7 @@ export default function ClientesPage() {
                   <td style={{ padding: '15px 20px' }}>{c.phone || '-'}</td>
                   <td style={{ padding: '15px 20px', color: '#3b82f6' }}>{c.email || '-'}</td>
                   <td style={{ padding: '15px 20px', color: '#64748b', fontSize: '0.9rem' }}>
-                    {c.created_at ? new Date(c.created_at).toLocaleDateString('es-CO') : '-'}
+                    {c.created_at ? new Date(c.created_at.includes('Z') ? c.created_at : c.created_at + 'Z').toLocaleDateString('es-CO') : '-'}
                   </td>
                 </tr>
               ))}
@@ -98,3 +98,4 @@ export default function ClientesPage() {
     </div>
   );
 }
+

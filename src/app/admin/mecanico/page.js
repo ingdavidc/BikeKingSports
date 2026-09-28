@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 
@@ -30,7 +30,7 @@ const CHECKLIST_ITEMS = [
 
 function formatDate(iso) {
   if (!iso) return '';
-  const d = new Date(iso);
+  const fixedIso = iso ? (iso.includes('Z') ? iso : iso + 'Z') : ''; const d = new Date(fixedIso);
   return d.toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
@@ -595,3 +595,4 @@ export default function MecanicoPanel() {
 
 const lbl = { display: 'block', marginBottom: '6px', fontWeight: 600, fontSize: '0.85rem', color: '#94a3b8', textTransform: 'uppercase' };
 const inp = { width: '100%', padding: '14px', borderRadius: '8px', border: '1px solid #334155', backgroundColor: '#0f172a', color: 'white', fontSize: '1rem', boxSizing: 'border-box', outline: 'none' };
+

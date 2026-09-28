@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 
 export default function SalesHistoryModal({ onClose }) {
   const [sales, setSales] = useState([]);
@@ -106,7 +106,7 @@ export default function SalesHistoryModal({ onClose }) {
           <h1>BIKE KING SPORTS</h1>
           <h2>Taller y Tienda Especializada</h2>
           <div class="divider"></div>
-          <div><strong>Fecha:</strong> ${new Date(sale.created_at).toLocaleString()}</div>
+          <div><strong>Fecha:</strong> ${new Date(sale.created_at.includes('Z') ? sale.created_at : sale.created_at + 'Z').toLocaleString()}</div>
           <div><strong>Recibo:</strong> ${sale.id.substring(0, 8).toUpperCase()}</div>
           ${sale.customer_document ? `<div><strong>Cliente Doc:</strong> ${sale.customer_document}</div>` : ''}
           ${sale.work_order_id ? `<div><strong>Orden de Taller:</strong> ${sale.work_order_id.substring(0,8).toUpperCase()}</div>` : ''}
@@ -149,7 +149,7 @@ export default function SalesHistoryModal({ onClose }) {
       grandTotal += sale.total;
       tableRows += `
         <tr>
-          <td style="padding: 8px; border-bottom: 1px solid #ddd;">${new Date(sale.created_at).toLocaleString()}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #ddd;">${new Date(sale.created_at.includes('Z') ? sale.created_at : sale.created_at + 'Z').toLocaleString()}</td>
           <td style="padding: 8px; border-bottom: 1px solid #ddd;">${sale.id.substring(0, 8).toUpperCase()}</td>
           <td style="padding: 8px; border-bottom: 1px solid #ddd;">${sale.customer_document || 'N/A'}</td>
           <td style="padding: 8px; border-bottom: 1px solid #ddd;">${sale.payment_method}</td>
@@ -258,7 +258,7 @@ export default function SalesHistoryModal({ onClose }) {
                           )}
                         </div>
                         <div style={{ color: '#64748b', fontSize: '0.85rem' }}>
-                          {new Date(sale.created_at).toLocaleString()} • {sale.payment_method}
+                          {new Date(sale.created_at.includes('Z') ? sale.created_at : sale.created_at + 'Z').toLocaleString()} • {sale.payment_method}
                           {sale.customer_document ? ` • Cliente: ${sale.customer_document}` : ''}
                         </div>
                       </div>
@@ -380,3 +380,4 @@ export default function SalesHistoryModal({ onClose }) {
     </div>
   );
 }
+

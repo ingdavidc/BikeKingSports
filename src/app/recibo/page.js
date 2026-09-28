@@ -61,7 +61,7 @@ function ReceiptContent() {
 
       <div style={{ marginBottom: '15px' }}>
         <div><strong>Recibo N°:</strong> {sale.id.substring(0, 8).toUpperCase()}</div>
-        <div><strong>Fecha:</strong> {new Date(sale.created_at).toLocaleString('es-CO')}</div>
+        <div><strong>Fecha:</strong> {new Date(sale.created_at.includes('Z') ? sale.created_at : sale.created_at + 'Z').toLocaleString('es-CO')}</div>
         {sale.customer_document && (
           <>
             <div><strong>Cliente:</strong> {sale.customer?.name || 'Consumidor Final'}</div>
@@ -161,3 +161,4 @@ export default function Page() {
     </Suspense>
   );
 }
+
