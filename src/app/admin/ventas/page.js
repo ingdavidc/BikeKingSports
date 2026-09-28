@@ -298,7 +298,7 @@ export default function VentasPage() {
     <div style={{ height: 'calc(100vh - 80px)', display: 'flex', gap: '20px', flexDirection: 'row' }}>
       
       {/* LEFT COLUMN: PRODUCT CATALOG */}
-      <div style={{ flex: '6.5', display: 'flex', flexDirection: 'column', backgroundColor: 'white', color: '#0f172a', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+      <div style={{ flex: '5.5', display: 'flex', flexDirection: 'column', backgroundColor: 'white', color: '#0f172a', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
         
         <div style={{ padding: '20px', borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
@@ -348,7 +348,7 @@ export default function VentasPage() {
           {loading ? (
             <p>Cargando inventario...</p>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '15px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px' }}>
               {filteredProducts.map(product => {
                 const isOutOfStock = product.stock <= 0;
                 return (
@@ -399,7 +399,7 @@ export default function VentasPage() {
       </div>
 
       {/* RIGHT COLUMN: CART */}
-      <div style={{ flex: '3.5', display: 'flex', flexDirection: 'column', backgroundColor: 'white', color: '#0f172a', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
+      <div style={{ flex: '4.5', display: 'flex', flexDirection: 'column', backgroundColor: 'white', color: '#0f172a', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
         <div style={{ padding: '20px', borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc', borderTopLeftRadius: '12px', borderTopRightRadius: '12px' }}>
           <h2 style={{ margin: 0, color: '#0f172a', fontSize: '1.5rem', display: 'flex', justifyContent: 'space-between', fontWeight: '700' }}>
             <span>🛒 Ticket</span>
