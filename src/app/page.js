@@ -1,10 +1,14 @@
-﻿'use client';
+'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import WorkGallery from '../components/WorkGallery';
 import PromoPopup from '../components/PromoPopup';
 import { useCart } from '../context/CartContext';
 import ProductQuickView from '../components/ProductQuickView';
+import ChristmasSnow from '../components/christmas/ChristmasSnow';
+import ChristmasLights from '../components/christmas/ChristmasLights';
+import SantaHat from '../components/christmas/SantaHat';
+import ChristmasGiftBanner from '../components/christmas/ChristmasGiftBanner';
 import { Bike, Settings, Backpack, Shirt, Dumbbell } from 'lucide-react';
 import styles from './page.module.css';
 
@@ -12,23 +16,49 @@ export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [siteSettings, setSiteSettings] = useState(null);
+  const [isChristmas, setIsChristmas] = useState(true); // Default true for Christmas season!
   const { addToCart } = useCart();
 
   useEffect(() => {
-    const fetchFeatured = async () => {
+    const fetchHomeData = async () => {
       try {
-        const res = await fetch('/api/store/products?limit=4');
-        const data = await res.json();
-        if (data.success) {
-          setFeaturedProducts(data.data);
+        const [productsRes, settingsRes] = await Promise.all([
+          fetch('/api/store/products?limit=4'),
+          fetch('/api/content?type=settings')
+        ]);
+        
+        const productsData = await productsRes.json();
+        const settingsData = await settingsRes.json();
+
+        if (productsData.success) {
+          setFeaturedProducts(productsData.data);
+        }
+
+        if (settingsData && !settingsData.error) {
+          setSiteSettings(settingsData);
+
+          // Priority 1: URL query param (?navidad=1 or ?navidad=0)
+          const urlParams = new URLSearchParams(window.location.search);
+          const urlNavidad = urlParams.get('navidad') ?? urlParams.get('christmas');
+
+          if (urlNavidad !== null) {
+            setIsChristmas(urlNavidad === '1' || urlNavidad === 'true');
+          } else if (settingsData.christmas_mode === '0' || settingsData.christmas_mode === 'false') {
+            setIsChristmas(false);
+          } else {
+            // Default to enabled for the holiday season
+            setIsChristmas(true);
+          }
         }
       } catch (err) {
-        console.error("Error fetching featured products:", err);
+        console.error("Error fetching home data:", err);
       } finally {
         setLoading(false);
       }
     };
-    fetchFeatured();
+
+    fetchHomeData();
   }, []);
 
   const formatPrice = (price) => {
@@ -43,36 +73,79 @@ export default function Home() {
 
   return (
     <div className={styles.container}>
+      {/* Falling Snow Effect (Active only in Christmas mode) */}
+      {isChristmas && <ChristmasSnow />}
+
       <PromoPopup />
       
       {/* Promociones / Banner Principal */}
-      <section className={styles.promoBanner}>
+      <section className={`${styles.promoBanner} ${isChristmas ? styles.promoBannerChristmas : ''}`}>
         <div className={styles.promoContent}>
-          <span className={styles.promoBadge}>¡Oferta de Temporada!</span>
-          <h2>Llantas Maxxis con 20% de Descuento</h2>
-          <p>Aprovecha esta promoción exclusiva por tiempo limitado.</p>
-          <Link href="/tienda" className="btn btn-primary">Comprar Ahora</Link>
+          <span className={`${styles.promoBadge} ${isChristmas ? styles.promoBadgeChristmas : ''}`}>
+            {isChristmas ? '🎄 ¡Especial de Navidad!' : '¡Oferta de Temporada!'}
+          </span>
+          <h2>
+            {isChristmas 
+              ? (siteSettings?.christmas_banner_title || '¡Llegó la Navidad a BikeKing! El Mejor Regalo Rueda Sobre 2 Ruedas') 
+              : 'Llantas Maxxis con 20% de Descuento'}
+          </h2>
+          <p>
+            {isChristmas 
+              ? (siteSettings?.christmas_banner_desc || 'Aprovecha ofertas exclusivas de fin de año en bicicletas, componentes y accesorios.') 
+              : 'Aprovecha esta promoción exclusiva por tiempo limitado.'}
+          </p>
+          <Link href="/tienda" className={`btn ${isChristmas ? styles.btnChristmas : 'btn-primary'}`}>
+            {isChristmas ? 'Ver Regalos 🎁' : 'Comprar Ahora'}
+          </Link>
         </div>
+        {/* Fairy lights string under the banner */}
+        {isChristmas && <ChristmasLights />}
       </section>
 
       {/* Hero Section */}
       <section className={styles.hero}>
         <div className={styles.heroOverlay}></div>
         <div className={`container ${styles.heroContent} animate-fade-in`}>
-          <h1 className={styles.heroTitle}>
-            BIKE <span className="text-gradient">KING</span>
-          </h1>
-          <p className={styles.heroSubtitle}>PASIÓN A TOPE</p>
+          {isChristmas && (
+            <div className={styles.christmasHeroBadge}>
+              <span>❄️</span>
+              <span>TEMPORADA NAVIDEÑA BIKEKING</span>
+              <span>🎄</span>
+            </div>
+          )}
+          <div style={{ position: 'relative', display: 'inline-block' }}>
+            {isChristmas && (
+              <div className={styles.santaHatWrapper}>
+                <SantaHat width={58} height={52} />
+              </div>
+            )}
+            <h1 className={styles.heroTitle}>
+              BIKE <span className="text-gradient">KING</span>
+            </h1>
+          </div>
+          <p className={styles.heroSubtitle}>
+            {isChristmas ? 'PASIÓN A TOPE • ESPECIAL DE NAVIDAD' : 'PASIÓN A TOPE'}
+          </p>
           <p className={styles.heroDesc}>
-            Especialistas en MTB y Ruta en Saravena. Tienda de bicicletas, repuestos, accesorios y servicio técnico profesional.
+            {isChristmas 
+              ? 'Esta Navidad, regala salud, aventura y libertad. Especialistas en MTB y Ruta en Saravena con las mejores ofertas de fin de año.'
+              : 'Especialistas en MTB y Ruta en Saravena. Tienda de bicicletas, repuestos, accesorios y servicio técnico profesional.'
+            }
           </p>
           
           <div className={styles.heroButtons}>
-            <Link href="/tienda" className="btn btn-primary">Ver Catálogo</Link>
-            <Link href="/servicios" className="btn btn-secondary">Nuestro Taller</Link>
+            <Link href="/tienda" className={`btn ${isChristmas ? styles.btnHeroChristmas : 'btn-primary'}`}>
+              {isChristmas ? '🎁 Catálogo Navideño' : 'Ver Catálogo'}
+            </Link>
+            <Link href="/servicios" className="btn btn-secondary">
+              {isChristmas ? '🔧 Puesta a Punto Navideña' : 'Nuestro Taller'}
+            </Link>
           </div>
         </div>
       </section>
+
+      {/* Holiday Gift Guide Banner (Active only during Christmas season) */}
+      {isChristmas && <ChristmasGiftBanner />}
 
       {/* Promo Banners */}
       <section className={`container ${styles.promoBannersSection}`}>
@@ -93,7 +166,7 @@ export default function Home() {
 
           {/* Banner 2: Frenos */}
           <Link href="/tienda?categoria=componentes" className={styles.promoCard}>
-            <div className={styles.promoRibbon}>NUEVOS</div>
+            <div className={styles.promoRibbon}>{isChristmas ? '🎄 NAVIDAD' : 'NUEVOS'}</div>
             <img src="https://pngimg.com/uploads/bicycle/bicycle_PNG5377.png" alt="Frenos Shimano" className={styles.promoImage} style={{filter: 'drop-shadow(5px 5px 15px rgba(0,0,0,0.5))', left: '-15%'}} />
             <div className={styles.promoContentRight}>
               <div className={styles.promoPill}>FRENOS XTR Y XT</div>
@@ -110,7 +183,9 @@ export default function Home() {
       {/* Featured Products */}
       <section className={`container ${styles.featuredSection}`}>
         <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>Productos Destacados</h2>
+          <h2 className={styles.sectionTitle}>
+            {isChristmas ? '🎁 Productos Destacados de Navidad' : 'Productos Destacados'}
+          </h2>
           <Link href="/tienda" className={styles.viewAllLink}>Ver todo →</Link>
         </div>
         
@@ -130,6 +205,14 @@ export default function Home() {
                 >
                   <div className={styles.featuredImage} style={{ position: 'relative' }}>
                     <img src={product.image_url || '/no-photo.jpg'} alt={product.name} />
+                    
+                    {/* Holiday Gift Badge */}
+                    {isChristmas && !isOutOfStock && (
+                      <span className={styles.christmasCardBadge}>
+                        🎁 Regalo Navideño
+                      </span>
+                    )}
+
                     {product.is_on_sale === 1 && (
                       <span style={{
                         position: 'absolute',
@@ -205,9 +288,11 @@ export default function Home() {
         )}
       </section>
 
-      {/* Services Section */}
+      {/* Services / Categories Section */}
       <section className={`container ${styles.servicesSection}`}>
-        <h2 className={styles.sectionTitle}>Nuestros Servicios</h2>
+        <h2 className={styles.sectionTitle}>
+          {isChristmas ? '🎄 Categorías & Regalos Navideños' : 'Nuestros Servicios'}
+        </h2>
         <div className={styles.grid}>
           <Link href="/tienda?categoria=Bicicletas" className={styles.card} style={{ textDecoration: 'none', color: 'inherit' }}>
             <div className={styles.cardIcon}>
@@ -215,6 +300,7 @@ export default function Home() {
             </div>
             <h3>Bicicletas</h3>
             <p>Encuentra las mejores marcas en bicicletas para todos los niveles y disciplinas.</p>
+            {isChristmas && <span className={styles.categoryChristmasTag}>🎄 Ideal para Regalo</span>}
           </Link>
           <Link href="/tienda?categoria=Componentes" className={styles.card} style={{ textDecoration: 'none', color: 'inherit' }}>
             <div className={styles.cardIcon}>
@@ -222,6 +308,7 @@ export default function Home() {
             </div>
             <h3>Componentes</h3>
             <p>Repuestos y partes de alta calidad para optimizar el rendimiento de tu bicicleta.</p>
+            {isChristmas && <span className={styles.categoryChristmasTag}>⚙️ Puesta a Punto</span>}
           </Link>
           <Link href="/tienda?categoria=Accesorios" className={styles.card} style={{ textDecoration: 'none', color: 'inherit' }}>
             <div className={styles.cardIcon}>
@@ -229,6 +316,7 @@ export default function Home() {
             </div>
             <h3>Accesorios</h3>
             <p>Todo lo que necesitas como complemento ideal para rodar seguro y preparado.</p>
+            {isChristmas && <span className={styles.categoryChristmasTag}>🎁 Detalles Únicos</span>}
           </Link>
           <Link href="/tienda?categoria=Ropa" className={styles.card} style={{ textDecoration: 'none', color: 'inherit' }}>
             <div className={styles.cardIcon}>
@@ -236,6 +324,7 @@ export default function Home() {
             </div>
             <h3>Ropa</h3>
             <p>Indumentaria técnica, cómoda y aerodinámica diseñada para ciclistas.</p>
+            {isChristmas && <span className={styles.categoryChristmasTag}>✨ Estrena en Ruta</span>}
           </Link>
           <Link href="/tienda?categoria=Gym" className={styles.card} style={{ textDecoration: 'none', color: 'inherit' }}>
             <div className={styles.cardIcon}>
@@ -243,6 +332,7 @@ export default function Home() {
             </div>
             <h3>Gym</h3>
             <p>Equipos y accesorios para potenciar tu entrenamiento físico y gimnasio en casa.</p>
+            {isChristmas && <span className={styles.categoryChristmasTag}>💪 Salud & Bienestar</span>}
           </Link>
         </div>
       </section>
@@ -251,8 +341,12 @@ export default function Home() {
       <section className={styles.eventsSection}>
         <div className={`container ${styles.eventsContainer}`}>
           <div className={styles.eventsHeader}>
-            <h2 className={styles.sectionTitle} style={{color: 'white', marginBottom: '10px'}}>Próximos Eventos</h2>
-            <p style={{color: '#e2e8f0', marginBottom: '40px'}}>Únete a nuestra comunidad ciclista.</p>
+            <h2 className={styles.sectionTitle} style={{color: 'white', marginBottom: '10px'}}>
+              {isChristmas ? '🎄 Rodadas y Eventos de Fin de Año' : 'Próximos Eventos'}
+            </h2>
+            <p style={{color: '#e2e8f0', marginBottom: '40px'}}>
+              {isChristmas ? 'Celebra el fin de año pedaleando en comunidad.' : 'Únete a nuestra comunidad ciclista.'}
+            </p>
           </div>
           <div className={styles.eventsGrid}>
             <div className={styles.eventCard}>
@@ -305,6 +399,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+      
       {/* Quick View Modal */}
       {selectedProduct && (
         <ProductQuickView 
@@ -315,4 +410,3 @@ export default function Home() {
     </div>
   );
 }
-

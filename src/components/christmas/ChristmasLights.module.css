@@ -1,0 +1,123 @@
+.lightStringContainer {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  height: 38px;
+  pointer-events: none;
+  z-index: 20;
+  margin-top: -6px;
+  margin-bottom: -10px;
+}
+
+.wireSvg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 20px;
+  stroke: rgba(255, 255, 255, 0.4);
+  stroke-width: 1.5;
+  fill: none;
+}
+
+.bulbsWrapper {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  width: 100%;
+  padding: 0 10px;
+  position: relative;
+  z-index: 2;
+}
+
+.bulbItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.bulbSocket {
+  width: 5px;
+  height: 6px;
+  background: #334155;
+  border-radius: 2px 2px 0 0;
+}
+
+.bulb {
+  width: 12px;
+  height: 18px;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* Color Themes & Twinkles */
+.bulbRed {
+  background: #ef4444;
+  box-shadow: 0 0 10px 2px rgba(239, 68, 68, 0.75), 0 0 20px 4px rgba(239, 68, 68, 0.3);
+  animation: glowRed 1.8s infinite ease-in-out;
+}
+
+.bulbGreen {
+  background: #10b981;
+  box-shadow: 0 0 10px 2px rgba(16, 185, 129, 0.75), 0 0 20px 4px rgba(16, 185, 129, 0.3);
+  animation: glowGreen 2.2s infinite ease-in-out;
+}
+
+.bulbGold {
+  background: #fbbf24;
+  box-shadow: 0 0 10px 2px rgba(251, 191, 36, 0.8), 0 0 20px 4px rgba(251, 191, 36, 0.35);
+  animation: glowGold 1.5s infinite ease-in-out;
+}
+
+.bulbBlue {
+  background: #38bdf8;
+  box-shadow: 0 0 10px 2px rgba(56, 189, 248, 0.8), 0 0 20px 4px rgba(56, 189, 248, 0.35);
+  animation: glowBlue 2.4s infinite ease-in-out;
+}
+
+.bulbWhite {
+  background: #fef08a;
+  box-shadow: 0 0 10px 2px rgba(254, 240, 138, 0.8), 0 0 20px 4px rgba(254, 240, 138, 0.4);
+  animation: glowWhite 1.9s infinite ease-in-out;
+}
+
+@keyframes glowRed {
+  0%, 100% { opacity: 0.85; filter: brightness(1); }
+  50% { opacity: 0.35; filter: brightness(0.7); }
+}
+
+@keyframes glowGreen {
+  0%, 100% { opacity: 0.4; filter: brightness(0.7); }
+  50% { opacity: 0.95; filter: brightness(1.2); }
+}
+
+@keyframes glowGold {
+  0%, 100% { opacity: 0.9; filter: brightness(1.15); }
+  50% { opacity: 0.3; filter: brightness(0.65); }
+}
+
+@keyframes glowBlue {
+  0%, 100% { opacity: 0.45; filter: brightness(0.75); }
+  50% { opacity: 1; filter: brightness(1.2); }
+}
+
+@keyframes glowWhite {
+  0%, 100% { opacity: 0.95; filter: brightness(1.2); }
+  50% { opacity: 0.4; filter: brightness(0.7); }
+}
+
+@media (max-width: 640px) {
+  .lightStringContainer {
+    height: 30px;
+  }
+  .bulb {
+    width: 9px;
+    height: 14px;
+  }
+  .bulbSocket {
+    width: 4px;
+    height: 4px;
+  }
+}

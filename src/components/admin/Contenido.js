@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 
@@ -6,6 +6,7 @@ export default function ContenidoWeb() {
   const [settings, setSettings] = useState({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState({});
+  const [togglingChristmas, setTogglingChristmas] = useState(false);
 
   useEffect(() => {
     fetch('/api/content?type=settings')
@@ -22,32 +23,61 @@ export default function ContenidoWeb() {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
 
-  const handleSave = async (key) => {
+  const handleSave = async (key, directValue = null) => {
     setSaving(prev => ({ ...prev, [key]: true }));
+    const valueToSave = directValue !== null ? directValue : (settings[key] || '');
+    try {
+      const res = await fetch('/api/content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'update_setting',
+          payload: { key, value: valueToSave }
+        })
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        alert(data.error || 'Error al guardar');
+      }
+    } catch (error) {
+      alert('Error de conexión al guardar');
+    }
+    setSaving(prev => ({ ...prev, [key]: false }));
+  };
+
+  // Christmas Mode Toggle: Enabled by default unless explicitly set to '0' or 'false'
+  const isChristmasActive = settings.christmas_mode !== '0' && settings.christmas_mode !== 'false';
+
+  const handleToggleChristmas = async () => {
+    setTogglingChristmas(true);
+    const nextVal = isChristmasActive ? '0' : '1';
+    setSettings(prev => ({ ...prev, christmas_mode: nextVal }));
+
     try {
       await fetch('/api/content', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'update_setting',
-          payload: { key, value: settings[key] }
+          payload: { key: 'christmas_mode', value: nextVal }
         })
       });
-    } catch (error) {
-      alert('Error al guardar');
+    } catch (err) {
+      alert('Error al actualizar modo navideño');
     }
-    setSaving(prev => ({ ...prev, [key]: false }));
+    setTogglingChristmas(false);
   };
 
-  if (loading) return <div>Cargando...</div>;
+  if (loading) return <div>Cargando configuración...</div>;
 
-  const InputField = ({ label, id, isTextarea }) => (
+  const InputField = ({ label, id, isTextarea, placeholder = '' }) => (
     <div style={{ marginBottom: '15px' }}>
       <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px' }}>{label}</label>
       <div style={{ display: 'flex', gap: '10px' }}>
         {isTextarea ? (
           <textarea
             value={settings[id] || ''}
+            placeholder={placeholder}
             onChange={(e) => handleChange(id, e.target.value)}
             style={{ flex: 1, padding: '10px', borderRadius: '4px', border: '1px solid #cbd5e1', minHeight: '80px' }}
           />
@@ -55,6 +85,7 @@ export default function ContenidoWeb() {
           <input
             type="text"
             value={settings[id] || ''}
+            placeholder={placeholder}
             onChange={(e) => handleChange(id, e.target.value)}
             style={{ flex: 1, padding: '10px', borderRadius: '4px', border: '1px solid #cbd5e1' }}
           />
@@ -73,6 +104,94 @@ export default function ContenidoWeb() {
   return (
     <div style={{ padding: '20px', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
       <h2 style={{ marginBottom: '25px', color: '#0f172a' }}>Gestor de Contenido</h2>
+
+      {/* ─── CONTROL ESPECIAL: TEMPORADA NAVIDEÑA ─── */}
+      <div style={{
+        marginBottom: '35px',
+        padding: '24px',
+        borderRadius: '12px',
+        background: isChristmasActive 
+          ? 'linear-gradient(135deg, #fef2f2 0%, #fff7ed 50%, #f0fdf4 100%)' 
+          : '#f8fafc',
+        border: isChristmasActive ? '2px solid #ef4444' : '2px solid #cbd5e1',
+        boxShadow: isChristmasActive ? '0 4px 16px rgba(239, 68, 68, 0.15)' : 'none',
+        transition: 'all 0.3s ease'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '1.8rem' }}>{isChristmasActive ? '🎄' : '⚪'}</span>
+              <h3 style={{ margin: 0, fontSize: '1.3rem', color: '#0f172a' }}>
+                Temporada Navideña (Tema de Navidad)
+              </h3>
+              <span style={{
+                padding: '4px 12px',
+                borderRadius: '9999px',
+                fontSize: '0.8rem',
+                fontWeight: 'bold',
+                backgroundColor: isChristmasActive ? '#16a34a' : '#64748b',
+                color: 'white',
+              }}>
+                {isChristmasActive ? '🎅 ACTIVADO' : 'DESACTIVADO (MODO NORMAL)'}
+              </span>
+            </div>
+            <p style={{ margin: '8px 0 0 0', color: '#475569', fontSize: '0.95rem', maxWidth: '700px' }}>
+              {isChristmasActive 
+                ? 'El tema navideño está activo en la página principal (efecto suave de nieve, luces festivas, gorro de Santa sobre el logo, guía de regalos y mensajes especiales). Al terminar la temporada navideña, haz clic en el botón para volver al modo normal.'
+                : 'La página principal se encuentra en su diseño estándar de todo el año, sin efectos navideños ni nieve. Puedes reactivarlo en cualquier momento con un solo clic.'}
+            </p>
+          </div>
+
+          <button
+            onClick={handleToggleChristmas}
+            disabled={togglingChristmas}
+            style={{
+              padding: '12px 24px',
+              borderRadius: '8px',
+              border: 'none',
+              fontWeight: 'bold',
+              fontSize: '1rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              backgroundColor: isChristmasActive ? '#dc2626' : '#16a34a',
+              color: 'white',
+              boxShadow: isChristmasActive 
+                ? '0 4px 12px rgba(220, 38, 38, 0.3)' 
+                : '0 4px 12px rgba(22, 163, 74, 0.3)',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            {togglingChristmas 
+              ? 'Actualizando...' 
+              : isChristmasActive 
+                ? '🛑 Desactivar Tema Navideño' 
+                : '🎄 Activar Tema Navideño'}
+          </button>
+        </div>
+
+        {/* Customization fields for the Christmas Banner */}
+        {isChristmasActive && (
+          <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid rgba(0,0,0,0.08)' }}>
+            <h4 style={{ margin: '0 0 15px 0', fontSize: '1rem', color: '#0f172a' }}>
+              Personalizar Mensajes del Banner Navideño (Opcional):
+            </h4>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <InputField 
+                label="Título del Banner Navideño" 
+                id="christmas_banner_title" 
+                placeholder="¡Llegó la Navidad a BikeKing! El Mejor Regalo Rueda Sobre 2 Ruedas"
+              />
+              <InputField 
+                label="Descripción del Banner Navideño" 
+                id="christmas_banner_desc" 
+                placeholder="Aprovecha ofertas exclusivas de fin de año en bicicletas, componentes y accesorios."
+              />
+            </div>
+          </div>
+        )}
+      </div>
       
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
         
