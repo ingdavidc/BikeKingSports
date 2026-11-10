@@ -6,11 +6,12 @@
   bottom: 0;
   background-color: rgba(15, 23, 42, 0.7);
   backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  padding: 20px;
+  padding: 16px;
   animation: fadeIn 0.2s ease-out forwards;
 }
 
@@ -19,36 +20,39 @@
   border-radius: 16px;
   width: 100%;
   max-width: 900px;
-  max-height: 90vh;
+  max-height: 88vh;
+  max-height: 88dvh;
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .closeButton {
   position: absolute;
-  top: 15px;
-  right: 20px;
-  background: white;
+  top: 12px;
+  right: 12px;
+  background: rgba(15, 23, 42, 0.85);
   border: none;
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  font-size: 24px;
-  color: #64748b;
+  font-size: 22px;
+  color: #ffffff;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  z-index: 20;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   transition: all 0.2s;
 }
 
 .closeButton:hover {
-  background: #f8fafc;
-  color: #0f172a;
+  background: #0f172a;
+  color: #ffffff;
   transform: scale(1.05);
 }
 
@@ -56,7 +60,9 @@
   display: flex;
   flex-direction: row;
   height: 100%;
-  max-height: 90vh;
+  max-height: 88vh;
+  max-height: 88dvh;
+  min-height: 0;
 }
 
 .imageContainer {
@@ -74,7 +80,7 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
-  max-height: 600px;
+  max-height: 550px;
 }
 
 .noImage {
@@ -89,21 +95,22 @@
 
 .badgeOut {
   position: absolute;
-  top: 20px;
-  left: 20px;
+  top: 16px;
+  left: 16px;
   background-color: #ef4444;
   color: white;
   padding: 6px 12px;
   border-radius: 6px;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3);
 }
 
 .details {
   flex: 1;
-  padding: 40px;
+  padding: 36px;
   overflow-y: auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
@@ -129,19 +136,19 @@
   font-size: 2rem;
   color: #e5142b;
   font-weight: 800;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
 }
 
 .descriptionBox {
   flex: 1;
-  margin-bottom: 30px;
+  margin-bottom: 24px;
 }
 
 .descTitle {
   font-size: 1.1rem;
   font-weight: 700;
   color: #334155;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   border-bottom: 2px solid #f1f5f9;
   padding-bottom: 8px;
 }
@@ -150,17 +157,18 @@
   color: #475569;
   line-height: 1.6;
   white-space: pre-wrap;
-  font-size: 1rem;
+  font-size: 0.98rem;
 }
 
 .actions {
   margin-top: auto;
+  padding-top: 10px;
 }
 
 .actionBtn {
   width: 100%;
-  padding: 16px;
-  font-size: 1.1rem;
+  padding: 14px;
+  font-size: 1.05rem;
 }
 
 .waBtn {
@@ -190,38 +198,45 @@
   }
   
   .imageContainer {
-    height: 250px;
-    min-height: 250px;
+    flex: none;
+    height: 210px;
+    min-height: 210px;
+    padding: 1rem 2.5rem 1rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
   }
   
   .details {
-    padding: 25px;
+    flex: 1;
+    min-height: 0;
+    padding: 20px;
   }
   
   .title {
-    font-size: 1.4rem;
+    font-size: 1.35rem;
+    margin-bottom: 8px;
   }
   
   .price {
-    font-size: 1.6rem;
+    font-size: 1.55rem;
+    margin-bottom: 14px;
   }
 }
 
 .thumbnails {
   position: absolute;
-  bottom: 20px;
+  bottom: 12px;
   left: 0;
   right: 0;
   display: flex;
   justify-content: center;
-  gap: 10px;
-  padding: 0 20px;
+  gap: 8px;
+  padding: 0 16px;
   z-index: 5;
 }
 
 .thumbnailBtn {
-  width: 50px;
-  height: 50px;
+  width: 44px;
+  height: 44px;
   border-radius: 8px;
   border: 2px solid #e2e8f0;
   overflow: hidden;

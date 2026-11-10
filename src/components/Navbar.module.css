@@ -89,6 +89,13 @@
   margin-bottom: 0 !important;
 }
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
 .cartContainer {
   flex-shrink: 0;
 }
@@ -125,10 +132,27 @@
   right: -5px;
 }
 
+.menuToggleBtn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background-color: #f1f5f9;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 7px;
+  cursor: pointer;
+}
+
+.mobileDrawer {
+  display: none;
+}
+
 /* Navigation Menu */
 .navBar {
   background-color: #ffffff;
   padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .navMenu {
@@ -154,6 +178,10 @@
 
 .navLink:hover {
   color: var(--color-primary);
+}
+
+.mobileNavOffer {
+  display: none;
 }
 
 .ofertasBtn {
@@ -193,32 +221,94 @@
 
 @media (max-width: 900px) {
   .navLinks {
-    gap: 15px;
+    gap: 18px;
   }
 }
 
 @media (max-width: 768px) {
+  .header {
+    position: relative;
+  }
+
   .topbar {
     display: none;
   }
-  
+
+  .mainHeader {
+    padding: 10px 0;
+  }
+
   .mainHeaderContainer {
     flex-wrap: wrap;
-    gap: 15px;
+    gap: 10px;
   }
-  
+
   .searchContainer {
     order: 3;
+    flex-basis: 100%;
     min-width: 100%;
   }
-  
-  .navMenu {
-    flex-direction: column;
-    gap: 15px;
+
+  .menuToggleBtn {
+    display: flex;
   }
-  
-  .navLinks {
-    flex-wrap: wrap;
+
+  .mobileDrawer {
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff;
+    border-bottom: 2px solid var(--color-primary);
+    padding: 8px 20px 14px;
+    gap: 4px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  .mobileDrawerLink {
+    padding: 10px 12px;
+    font-weight: 700;
+    color: #0f172a;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    text-decoration: none;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .mobileDrawerLink:last-child {
+    border-bottom: none;
+  }
+
+  .mobileDrawerOffer {
+    color: #dc2626;
+    font-weight: 800;
+  }
+
+  .navBar {
+    padding: 8px 0;
+  }
+
+  .navMenu {
     justify-content: center;
+  }
+
+  .navLinks {
+    width: 100%;
+    justify-content: space-around;
+    gap: 10px;
+  }
+
+  .navLink {
+    font-size: 0.85rem;
+  }
+
+  .mobileNavOffer {
+    display: inline-block;
+    background-color: #ef4444;
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 0.78rem;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
   }
 }

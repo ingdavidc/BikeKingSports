@@ -29,41 +29,43 @@ export default function ChristmasGiftBanner() {
   ];
 
   return (
-    <section className={`container ${styles.giftSection}`}>
-      <div className={styles.giftBackgroundGlow} />
-      <div className={styles.giftBackgroundGlowLeft} />
+    <div className={`container ${styles.giftWrapper}`}>
+      <section className={styles.giftSection}>
+        <div className={styles.giftBackgroundGlow} />
+        <div className={styles.giftBackgroundGlowLeft} />
 
-      <div className={styles.giftHeader}>
-        <span className={styles.giftBadge}>
-          <span>🎄</span> Guía de Regalos de Navidad
-        </span>
-        <h2 className={styles.giftTitle}>
-          Esta Navidad, Regala la <span className={styles.giftTitleHighlight}>Pasión del Ciclismo</span>
-        </h2>
-        <p className={styles.giftSubtitle}>
-          Sorprende a quienes más quieres o date el gusto que te mereces. Te ayudamos a elegir el detalle ideal para rodar con todo en este nuevo año.
-        </p>
-      </div>
+        <div className={styles.giftHeader}>
+          <span className={styles.giftBadge}>
+            <span>🎄</span> Guía de Regalos de Navidad
+          </span>
+          <h2 className={styles.giftTitle}>
+            Esta Navidad, Regala la <span className={styles.giftTitleHighlight}>Pasión del Ciclismo</span>
+          </h2>
+          <p className={styles.giftSubtitle}>
+            Sorprende a quienes más quieres o date el gusto que te mereces. Te ayudamos a elegir el detalle ideal para rodar con todo en este nuevo año.
+          </p>
+        </div>
 
-      <div className={styles.giftGrid}>
-        {giftIdeas.map((item, idx) => (
-          <Link key={idx} href={item.link} className={styles.giftCard}>
-            <div>
-              <div className={styles.cardIcon}>{item.icon}</div>
-              <h3 className={styles.cardTitle}>{item.title}</h3>
-              <p className={styles.cardDesc}>{item.desc}</p>
-            </div>
-            <span className={styles.cardTag}>{item.tag}</span>
+        <div className={styles.giftGrid}>
+          {giftIdeas.map((item, idx) => (
+            <Link key={idx} href={item.link} className={styles.giftCard}>
+              <div>
+                <div className={styles.cardIcon}>{item.icon}</div>
+                <h3 className={styles.cardTitle}>{item.title}</h3>
+                <p className={styles.cardDesc}>{item.desc}</p>
+              </div>
+              <span className={styles.cardTag}>{item.tag}</span>
+            </Link>
+          ))}
+        </div>
+
+        <div className={styles.giftFooter}>
+          <Link href="/tienda" className={styles.giftCtaButton}>
+            <span>Explorar Catálogo Navideño</span>
+            <span>🎁</span>
           </Link>
-        ))}
-      </div>
-
-      <div className={styles.giftFooter}>
-        <Link href="/tienda" className={styles.giftCtaButton}>
-          <span>Explorar Catálogo Navideño</span>
-          <span>🎁</span>
-        </Link>
-      </div>
-    </section>
+        </div>
+      </section>
+    </div>
   );
 }

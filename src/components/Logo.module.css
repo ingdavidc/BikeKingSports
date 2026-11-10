@@ -16,3 +16,9 @@
   object-fit: contain;
   border-radius: 8px; /* Optional, softens the edges if it's a JPG on a dark background */
 }
+
+@media (max-width: 768px) {
+  .logoImage {
+    height: 44px;
+  }
+}

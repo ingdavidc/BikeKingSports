@@ -111,10 +111,14 @@
 @media (max-width: 640px) {
   .lightStringContainer {
     height: 30px;
+    margin-top: 2px;
+  }
+  .bulbItem:nth-child(even) {
+    display: none;
   }
   .bulb {
-    width: 9px;
-    height: 14px;
+    width: 10px;
+    height: 15px;
   }
   .bulbSocket {
     width: 4px;

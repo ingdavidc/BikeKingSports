@@ -145,22 +145,58 @@ textarea.formControl {
   letter-spacing: 1px;
 }
 
-@media (max-width: 900px) {
-  .contentSection {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 768px) {
-  .hero h1 {
-    font-size: 2.5rem;
-  }
-}
 .infoLink {
   display: block;
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
+
 .infoLink:hover {
   transform: translateX(5px);
   opacity: 0.8;
+}
+
+@media (max-width: 900px) {
+  .contentSection {
+    grid-template-columns: 1fr;
+    gap: 35px;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 48px 16px;
+  }
+
+  .hero h1 {
+    font-size: 2.2rem;
+  }
+
+  .hero p {
+    font-size: 1rem;
+  }
+
+  .contentSection {
+    padding: 40px 16px;
+    gap: 30px;
+  }
+
+  .infoColumn {
+    gap: 24px;
+  }
+
+  .infoBlock {
+    padding: 20px;
+  }
+
+  .formColumn {
+    padding: 24px 16px;
+  }
+
+  .formColumn h2 {
+    font-size: 1.55rem;
+  }
+
+  .mapContainer {
+    height: 260px;
+  }
 }

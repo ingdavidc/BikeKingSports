@@ -42,7 +42,7 @@
 
 .productGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
   gap: 30px;
 }
 
@@ -110,4 +110,29 @@
   color: var(--color-primary);
   margin-bottom: 20px;
   margin-top: auto;
+}
+
+@media (max-width: 640px) {
+  .tiendaContainer {
+    padding: 32px 16px;
+  }
+
+  .title {
+    font-size: 1.85rem;
+    margin-bottom: 24px;
+  }
+
+  .filters {
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .filterBtn {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+
+  .productGrid {
+    gap: 18px;
+  }
 }

@@ -4,20 +4,24 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(15, 23, 42, 0.7);
+  background-color: rgba(15, 23, 42, 0.75);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 9999;
+  padding: 16px;
   backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
   animation: fadeIn 0.3s ease-out;
 }
 
 .popupContent {
   background-color: white;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 800px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 820px;
+  max-height: 86vh;
+  max-height: 86dvh;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -29,109 +33,179 @@
 @media (min-width: 768px) {
   .popupContent {
     flex-direction: row;
-    height: 400px;
+    height: 430px;
   }
 }
 
 .closeButton {
   position: absolute;
-  top: 15px;
-  right: 15px;
-  background: rgba(255, 255, 255, 0.8);
+  top: 12px;
+  right: 12px;
+  background: rgba(15, 23, 42, 0.85);
+  color: #ffffff;
   border: none;
-  font-size: 1.5rem;
-  width: 35px;
-  height: 35px;
+  font-size: 1.4rem;
+  line-height: 1;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10;
-  color: #0f172a;
+  z-index: 25;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
   transition: all 0.2s;
 }
 
 .closeButton:hover {
-  background: #f1f5f9;
+  background: #0f172a;
   transform: scale(1.1);
 }
 
 .popupImageContainer {
   position: relative;
   flex: 1;
-  min-height: 200px;
-  background-color: #f8fafc;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+@media (min-width: 768px) {
+  .popupImageContainer {
+    border-bottom: none;
+    border-right: 1px solid #f1f5f9;
+  }
 }
 
 .popupImage {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  max-height: 360px;
 }
 
 .popupBadge {
   position: absolute;
-  top: 20px;
-  left: -10px;
+  top: 16px;
+  left: 0;
   background-color: #f97316;
   color: white;
-  padding: 8px 16px;
+  padding: 6px 14px;
   font-weight: bold;
   border-radius: 0 8px 8px 0;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.15);
   text-transform: uppercase;
-  font-size: 0.85rem;
-  letter-spacing: 1px;
+  font-size: 0.8rem;
+  letter-spacing: 0.8px;
+  z-index: 5;
 }
 
 .popupDetails {
   flex: 1;
-  padding: 40px;
+  padding: 36px;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .popupDetails h2 {
   color: #f97316;
-  font-size: 1rem;
+  font-size: 0.95rem;
   text-transform: uppercase;
-  letter-spacing: 2px;
-  margin-bottom: 10px;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
 }
 
 .popupDetails h3 {
   color: #0f172a;
-  font-size: 2rem;
-  margin-bottom: 15px;
+  font-size: 1.75rem;
+  margin-bottom: 12px;
   line-height: 1.2;
 }
 
 .popupPrice {
-  font-size: 1.8rem;
+  font-size: 1.7rem;
   font-weight: 800;
   color: #10b981;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
 }
 
 .popupDesc {
   color: #475569;
-  line-height: 1.6;
-  margin-bottom: 30px;
+  line-height: 1.55;
+  margin-bottom: 24px;
+  font-size: 0.95rem;
 }
 
 .popupButton {
-  padding: 15px 25px;
-  font-size: 1.1rem;
+  width: 100%;
+  padding: 14px 22px;
+  font-size: 1rem;
   text-transform: uppercase;
   letter-spacing: 1px;
   transition: transform 0.2s, box-shadow 0.2s;
+  flex-shrink: 0;
 }
 
 .popupButton:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.4);
+}
+
+@media (max-width: 767px) {
+  .popupImageContainer {
+    flex: none;
+    height: 175px;
+    min-height: 175px;
+    padding: 14px 48px 14px 14px;
+  }
+
+  .popupImage {
+    max-height: 145px;
+  }
+
+  .popupBadge {
+    top: 12px;
+    font-size: 0.7rem;
+    padding: 4px 10px;
+  }
+
+  .popupDetails {
+    padding: 18px 20px 22px;
+    justify-content: flex-start;
+  }
+
+  .popupDetails h2 {
+    font-size: 0.8rem;
+    margin-bottom: 6px;
+  }
+
+  .popupDetails h3 {
+    font-size: 1.25rem;
+    margin-bottom: 8px;
+  }
+
+  .popupPrice {
+    font-size: 1.45rem;
+    margin-bottom: 8px;
+  }
+
+  .popupDesc {
+    font-size: 0.88rem;
+    margin-bottom: 16px;
+    line-height: 1.45;
+  }
+
+  .popupButton {
+    padding: 12px 16px;
+    font-size: 0.92rem;
+  }
 }
 
 @keyframes fadeIn {
@@ -140,6 +214,6 @@
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(50px); }
+  from { opacity: 0; transform: translateY(40px); }
   to { opacity: 1; transform: translateY(0); }
 }

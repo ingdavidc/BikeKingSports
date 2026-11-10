@@ -103,12 +103,42 @@
 }
 
 @media (max-width: 768px) {
+  .hero {
+    padding: 48px 16px;
+  }
+
+  .hero h1 {
+    font-size: 2.2rem;
+  }
+
+  .hero p {
+    font-size: 1rem;
+  }
+
+  .contentSection {
+    padding: 40px 16px;
+  }
+
   .aboutGrid, .missionVision {
     grid-template-columns: 1fr;
-    gap: 40px;
+    gap: 28px;
+    margin-bottom: 45px;
   }
-  
-  .hero h1 {
-    font-size: 2.5rem;
+
+  .aboutText h2 {
+    font-size: 1.75rem;
+    margin-bottom: 16px;
+  }
+
+  .aboutText p {
+    font-size: 1rem;
+  }
+
+  .aboutImage {
+    height: 260px;
+  }
+
+  .card {
+    padding: 24px 18px;
   }
 }

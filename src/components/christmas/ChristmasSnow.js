@@ -118,7 +118,11 @@ export default function ChristmasSnow() {
         aria-label="Control de nieve"
       >
         <span className={`${styles.snowDot} ${isPaused ? styles.snowDotPaused : ''}`}></span>
-        {isPaused ? '❄️ Reanudar nieve' : '❄️ Nieve activa'}
+        {isPaused ? (
+          <>❄️ <span className={styles.hideMobile}>Reanudar </span>Nieve</>
+        ) : (
+          <>❄️ Nieve<span className={styles.hideMobile}> activa</span></>
+        )}
       </button>
     </>
   );
