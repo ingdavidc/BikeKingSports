@@ -44,7 +44,6 @@ export async function onRequest(context) {
     const base64Data = btoa(binary);
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
     
     const prompt = `
       Eres un asistente experto en contabilidad e inventarios. 
@@ -76,49 +75,87 @@ export async function onRequest(context) {
       }
     `;
 
-    let result = null;
-    let attempt = 0;
-    const maxRetries = 3;
+    // Cascada de modelos para alta disponibilidad y tolerancia a fallos 503 (High Demand)
+    // 1. gemini-3.5-flash: Modelo principal solicitado (máxima velocidad y última generación multimodal)
+    // 2. gemini-1.5-flash: Modelo de respaldo de alta disponibilidad (infraestructura masiva con clústeres independientes)
+    // 3. gemini-1.5-pro: Modelo de respaldo Pro para máxima precisión en caso de sobrecarga de los modelos flash
+    const modelsToTry = [
+      "gemini-3.5-flash",
+      "gemini-1.5-flash",
+      "gemini-1.5-pro"
+    ];
 
-    while (attempt < maxRetries) {
-      try {
-        result = await model.generateContent({
-          contents: [{
-            role: "user",
-            parts: [
-              { text: prompt },
-              {
-                inlineData: {
-                  mimeType: file.type || 'application/pdf',
-                  data: base64Data
+    let result = null;
+    let successfulModel = null;
+    let lastError = null;
+
+    for (const modelName of modelsToTry) {
+      let attempt = 0;
+      const maxRetriesPerModel = 2;
+
+      while (attempt < maxRetriesPerModel) {
+        try {
+          const model = genAI.getGenerativeModel({ model: modelName });
+          result = await model.generateContent({
+            contents: [{
+              role: "user",
+              parts: [
+                { text: prompt },
+                {
+                  inlineData: {
+                    mimeType: file.type || 'application/pdf',
+                    data: base64Data
+                  }
                 }
-              }
-            ]
-          }],
-          generationConfig: {
-            responseMimeType: "application/json",
+              ]
+            }],
+            generationConfig: {
+              responseMimeType: "application/json",
+            }
+          });
+
+          successfulModel = modelName;
+          console.log(`Factura procesada exitosamente con el modelo: ${modelName}`);
+          break; // Éxito con este modelo
+        } catch (apiError) {
+          attempt++;
+          lastError = apiError;
+          console.warn(`Aviso: Error en modelo ${modelName} (Intento ${attempt}/${maxRetriesPerModel}): ${apiError.message}`);
+
+          const isOverloaded = apiError.message.includes('503') || 
+                               apiError.message.includes('high demand') || 
+                               apiError.message.includes('Service Unavailable') || 
+                               apiError.message.includes('429');
+
+          if (isOverloaded && attempt < maxRetriesPerModel) {
+            // Breve espera antes del segundo intento con el mismo modelo
+            await new Promise(resolve => setTimeout(resolve, 800));
+          } else {
+            // Si sigue saturado o es otro error recuperable, saltar de inmediato al siguiente modelo de respaldo
+            break;
           }
-        });
-        break; // Éxito, salir del bucle de reintentos
-      } catch (apiError) {
-        attempt++;
-        console.warn(`Advertencia: Falló el intento ${attempt} de procesamiento con Gemini:`, apiError.message);
-        
-        if (attempt >= maxRetries) {
-          console.error("Máximo número de reintentos alcanzado.");
-          throw apiError; // Lanza el error para que el bloque catch principal lo capture y devuelva respuesta 500
         }
-        
-        // Exponential Backoff: Esperar 1s, luego 2s antes de reintentar
-        const delay = Math.pow(2, attempt - 1) * 1000;
-        await new Promise(resolve => setTimeout(resolve, delay));
       }
+
+      if (result) {
+        break; // Éxito confirmado, no probar más modelos
+      }
+    }
+
+    if (!result) {
+      console.error("Todos los modelos de Gemini experimentaron fallas o sobrecarga temporal.");
+      throw lastError || new Error("No se pudo procesar la factura con los modelos disponibles.");
     }
 
     let extractedText = result.response.text();
     
-    // Clean potential markdown blocks
-    extractedText = extractedText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    // Limpieza estricta de bloques markdown o caracteres envolventes
+    extractedText = extractedText.replace(/```json\n?/gi, '').replace(/```\n?/g, '').trim();
+    const firstBrace = extractedText.indexOf('{');
+    const lastBrace = extractedText.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace !== -1) {
+      extractedText = extractedText.slice(firstBrace, lastBrace + 1);
+    }
 
     const parsedJson = JSON.parse(extractedText);
 
@@ -145,10 +182,14 @@ export async function onRequest(context) {
       }
     }
 
-    return Response.json({ success: true, data: parsedJson });
+    return Response.json({ success: true, data: parsedJson, modelUsed: successfulModel });
 
   } catch (error) {
     console.error('Error procesando factura con Gemini:', error);
-    return Response.json({ success: false, error: 'Error procesando la factura: ' + error.message }, { status: 500 });
+    let errorDetail = error.message || 'Error desconocido';
+    if (errorDetail.includes('503') || errorDetail.includes('high demand') || errorDetail.includes('Service Unavailable')) {
+      errorDetail = 'Los servidores de Google están experimentando una alta demanda temporal en sus centros de datos. Por favor, reintenta en unos instantes.';
+    }
+    return Response.json({ success: false, error: 'Error procesando la factura: ' + errorDetail }, { status: 500 });
   }
 }
