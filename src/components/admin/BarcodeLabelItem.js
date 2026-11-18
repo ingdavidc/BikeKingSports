@@ -10,10 +10,10 @@ export default function BarcodeLabelItem({ product, settings = {}, isPreview = f
       <div 
         className="barcode-single-label empty-label"
         style={{
-          width: isPreview ? '50mm' : '49mm',
+          width: isPreview ? '50mm' : '48.5mm',
           height: isPreview ? '25mm' : '24.5mm',
-          minWidth: isPreview ? '50mm' : '49mm',
-          maxWidth: isPreview ? '50mm' : '49mm',
+          minWidth: isPreview ? '50mm' : '48.5mm',
+          maxWidth: isPreview ? '50mm' : '48.5mm',
           boxSizing: 'border-box',
           visibility: isPreview ? 'visible' : 'hidden',
           border: isPreview ? '1px dashed #cbd5e1' : 'none',
@@ -43,6 +43,7 @@ export default function BarcodeLabelItem({ product, settings = {}, isPreview = f
   } = settings;
 
   const sku = product.sku || 'SIN-SKU';
+  const skuLength = (sku || '').length;
   const priceFormatted = product.price ? `$${Number(product.price).toLocaleString('es-CO')}` : null;
   const brand = (product.brand || '').trim();
   const location = (product.location || '').trim();
@@ -54,88 +55,171 @@ export default function BarcodeLabelItem({ product, settings = {}, isPreview = f
   const hasBarcode = showBarcode && !!sku;
   const hasFooter = (showPrice && !!priceFormatted) || (showLocation && !!location);
 
-  // Conteo de bloques de texto activos (0 a 3)
-  const textRowsCount = (hasHeader ? 1 : 0) + (hasName ? 1 : 0) + (hasFooter ? 1 : 0);
+  const isLongName = (product.name || '').length > 30;
+  const isVeryLongName = (product.name || '').length > 48;
 
-  // 1. DIMENSIONAMIENTO DINÁMICO DEL CÓDIGO DE BARRAS
-  // Ajustado milimétricamente para caber en 25mm sin pisar textos ni desbordar
-  let barcodeHeight = 22;
-  let barcodeWidth = 1.05; // 1.05 garantiza que quepa en 38-40mm de ancho y no se corte a la derecha
-  let barcodeFontSize = 8.5;
-
-  if (hasBarcode) {
-    if (textRowsCount === 0) {
-      // Solo código de barras
-      barcodeHeight = 46;
-      barcodeWidth = 1.25;
-      barcodeFontSize = 10;
-    } else if (textRowsCount === 1) {
-      // 1 bloque de texto + código de barras (ej. Solo BIKEKING SPORTS, o Solo Nombre)
-      // Si el nombre es largo (más de 30 letras), dejamos altura de 26 para que no pise el texto
-      const isLongName = hasName && (product.name || '').length > 30;
-      barcodeHeight = isLongName ? 26 : 32;
-      barcodeWidth = 1.05;
-      barcodeFontSize = 8.5;
-    } else if (textRowsCount === 2) {
-      // 2 bloques de texto + código de barras (ej. Nombre + Código + Precio)
-      barcodeHeight = 22;
-      barcodeWidth = 1.05;
-      barcodeFontSize = 8;
-    } else {
-      // Todo activo (Header + Nombre + Código + Footer)
-      barcodeHeight = 18;
-      barcodeWidth = 1.02;
-      barcodeFontSize = 7.5;
-    }
+  // 1. CÁLCULO INTELIGENTE DEL ANCHO DEL MÓDULO DEL CÓDIGO (barcodeWidth)
+  // Aprovecha al máximo los ~48.5mm de ancho sin cortar márgenes
+  let barcodeWidth = 1.25;
+  if (skuLength > 15) {
+    barcodeWidth = 0.95;
+  } else if (skuLength > 12) {
+    barcodeWidth = 1.05;
+  } else if (skuLength > 9) {
+    barcodeWidth = 1.18;
+  } else {
+    // 9 caracteres o menos (ej: BK-722919) -> 1.26 aprovecha ~40mm
+    barcodeWidth = 1.26;
   }
 
-  // 2. DISTRIBUCIÓN VERTICAL Y ESPACIADO DINÁMICO
-  let containerJustify = 'center';
-  let containerGap = '0.6mm';
+  // 2. DIMENSIONES Y ALTURAS DINÁMICAS (Llenado inteligente sin desperdiciar espacio)
+  let barcodeHeight = 22;
+  let barcodeFontSize = 8.5;
+  let brandNameSize = '8.5px';
+  let brandNameLetterSpacing = '0.3px';
+  let productNameSize = '8px';
+  let productNameLineHeight = 1.15;
+  let productNameMaxLines = 2;
+  let productNameMaxHeight = '4.5mm';
+  let priceSize = '10px';
+  let productBrandSize = '7.5px';
+  let locationSize = '7.5px';
+  let logoHeight = '3.5mm';
+  let logoMaxHeight = '14px';
   let containerPadding = '0.6mm 1mm';
+  let containerGap = '0.4mm';
+  let containerJustify = 'space-between';
 
   if (!hasBarcode) {
-    containerJustify = 'center';
-    containerGap = textRowsCount <= 2 ? '1.5mm' : '1mm';
-  } else if (textRowsCount === 0) {
-    containerJustify = 'center';
-    containerGap = '0px';
-  } else if (textRowsCount === 1) {
-    containerJustify = 'center';
-    containerGap = '0.8mm';
-    containerPadding = '0.6mm 1mm';
-  } else if (textRowsCount === 2) {
-    containerJustify = 'space-between';
-    containerGap = '0.4mm';
-    containerPadding = '0.6mm 1mm';
+    // CASO SIN CÓDIGO DE BARRAS (solo texto informativo)
+    containerJustify = 'space-around';
+    containerGap = '1mm';
+    containerPadding = '1mm 1.5mm';
+    brandNameSize = '11.5px';
+    brandNameLetterSpacing = '0.5px';
+    logoHeight = '5.5mm';
+    logoMaxHeight = '22px';
+    productNameSize = hasHeader && hasFooter ? '10px' : '12px';
+    productNameMaxHeight = hasHeader && hasFooter ? '9mm' : '13mm';
+    productNameMaxLines = hasHeader && hasFooter ? 3 : 5;
+    priceSize = '15px';
+    productBrandSize = '9.5px';
+    locationSize = '9.5px';
+  } else if (!hasName) {
+    // CASO SIN NOMBRE DE PRODUCTO (¡Espacio vertical disponible para llenado óptimo!)
+    if (hasHeader && hasFooter) {
+      // Caso exacto: BIKE KING SPORTS + CÓDIGO + PVP
+      barcodeHeight = 36;
+      barcodeFontSize = 9.5;
+      brandNameSize = '11.5px';
+      brandNameLetterSpacing = '0.5px';
+      priceSize = '13.5px';
+      productBrandSize = '9px';
+      locationSize = '8.5px';
+      logoHeight = '4.8mm';
+      logoMaxHeight = '18px';
+      containerPadding = '0.8mm 1.2mm';
+      containerGap = '0.4mm';
+      containerJustify = 'space-between';
+    } else if (hasHeader && !hasFooter) {
+      // Solo Marca corporativa + Código
+      barcodeHeight = 46;
+      barcodeFontSize = 10;
+      barcodeWidth = skuLength <= 9 ? 1.32 : barcodeWidth;
+      brandNameSize = '12px';
+      brandNameLetterSpacing = '0.8px';
+      productBrandSize = '10px';
+      logoHeight = '6mm';
+      logoMaxHeight = '24px';
+      containerPadding = '1mm 1.5mm';
+      containerJustify = 'space-around';
+    } else if (!hasHeader && hasFooter) {
+      // Solo Código + PVP
+      barcodeHeight = 44;
+      barcodeFontSize = 10;
+      barcodeWidth = skuLength <= 9 ? 1.32 : barcodeWidth;
+      priceSize = '14.5px';
+      locationSize = '9.5px';
+      containerPadding = '1mm 1.5mm';
+      containerJustify = 'space-around';
+    } else {
+      // Solo Código de barras absoluto
+      barcodeHeight = 56;
+      barcodeFontSize = 11;
+      barcodeWidth = skuLength <= 9 ? 1.38 : (skuLength <= 12 ? 1.22 : 1.05);
+      containerPadding = '1mm 1.5mm';
+      containerJustify = 'center';
+    }
   } else {
-    containerJustify = 'space-between';
-    containerGap = '0.2mm';
-    containerPadding = '0.4mm 1mm';
+    // CASO CON NOMBRE DE PRODUCTO (Distribución compacta y equilibrada)
+    if (hasHeader && hasFooter) {
+      // Todo activo (Header + Nombre + Código + PVP)
+      barcodeHeight = isLongName ? 20 : 24;
+      barcodeFontSize = 8;
+      barcodeWidth = skuLength > 12 ? 0.95 : (skuLength > 9 ? 1.02 : 1.08);
+      brandNameSize = '8px';
+      brandNameLetterSpacing = '0.2px';
+      productNameSize = isVeryLongName ? '7.5px' : '8.2px';
+      productNameMaxHeight = isLongName ? '4.2mm' : '3.6mm';
+      productNameMaxLines = 2;
+      priceSize = '9.5px';
+      productBrandSize = '7px';
+      locationSize = '7px';
+      logoHeight = '3.2mm';
+      logoMaxHeight = '12px';
+      containerPadding = '0.5mm 1mm';
+      containerGap = '0.2mm';
+      containerJustify = 'space-between';
+    } else if (hasHeader && !hasFooter) {
+      // Header + Nombre + Código (sin precio)
+      barcodeHeight = isLongName ? 26 : 30;
+      barcodeFontSize = 8.5;
+      barcodeWidth = skuLength > 12 ? 1.0 : (skuLength > 9 ? 1.1 : 1.16);
+      brandNameSize = '9px';
+      brandNameLetterSpacing = '0.3px';
+      productNameSize = isLongName ? '8.5px' : '9.5px';
+      productNameMaxHeight = isLongName ? '5.5mm' : '4.5mm';
+      productNameMaxLines = 2;
+      productBrandSize = '8px';
+      logoHeight = '3.8mm';
+      logoMaxHeight = '15px';
+      containerPadding = '0.6mm 1.2mm';
+      containerGap = '0.3mm';
+      containerJustify = 'space-between';
+    } else if (!hasHeader && hasFooter) {
+      // Nombre + Código + PVP (sin header corporativo)
+      barcodeHeight = isLongName ? 26 : 30;
+      barcodeFontSize = 8.5;
+      barcodeWidth = skuLength > 12 ? 1.0 : (skuLength > 9 ? 1.1 : 1.16);
+      productNameSize = isLongName ? '8.5px' : '9.5px';
+      productNameMaxHeight = isLongName ? '5.5mm' : '4.5mm';
+      productNameMaxLines = 2;
+      priceSize = '11.5px';
+      locationSize = '8px';
+      containerPadding = '0.6mm 1.2mm';
+      containerGap = '0.3mm';
+      containerJustify = 'space-between';
+    } else {
+      // Solo Nombre + Código
+      barcodeHeight = isLongName ? 34 : 40;
+      barcodeFontSize = 9;
+      barcodeWidth = skuLength > 12 ? 1.08 : (skuLength > 9 ? 1.18 : 1.25);
+      productNameSize = isLongName ? '9.5px' : '10.5px';
+      productNameMaxHeight = isLongName ? '7mm' : '5.5mm';
+      productNameMaxLines = isLongName ? 3 : 2;
+      containerPadding = '0.8mm 1.5mm';
+      containerJustify = 'space-around';
+    }
   }
-
-  // 3. TIPOGRAFÍAS DINÁMICAS
-  const brandNameSize = textRowsCount === 1 ? '10px' : (textRowsCount === 2 ? '8.5px' : '7.5px');
-  const brandNameLetterSpacing = textRowsCount === 1 ? '0.6px' : '0.3px';
-
-  const isLongName = (product.name || '').length > 32;
-  const productNameSize = textRowsCount === 1 ? (isLongName ? '8.5px' : '9.5px') : (textRowsCount === 2 ? '8px' : '7.5px');
-  const productNameLineHeight = 1.15;
-  const productNameMaxLines = textRowsCount === 1 ? 3 : 2;
-  const productNameMaxHeight = textRowsCount === 1 ? '6.2mm' : (textRowsCount === 2 ? '4.8mm' : '3.8mm');
-
-  const priceSize = textRowsCount === 1 ? '11px' : (textRowsCount === 2 ? '9.5px' : '8.5px');
-  const productBrandSize = textRowsCount === 1 ? '8px' : '7px';
-  const locationSize = textRowsCount === 1 ? '8px' : '7px';
 
   return (
     <div
       className="barcode-single-label"
       style={{
-        width: isPreview ? '50mm' : '49mm',
+        width: isPreview ? '50mm' : '48.5mm',
         height: isPreview ? '25mm' : '24.5mm',
-        minWidth: isPreview ? '50mm' : '49mm',
-        maxWidth: isPreview ? '50mm' : '49mm',
+        minWidth: isPreview ? '50mm' : '48.5mm',
+        maxWidth: isPreview ? '50mm' : '48.5mm',
         boxSizing: 'border-box',
         padding: containerPadding,
         display: 'flex',
@@ -172,8 +256,8 @@ export default function BarcodeLabelItem({ product, settings = {}, isPreview = f
                   src="/logo.png"
                   alt="Bike King Sports"
                   style={{
-                    height: textRowsCount === 1 ? (showBrandName ? '4mm' : '5.5mm') : '3.2mm',
-                    maxHeight: textRowsCount === 1 ? '20px' : '14px',
+                    height: logoHeight,
+                    maxHeight: logoMaxHeight,
                     objectFit: 'contain',
                     filter: 'contrast(125%)'
                   }}
@@ -182,7 +266,7 @@ export default function BarcodeLabelItem({ product, settings = {}, isPreview = f
               {showBrandName && (
                 <span
                   style={{
-                    fontSize: showLogo ? (textRowsCount === 1 ? '9px' : '7px') : brandNameSize,
+                    fontSize: showLogo ? (hasName ? '7px' : '9.5px') : brandNameSize,
                     fontWeight: '900',
                     letterSpacing: brandNameLetterSpacing,
                     color: '#000000',
