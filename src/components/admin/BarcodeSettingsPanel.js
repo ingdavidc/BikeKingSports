@@ -116,7 +116,17 @@ export default function BarcodeSettingsPanel({ settings, onChange }) {
                   onChange={() => toggleOption('showBrandName')}
                   style={{ width: '16px', height: '16px', accentColor: '#005BBE', cursor: 'pointer' }}
                 />
-                <span>Marca corporativa (<strong>BIKEKING</strong>)</span>
+                <span>Texto marca (<strong>BIKEKING SPORTS</strong>)</span>
+              </label>
+
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.85rem', color: '#1e293b' }}>
+                <input
+                  type="checkbox"
+                  checked={!!settings.showLogo}
+                  onChange={() => toggleOption('showLogo')}
+                  style={{ width: '16px', height: '16px', accentColor: '#005BBE', cursor: 'pointer' }}
+                />
+                <span>Logo original (<strong>Imagen</strong>)</span>
               </label>
 
               <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.85rem', color: '#1e293b' }}>

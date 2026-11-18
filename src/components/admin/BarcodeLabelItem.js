@@ -34,6 +34,7 @@ export default function BarcodeLabelItem({ product, settings = {}, isPreview = f
 
   const {
     showBrandName = true,
+    showLogo = false,
     showProductName = true,
     showBarcode = true,
     showPrice = true,
@@ -47,7 +48,8 @@ export default function BarcodeLabelItem({ product, settings = {}, isPreview = f
   const location = (product.location || '').trim();
 
   // Detectar qué secciones de contenido están activas y tienen datos
-  const hasHeader = (showBrandName || (showProductBrand && brand));
+  const hasCorporateBrand = showBrandName || showLogo;
+  const hasHeader = hasCorporateBrand || (showProductBrand && brand);
   const hasName = showProductName && !!product.name;
   const hasBarcode = showBarcode && !!sku;
   const hasFooter = (showPrice && !!priceFormatted) || (showLocation && !!location);
@@ -150,29 +152,46 @@ export default function BarcodeLabelItem({ product, settings = {}, isPreview = f
         position: 'relative'
       }}
     >
-      {/* 1. Header: Marca corporativa BIKEKING y/o Marca del Producto */}
+      {/* 1. Header: Logo y/o Marca corporativa BIKEKING SPORTS y/o Marca del Producto */}
       {hasHeader && (
         <div
           style={{
             width: '100%',
             display: 'flex',
-            justifyContent: (showBrandName && showProductBrand && brand) ? 'space-between' : 'center',
+            justifyContent: (hasCorporateBrand && showProductBrand && brand) ? 'space-between' : 'center',
             alignItems: 'center',
             lineHeight: 1,
             flexShrink: 0
           }}
         >
-          {showBrandName && (
-            <span
-              style={{
-                fontSize: brandNameSize,
-                fontWeight: '900',
-                letterSpacing: brandNameLetterSpacing,
-                color: '#000000'
-              }}
-            >
-              BIKEKING
-            </span>
+          {hasCorporateBrand && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', justifyContent: 'center' }}>
+              {showLogo && (
+                <img
+                  src="/logo.png"
+                  alt="Bike King Sports"
+                  style={{
+                    height: textRowsCount === 1 ? (showBrandName ? '4.8mm' : '6.5mm') : '3.8mm',
+                    maxHeight: textRowsCount === 1 ? '24px' : '16px',
+                    objectFit: 'contain',
+                    filter: 'contrast(120%)'
+                  }}
+                />
+              )}
+              {showBrandName && (
+                <span
+                  style={{
+                    fontSize: showLogo ? (textRowsCount === 1 ? '10px' : '7.5px') : brandNameSize,
+                    fontWeight: '900',
+                    letterSpacing: brandNameLetterSpacing,
+                    color: '#000000',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  BIKEKING SPORTS
+                </span>
+              )}
+            </div>
           )}
           {showProductBrand && brand && (
             <span
@@ -181,7 +200,7 @@ export default function BarcodeLabelItem({ product, settings = {}, isPreview = f
                 fontWeight: '700',
                 textTransform: 'uppercase',
                 color: '#1e293b',
-                maxWidth: showBrandName ? '22mm' : '46mm',
+                maxWidth: hasCorporateBrand ? '20mm' : '46mm',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap'
