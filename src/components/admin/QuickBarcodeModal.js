@@ -58,7 +58,7 @@ export default function QuickBarcodeModal({ product, onClose }) {
       <BarcodePrintStyles rollType={settings.rollType} />
 
       {/* ÁREA OCULTA EN PANTALLA, VISIBLE SOLO PARA IMPRESIÓN (@media print) */}
-      <div id="barcode-print-root">
+      <div id="barcode-print-root" className="print-only-container" style={{ display: 'none' }}>
         {rowsToPrint.map((row, rIdx) => (
           <div key={`print-row-${rIdx}`} className="barcode-print-row">
             <BarcodeLabelItem product={row[0]} settings={settings} />

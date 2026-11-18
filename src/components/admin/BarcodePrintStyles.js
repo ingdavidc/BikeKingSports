@@ -10,6 +10,20 @@ export default function BarcodePrintStyles({ rollType = 'double' }) {
 
   return (
     <style>{`
+      /* OCULTAR 100% EN PANTALLA (No debe ser visible en el navegador) */
+      #barcode-print-root,
+      .print-only-container {
+        display: none !important;
+        visibility: hidden !important;
+        position: absolute !important;
+        left: -9999px !important;
+        top: -9999px !important;
+        height: 0 !important;
+        width: 0 !important;
+        overflow: hidden !important;
+      }
+
+      /* REGLAS EXCLUSIVAS DE IMPRESIÓN (@media print) */
       @media print {
         @page {
           size: ${pageSize};
@@ -25,18 +39,22 @@ export default function BarcodePrintStyles({ rollType = 'double' }) {
         body * {
           visibility: hidden !important;
         }
-        #barcode-print-root, #barcode-print-root * {
+        #barcode-print-root, #barcode-print-root *,
+        .print-only-container, .print-only-container * {
           visibility: visible !important;
         }
-        #barcode-print-root {
+        #barcode-print-root,
+        .print-only-container {
+          display: block !important;
           position: absolute !important;
           left: 0 !important;
           top: 0 !important;
           width: ${rowWidth} !important;
+          height: auto !important;
           margin: 0 !important;
           padding: 0 !important;
           background: #ffffff !important;
-          display: block !important;
+          overflow: visible !important;
         }
         .barcode-print-row {
           width: ${rowWidth} !important;

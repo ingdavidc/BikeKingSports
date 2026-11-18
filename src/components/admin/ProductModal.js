@@ -707,7 +707,7 @@ export default function ProductModal({ onClose, onSave, initialData }) {
                   <BarcodePrintStyles rollType={labelSettings.rollType} />
 
                   {/* ÁREA OCULTA EN PANTALLA, VISIBLE SOLO PARA IMPRESIÓN (@media print) */}
-                  <div id="barcode-print-root">
+                  <div id="barcode-print-root" className="print-only-container" style={{ display: 'none' }}>
                     {labelRowsToPrint.map((row, rIdx) => (
                       <div key={`modal-print-row-${rIdx}`} className="barcode-print-row">
                         <BarcodeLabelItem product={row[0]} settings={labelSettings} />
