@@ -2,11 +2,21 @@
 
 import { useState, useEffect } from 'react';
 import Barcode from 'react-barcode';
-import { Bot } from 'lucide-react';
+import { Bot, Printer, Plus, Minus, Layers } from 'lucide-react';
+import BarcodeLabelItem from './BarcodeLabelItem';
+import BarcodePrintStyles from './BarcodePrintStyles';
+import BarcodeSettingsPanel from './BarcodeSettingsPanel';
+import { getLabelSettings, saveLabelSettings, buildPrintRows } from '@/utils/barcodeSettings';
 
 export default function ProductModal({ onClose, onSave, initialData }) {
   const [activeTab, setActiveTab] = useState(1);
   const [providers, setProviders] = useState([]);
+  const [labelSettings, setLabelSettings] = useState(getLabelSettings());
+  const [labelQuantity, setLabelQuantity] = useState(1);
+
+  useEffect(() => {
+    saveLabelSettings(labelSettings);
+  }, [labelSettings]);
 
   useEffect(() => {
     fetch('/api/providers')
@@ -679,75 +689,263 @@ export default function ProductModal({ onClose, onSave, initialData }) {
             )}
 
             {/* TAB 6 - Barcode */}
-            {activeTab === 6 && (
-              <div style={{ padding: '20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <h3 style={{ fontSize: '1.2rem', marginBottom: '10px', color: '#0f172a' }}>Generador de Código de Barras</h3>
-                <p style={{ color: '#64748b', marginBottom: '20px' }}>Este código está basado en el SKU del producto: <strong>{formData.sku || 'N/A'}</strong></p>
-                
-                {formData.sku ? (
-                  <div id="print-barcode-container" style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                     <style>{`
-                       @media print {
-                         @page {
-                           size: 50mm 25mm;
-                           margin: 0;
-                         }
-                         body {
-                           margin: 0;
-                           padding: 0;
-                           background: white;
-                         }
-                         body * { visibility: hidden !important; }
-                         #print-barcode-container, #print-barcode-container * { visibility: visible !important; }
-                         #print-barcode-container {
-                           position: absolute !important;
-                           left: 0 !important;
-                           top: 0 !important;
-                           width: 50mm !important;
-                           height: 25mm !important;
-                           margin: 0 !important;
-                           padding: 1mm !important;
-                           border: none !important;
-                           transform: none !important;
-                           display: flex !important;
-                           flex-direction: column !important;
-                           align-items: center !important;
-                           justify-content: center !important;
-                           box-sizing: border-box !important;
-                         }
-                         #print-barcode-container .brand-name {
-                           font-size: 11px !important;
-                           font-weight: 900 !important;
-                           margin-bottom: 1px !important;
-                         }
-                         #print-barcode-container .product-name {
-                           font-size: 11px !important;
-                           margin-bottom: 2px !important;
-                           white-space: nowrap !important;
-                           overflow: hidden !important;
-                           text-overflow: ellipsis !important;
-                           max-width: 48mm !important;
-                         }
-                         #print-barcode-container svg {
-                           height: 35px !important;
-                         }
-                       }
-                     `}</style>
-                     <div className="brand-name" style={{ fontSize: '13px', fontWeight: '900', marginBottom: '2px', letterSpacing: '1px' }}>BIKEKING</div>
-                     <div className="product-name" style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '6px', textAlign: 'center', lineHeight: '1.1' }}>{formData.name || 'Nuevo Producto'}</div>
-                     <Barcode value={formData.sku} height={45} fontSize={14} margin={0} />
+            {activeTab === 6 && (() => {
+              const currentProduct = {
+                sku: formData.sku,
+                name: formData.name,
+                price: formData.price || suggestedPrice,
+                brand: formData.brand,
+                location: formData.location,
+                stock: formData.stock
+              };
+              const labelRowsToPrint = buildPrintRows([{ product: currentProduct, quantity: labelQuantity }], labelSettings.rollType);
+              const totalRows = labelRowsToPrint.length;
+              const prodStock = Math.max(0, parseInt(formData.stock, 10) || 0);
+
+              return (
+                <div style={{ padding: '20px' }}>
+                  <BarcodePrintStyles rollType={labelSettings.rollType} />
+
+                  {/* ÁREA OCULTA EN PANTALLA, VISIBLE SOLO PARA IMPRESIÓN (@media print) */}
+                  <div id="barcode-print-root">
+                    {labelRowsToPrint.map((row, rIdx) => (
+                      <div key={`modal-print-row-${rIdx}`} className="barcode-print-row">
+                        <BarcodeLabelItem product={row[0]} settings={labelSettings} />
+                        {labelSettings.rollType === 'double' && (
+                          <>
+                            <div className="barcode-print-spacer" />
+                            <BarcodeLabelItem product={row[1]} settings={labelSettings} />
+                          </>
+                        )}
+                      </div>
+                    ))}
                   </div>
-                ) : (
-                  <div style={{ padding: '20px', backgroundColor: '#fee2e2', color: '#991b1b', borderRadius: '8px', marginBottom: '20px' }}>
-                    Debes asignar un SKU en la Pestaña 1 primero.
+
+                  <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                    <h3 style={{ fontSize: '1.2rem', marginBottom: '6px', color: '#0f172a' }}>Generador e Impresión de Código de Barras</h3>
+                    <p style={{ color: '#64748b', margin: 0, fontSize: '0.9rem' }}>
+                      Código basado en el SKU del producto: <strong>{formData.sku || 'N/A'}</strong>
+                    </p>
                   </div>
-                )}
-                
-                <button type="button" onClick={() => window.print()} disabled={!formData.sku} style={{ padding: '12px 24px', backgroundColor: '#1e293b', color: 'white', border: 'none', borderRadius: '6px', cursor: formData.sku ? 'pointer' : 'not-allowed', fontWeight: 'bold' }}>
-                  🖨️ Imprimir Etiqueta
-                </button>
-              </div>
-            )}
+
+                  {!formData.sku ? (
+                    <div style={{ padding: '16px', backgroundColor: '#fee2e2', color: '#991b1b', borderRadius: '8px', marginBottom: '20px', textAlign: 'center' }}>
+                      Debes asignar o generar un SKU en la <strong>Pestaña 1 (Identificación)</strong> primero.
+                    </div>
+                  ) : (
+                    <>
+                      {/* Selector de Cantidad / Copias */}
+                      <div style={{
+                        backgroundColor: '#ffffff',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        padding: '14px 18px',
+                        marginBottom: '16px'
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                          <div>
+                            <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#0f172a', display: 'block' }}>
+                              Cantidad de Etiquetas a Imprimir:
+                            </span>
+                            <span style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                              Stock en inventario: <strong>{prodStock} unid.</strong>
+                            </span>
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #cbd5e1', borderRadius: '6px', overflow: 'hidden' }}>
+                              <button
+                                type="button"
+                                onClick={() => setLabelQuantity(Math.max(1, labelQuantity - 1))}
+                                style={{ padding: '6px 12px', background: '#f1f5f9', border: 'none', cursor: 'pointer', color: '#334155' }}
+                              >
+                                <Minus size={15} />
+                              </button>
+                              <input
+                                type="number"
+                                min="1"
+                                value={labelQuantity}
+                                onChange={(e) => setLabelQuantity(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                                style={{ width: '55px', textAlign: 'center', border: 'none', fontSize: '0.95rem', fontWeight: 'bold', color: '#0f172a', padding: '6px 0', outline: 'none' }}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setLabelQuantity(labelQuantity + 1)}
+                                style={{ padding: '6px 12px', background: '#f1f5f9', border: 'none', cursor: 'pointer', color: '#334155' }}
+                              >
+                                <Plus size={15} />
+                              </button>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => setLabelQuantity(1)}
+                              style={{
+                                padding: '6px 10px',
+                                backgroundColor: labelQuantity === 1 ? '#005BBE' : '#f1f5f9',
+                                color: labelQuantity === 1 ? 'white' : '#334155',
+                                border: 'none',
+                                borderRadius: '4px',
+                                fontSize: '0.8rem',
+                                fontWeight: '600',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              1
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setLabelQuantity(2)}
+                              style={{
+                                padding: '6px 10px',
+                                backgroundColor: labelQuantity === 2 ? '#005BBE' : '#f1f5f9',
+                                color: labelQuantity === 2 ? 'white' : '#334155',
+                                border: 'none',
+                                borderRadius: '4px',
+                                fontSize: '0.8rem',
+                                fontWeight: '600',
+                                cursor: 'pointer'
+                              }}
+                              title="1 fila completa en rollo doble"
+                            >
+                              2 (Fila)
+                            </button>
+                            {prodStock > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => setLabelQuantity(prodStock)}
+                                style={{
+                                  padding: '6px 10px',
+                                  backgroundColor: labelQuantity === prodStock ? '#10b981' : '#ecfdf5',
+                                  color: labelQuantity === prodStock ? 'white' : '#047857',
+                                  border: '1px solid #a7f3d0',
+                                  borderRadius: '4px',
+                                  fontSize: '0.8rem',
+                                  fontWeight: '600',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                Stock ({prodStock})
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        <div style={{ marginTop: '8px', fontSize: '0.8rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <Layers size={14} color="#005BBE" />
+                          <span>
+                            {labelSettings.rollType === 'double' ? (
+                              <>Se imprimirán <strong>{labelQuantity}</strong> etiqueta(s) en <strong>{totalRows}</strong> fila(s) de tu rollo doble (108mm).</>
+                            ) : (
+                              <>Se imprimirán <strong>{labelQuantity}</strong> etiqueta(s) en rollo individual.</>
+                            )}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Opciones de Contenido y Calibración */}
+                      <BarcodeSettingsPanel settings={labelSettings} onChange={setLabelSettings} />
+
+                      {/* Previsualización en Tiempo Real */}
+                      <div style={{
+                        backgroundColor: '#f8fafc',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        padding: '16px',
+                        textAlign: 'center',
+                        marginBottom: '16px'
+                      }}>
+                        <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#475569', display: 'block', marginBottom: '10px' }}>
+                          Previsualización en Pantalla (50mm x 25mm):
+                        </span>
+
+                        {labelSettings.rollType === 'double' ? (
+                          <div style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            backgroundColor: '#ffffff',
+                            padding: '12px 14px',
+                            borderRadius: '8px',
+                            border: '2px dashed #94a3b8',
+                            boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)'
+                          }}>
+                            <div style={{ textAlign: 'center' }}>
+                              <div style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '4px', fontWeight: '600' }}>Columna 1 (50mm)</div>
+                              <BarcodeLabelItem product={currentProduct} settings={labelSettings} isPreview={true} />
+                            </div>
+
+                            <div style={{
+                              width: '24px',
+                              height: '80px',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: '#94a3b8',
+                              fontSize: '0.65rem'
+                            }}>
+                              <div style={{ borderLeft: '1px dashed #cbd5e1', height: '100%', position: 'relative' }}>
+                                <span style={{
+                                  position: 'absolute',
+                                  top: '50%',
+                                  left: '50%',
+                                  transform: 'translate(-50%, -50%)',
+                                  backgroundColor: 'white',
+                                  padding: '1px 3px',
+                                  whiteSpace: 'nowrap',
+                                  fontSize: '9px',
+                                  color: '#64748b'
+                                }}>
+                                  5mm
+                                </span>
+                              </div>
+                            </div>
+
+                            <div style={{ textAlign: 'center' }}>
+                              <div style={{ fontSize: '0.7rem', color: '#64748b', marginBottom: '4px', fontWeight: '600' }}>Columna 2 (50mm)</div>
+                              <BarcodeLabelItem 
+                                product={labelQuantity > 1 ? currentProduct : null} 
+                                settings={labelSettings} 
+                                isPreview={true} 
+                              />
+                            </div>
+                          </div>
+                        ) : (
+                          <div style={{ display: 'inline-block' }}>
+                            <BarcodeLabelItem product={currentProduct} settings={labelSettings} isPreview={true} />
+                          </div>
+                        )}
+                      </div>
+
+                      <div style={{ textAlign: 'center' }}>
+                        <button
+                          type="button"
+                          onClick={() => window.print()}
+                          disabled={!formData.sku}
+                          style={{
+                            padding: '12px 28px',
+                            backgroundColor: '#005BBE',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontWeight: 'bold',
+                            fontSize: '1rem',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            boxShadow: '0 4px 6px -1px rgba(0, 91, 190, 0.25)'
+                          }}
+                        >
+                          <Printer size={18} />
+                          <span>Imprimir {labelQuantity} {labelQuantity === 1 ? 'Etiqueta' : 'Etiquetas'}</span>
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })()}
           </form>
         </div>
 

@@ -4,6 +4,9 @@ import { useState, useEffect, useMemo } from 'react';
 import ProductModal from '@/components/admin/ProductModal';
 import ProviderModal from '@/components/admin/ProviderModal';
 import InvoiceUploadModal from '@/components/admin/InvoiceUploadModal';
+import QuickBarcodeModal from '@/components/admin/QuickBarcodeModal';
+import BatchBarcodeModal from '@/components/admin/BatchBarcodeModal';
+import { Printer } from 'lucide-react';
 
 export default function InventarioPage() {
   const [items, setItems] = useState([]);
@@ -16,6 +19,11 @@ export default function InventarioPage() {
   const [isProviderModalOpen, setIsProviderModalOpen] = useState(false);
   const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+
+  // Estados para Código de Barras e Impresión
+  const [quickPrintProduct, setQuickPrintProduct] = useState(null);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
 
   const fetchInventory = async () => {
     setLoading(true);
@@ -150,6 +158,20 @@ export default function InventarioPage() {
     }
   };
 
+  const handleToggleSelectAll = () => {
+    if (selectedIds.length === sortedItems.length && sortedItems.length > 0) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(sortedItems.map(item => item.id));
+    }
+  };
+
+  const handleToggleSelectOne = (id) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(itemId => itemId !== id) : [...prev, id]
+    );
+  };
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
@@ -209,6 +231,84 @@ export default function InventarioPage() {
         />
       )}
 
+      {/* Modal de Impresión Rápida de Etiqueta Individual */}
+      {quickPrintProduct && (
+        <QuickBarcodeModal
+          product={quickPrintProduct}
+          onClose={() => setQuickPrintProduct(null)}
+        />
+      )}
+
+      {/* Modal de Impresión Masiva (Batch) */}
+      {isBatchModalOpen && (
+        <BatchBarcodeModal
+          selectedProducts={items.filter(p => selectedIds.includes(p.id))}
+          onClose={() => setIsBatchModalOpen(false)}
+        />
+      )}
+
+      {/* Barra de Acciones Masivas (Selección) */}
+      {selectedIds.length > 0 && (
+        <div style={{
+          position: 'sticky',
+          top: '12px',
+          zIndex: 40,
+          backgroundColor: '#0f172a',
+          color: '#ffffff',
+          padding: '12px 20px',
+          borderRadius: '8px',
+          marginBottom: '16px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3)',
+          animation: 'fadeIn 0.2s ease-in-out'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <span style={{ fontWeight: 'bold', fontSize: '0.95rem' }}>
+              ✓ {selectedIds.length} {selectedIds.length === 1 ? 'producto seleccionado' : 'productos seleccionados'}
+            </span>
+            <button
+              type="button"
+              onClick={() => setSelectedIds([])}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#94a3b8',
+                textDecoration: 'underline',
+                cursor: 'pointer',
+                fontSize: '0.85rem'
+              }}
+            >
+              Deseleccionar todos
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              type="button"
+              onClick={() => setIsBatchModalOpen(true)}
+              style={{
+                padding: '8px 18px',
+                backgroundColor: '#005BBE',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                boxShadow: '0 2px 4px rgba(0, 91, 190, 0.4)'
+              }}
+            >
+              <Printer size={16} />
+              <span>Imprimir Etiquetas en Lote ({selectedIds.length})</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <p style={{ color: '#475569' }}>Cargando inventario...</p>
       ) : (
@@ -216,6 +316,15 @@ export default function InventarioPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                <th style={{ width: '38px', padding: '12px 10px', textAlign: 'center' }}>
+                  <input
+                    type="checkbox"
+                    checked={sortedItems.length > 0 && selectedIds.length === sortedItems.length}
+                    onChange={handleToggleSelectAll}
+                    style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#005BBE' }}
+                    title={selectedIds.length === sortedItems.length ? 'Deseleccionar todos' : 'Seleccionar todos los visibles'}
+                  />
+                </th>
                 <th onClick={() => requestSort('sku')} style={{ padding: '12px 16px', color: '#0f172a', fontWeight: 600, cursor: 'pointer', userSelect: 'none' }}>
                   CÓDIGO {sortConfig.key === 'sku' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
                 </th>
@@ -242,7 +351,15 @@ export default function InventarioPage() {
             </thead>
             <tbody>
               {sortedItems.map(item => (
-                <tr key={item.id} style={{ borderBottom: '1px solid #e2e8f0', color: '#334155' }}>
+                <tr key={item.id} style={{ borderBottom: '1px solid #e2e8f0', color: '#334155', backgroundColor: selectedIds.includes(item.id) ? '#eff6ff' : 'transparent' }}>
+                  <td style={{ padding: '12px 10px', textAlign: 'center' }}>
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(item.id)}
+                      onChange={() => handleToggleSelectOne(item.id)}
+                      style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#005BBE' }}
+                    />
+                  </td>
                   <td style={{ padding: '12px 16px', fontWeight: 500 }}>
                     {item.sku || '-'}
                   </td>
@@ -272,15 +389,36 @@ export default function InventarioPage() {
                       title={item.is_published !== 0 && item.is_published !== false ? "Ocultar en la página web" : "Publicar en la página web"}
                     />
                   </td>
-                  <td style={{ padding: '12px 16px', display: 'flex', gap: '8px' }}>
-                    <button onClick={() => handleEditClick(item)} style={{ padding: '6px 12px', backgroundColor: '#005BBE', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}>Editar</button>
-                    <button onClick={() => handleDelete(item.id)} style={{ padding: '6px 12px', backgroundColor: '#e5142b', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '500' }}>Eliminar</button>
+                  <td style={{ padding: '12px 16px', display: 'flex', gap: '6px', alignItems: 'center' }}>
+                    <button 
+                      type="button"
+                      onClick={() => setQuickPrintProduct(item)} 
+                      title="Imprimir Código de Barras (Etiqueta Térmica)" 
+                      style={{ 
+                        padding: '6px 10px', 
+                        backgroundColor: '#f1f5f9', 
+                        color: '#0f172a', 
+                        border: '1px solid #cbd5e1', 
+                        borderRadius: '4px', 
+                        cursor: 'pointer', 
+                        fontWeight: '600', 
+                        fontSize: '0.8rem',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                    >
+                      <Printer size={13} color="#005BBE" />
+                      <span>Etiqueta</span>
+                    </button>
+                    <button onClick={() => handleEditClick(item)} style={{ padding: '6px 10px', backgroundColor: '#005BBE', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '500', fontSize: '0.85rem' }}>Editar</button>
+                    <button onClick={() => handleDelete(item.id)} style={{ padding: '6px 10px', backgroundColor: '#e5142b', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '500', fontSize: '0.85rem' }}>Eliminar</button>
                   </td>
                 </tr>
               ))}
               {items.length === 0 && (
                 <tr>
-                  <td colSpan="8" style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>
+                  <td colSpan="9" style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>
                     No hay productos en el inventario.
                   </td>
                 </tr>
