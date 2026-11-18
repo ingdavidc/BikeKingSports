@@ -5,6 +5,7 @@ import Barcode from 'react-barcode';
 import { Bot, Printer, Plus, Minus, Layers } from 'lucide-react';
 import BarcodeLabelItem from './BarcodeLabelItem';
 import BarcodePrintStyles from './BarcodePrintStyles';
+import BarcodePrintPortal from './BarcodePrintPortal';
 import BarcodeSettingsPanel from './BarcodeSettingsPanel';
 import { getLabelSettings, saveLabelSettings, buildPrintRows } from '@/utils/barcodeSettings';
 
@@ -706,8 +707,8 @@ export default function ProductModal({ onClose, onSave, initialData }) {
                 <div style={{ padding: '20px' }}>
                   <BarcodePrintStyles rollType={labelSettings.rollType} />
 
-                  {/* ÁREA OCULTA EN PANTALLA, VISIBLE SOLO PARA IMPRESIÓN (@media print) */}
-                  <div id="barcode-print-root" className="print-only-container" style={{ display: 'none' }}>
+                  {/* PORTAL DE IMPRESIÓN AISLADO DIRECTAMENTE EN document.body */}
+                  <BarcodePrintPortal>
                     {labelRowsToPrint.map((row, rIdx) => (
                       <div key={`modal-print-row-${rIdx}`} className="barcode-print-row">
                         <BarcodeLabelItem product={row[0]} settings={labelSettings} />
@@ -719,7 +720,7 @@ export default function ProductModal({ onClose, onSave, initialData }) {
                         )}
                       </div>
                     ))}
-                  </div>
+                  </BarcodePrintPortal>
 
                   <div style={{ textAlign: 'center', marginBottom: '16px' }}>
                     <h3 style={{ fontSize: '1.2rem', marginBottom: '6px', color: '#0f172a' }}>Generador e Impresión de Código de Barras</h3>

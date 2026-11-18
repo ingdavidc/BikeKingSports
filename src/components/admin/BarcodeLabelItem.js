@@ -10,10 +10,10 @@ export default function BarcodeLabelItem({ product, settings = {}, isPreview = f
       <div 
         className="barcode-single-label empty-label"
         style={{
-          width: '50mm',
-          height: '25mm',
-          minWidth: '50mm',
-          maxWidth: '50mm',
+          width: isPreview ? '50mm' : '49mm',
+          height: isPreview ? '25mm' : '24.5mm',
+          minWidth: isPreview ? '50mm' : '49mm',
+          maxWidth: isPreview ? '50mm' : '49mm',
           boxSizing: 'border-box',
           visibility: isPreview ? 'visible' : 'hidden',
           border: isPreview ? '1px dashed #cbd5e1' : 'none',
@@ -58,83 +58,84 @@ export default function BarcodeLabelItem({ product, settings = {}, isPreview = f
   const textRowsCount = (hasHeader ? 1 : 0) + (hasName ? 1 : 0) + (hasFooter ? 1 : 0);
 
   // 1. DIMENSIONAMIENTO DINÁMICO DEL CÓDIGO DE BARRAS
-  // Si hay pocos elementos, aumentamos la altura y grosor de barras para ocupar el espacio
-  let barcodeHeight = 24;
-  let barcodeWidth = 1.15;
-  let barcodeFontSize = 9;
+  // Ajustado milimétricamente para caber en 25mm sin pisar textos ni desbordar
+  let barcodeHeight = 22;
+  let barcodeWidth = 1.05; // 1.05 garantiza que quepa en 38-40mm de ancho y no se corte a la derecha
+  let barcodeFontSize = 8.5;
 
   if (hasBarcode) {
     if (textRowsCount === 0) {
       // Solo código de barras
-      barcodeHeight = 52;
-      barcodeWidth = 1.35;
-      barcodeFontSize = 11;
-    } else if (textRowsCount === 1) {
-      // 1 bloque de texto + código de barras (ej. Solo BIKEKING + Código, o Solo Nombre + Código)
-      barcodeHeight = 40;
+      barcodeHeight = 46;
       barcodeWidth = 1.25;
       barcodeFontSize = 10;
+    } else if (textRowsCount === 1) {
+      // 1 bloque de texto + código de barras (ej. Solo BIKEKING SPORTS, o Solo Nombre)
+      // Si el nombre es largo (más de 30 letras), dejamos altura de 26 para que no pise el texto
+      const isLongName = hasName && (product.name || '').length > 30;
+      barcodeHeight = isLongName ? 26 : 32;
+      barcodeWidth = 1.05;
+      barcodeFontSize = 8.5;
     } else if (textRowsCount === 2) {
       // 2 bloques de texto + código de barras (ej. Nombre + Código + Precio)
-      barcodeHeight = 29;
-      barcodeWidth = 1.2;
-      barcodeFontSize = 9.5;
+      barcodeHeight = 22;
+      barcodeWidth = 1.05;
+      barcodeFontSize = 8;
     } else {
       // Todo activo (Header + Nombre + Código + Footer)
-      barcodeHeight = 22;
-      barcodeWidth = 1.15;
-      barcodeFontSize = 8.5;
+      barcodeHeight = 18;
+      barcodeWidth = 1.02;
+      barcodeFontSize = 7.5;
     }
   }
 
   // 2. DISTRIBUCIÓN VERTICAL Y ESPACIADO DINÁMICO
   let containerJustify = 'center';
-  let containerGap = '1.4mm';
-  let containerPadding = '0.8mm 1.5mm';
+  let containerGap = '0.6mm';
+  let containerPadding = '0.6mm 1mm';
 
   if (!hasBarcode) {
     containerJustify = 'center';
-    containerGap = textRowsCount <= 2 ? '2mm' : '1.2mm';
+    containerGap = textRowsCount <= 2 ? '1.5mm' : '1mm';
   } else if (textRowsCount === 0) {
     containerJustify = 'center';
     containerGap = '0px';
   } else if (textRowsCount === 1) {
-    // Si solo hay 1 texto y el código de barras, centramos verticalmente con separación armoniosa
     containerJustify = 'center';
-    containerGap = '1.5mm';
-    containerPadding = '1mm 1.5mm';
-  } else if (textRowsCount === 2) {
-    containerJustify = 'space-evenly';
     containerGap = '0.8mm';
-    containerPadding = '0.8mm 1.5mm';
-  } else {
-    // 3 bloques de texto (máxima ocupación)
+    containerPadding = '0.6mm 1mm';
+  } else if (textRowsCount === 2) {
     containerJustify = 'space-between';
-    containerGap = '0.3mm';
-    containerPadding = '0.5mm 1.5mm';
+    containerGap = '0.4mm';
+    containerPadding = '0.6mm 1mm';
+  } else {
+    containerJustify = 'space-between';
+    containerGap = '0.2mm';
+    containerPadding = '0.4mm 1mm';
   }
 
-  // 3. TIPOGRAFÍAS DINÁMICAS (Escalan si hay más espacio disponible)
-  const brandNameSize = textRowsCount === 1 ? '12px' : (textRowsCount === 2 ? '9.5px' : '8.5px');
-  const brandNameLetterSpacing = textRowsCount === 1 ? '1px' : '0.6px';
+  // 3. TIPOGRAFÍAS DINÁMICAS
+  const brandNameSize = textRowsCount === 1 ? '10px' : (textRowsCount === 2 ? '8.5px' : '7.5px');
+  const brandNameLetterSpacing = textRowsCount === 1 ? '0.6px' : '0.3px';
 
-  const productNameSize = textRowsCount === 1 ? '10.5px' : (textRowsCount === 2 ? '9.5px' : '8.5px');
-  const productNameLineHeight = textRowsCount === 1 ? 1.25 : 1.15;
+  const isLongName = (product.name || '').length > 32;
+  const productNameSize = textRowsCount === 1 ? (isLongName ? '8.5px' : '9.5px') : (textRowsCount === 2 ? '8px' : '7.5px');
+  const productNameLineHeight = 1.15;
   const productNameMaxLines = textRowsCount === 1 ? 3 : 2;
-  const productNameMaxHeight = textRowsCount === 1 ? '8.5mm' : (textRowsCount === 2 ? '6mm' : '4.6mm');
+  const productNameMaxHeight = textRowsCount === 1 ? '6.2mm' : (textRowsCount === 2 ? '4.8mm' : '3.8mm');
 
-  const priceSize = textRowsCount === 1 ? '12.5px' : (textRowsCount === 2 ? '11px' : '9.5px');
-  const productBrandSize = textRowsCount === 1 ? '9px' : '7.5px';
-  const locationSize = textRowsCount === 1 ? '9px' : '7.5px';
+  const priceSize = textRowsCount === 1 ? '11px' : (textRowsCount === 2 ? '9.5px' : '8.5px');
+  const productBrandSize = textRowsCount === 1 ? '8px' : '7px';
+  const locationSize = textRowsCount === 1 ? '8px' : '7px';
 
   return (
     <div
       className="barcode-single-label"
       style={{
-        width: '50mm',
-        height: '25mm',
-        minWidth: '50mm',
-        maxWidth: '50mm',
+        width: isPreview ? '50mm' : '49mm',
+        height: isPreview ? '25mm' : '24.5mm',
+        minWidth: isPreview ? '50mm' : '49mm',
+        maxWidth: isPreview ? '50mm' : '49mm',
         boxSizing: 'border-box',
         padding: containerPadding,
         display: 'flex',
@@ -165,23 +166,23 @@ export default function BarcodeLabelItem({ product, settings = {}, isPreview = f
           }}
         >
           {hasCorporateBrand && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'center' }}>
               {showLogo && (
                 <img
                   src="/logo.png"
                   alt="Bike King Sports"
                   style={{
-                    height: textRowsCount === 1 ? (showBrandName ? '4.8mm' : '6.5mm') : '3.8mm',
-                    maxHeight: textRowsCount === 1 ? '24px' : '16px',
+                    height: textRowsCount === 1 ? (showBrandName ? '4mm' : '5.5mm') : '3.2mm',
+                    maxHeight: textRowsCount === 1 ? '20px' : '14px',
                     objectFit: 'contain',
-                    filter: 'contrast(120%)'
+                    filter: 'contrast(125%)'
                   }}
                 />
               )}
               {showBrandName && (
                 <span
                   style={{
-                    fontSize: showLogo ? (textRowsCount === 1 ? '10px' : '7.5px') : brandNameSize,
+                    fontSize: showLogo ? (textRowsCount === 1 ? '9px' : '7px') : brandNameSize,
                     fontWeight: '900',
                     letterSpacing: brandNameLetterSpacing,
                     color: '#000000',
@@ -200,7 +201,7 @@ export default function BarcodeLabelItem({ product, settings = {}, isPreview = f
                 fontWeight: '700',
                 textTransform: 'uppercase',
                 color: '#1e293b',
-                maxWidth: hasCorporateBrand ? '20mm' : '46mm',
+                maxWidth: hasCorporateBrand ? '18mm' : '46mm',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap'
@@ -281,7 +282,7 @@ export default function BarcodeLabelItem({ product, settings = {}, isPreview = f
                 fontSize: locationSize,
                 color: '#334155',
                 fontWeight: '600',
-                maxWidth: (showPrice && priceFormatted) ? '22mm' : '46mm',
+                maxWidth: (showPrice && priceFormatted) ? '20mm' : '46mm',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap'

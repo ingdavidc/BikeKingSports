@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Printer, X, Plus, Minus, Check, Layers } from 'lucide-react';
 import BarcodeLabelItem from './BarcodeLabelItem';
 import BarcodePrintStyles from './BarcodePrintStyles';
+import BarcodePrintPortal from './BarcodePrintPortal';
 import BarcodeSettingsPanel from './BarcodeSettingsPanel';
 import { getLabelSettings, saveLabelSettings, buildPrintRows } from '@/utils/barcodeSettings';
 
@@ -57,8 +58,8 @@ export default function QuickBarcodeModal({ product, onClose }) {
     }}>
       <BarcodePrintStyles rollType={settings.rollType} />
 
-      {/* ÁREA OCULTA EN PANTALLA, VISIBLE SOLO PARA IMPRESIÓN (@media print) */}
-      <div id="barcode-print-root" className="print-only-container" style={{ display: 'none' }}>
+      {/* PORTAL DE IMPRESIÓN AISLADO DIRECTAMENTE EN document.body */}
+      <BarcodePrintPortal>
         {rowsToPrint.map((row, rIdx) => (
           <div key={`print-row-${rIdx}`} className="barcode-print-row">
             <BarcodeLabelItem product={row[0]} settings={settings} />
@@ -70,7 +71,7 @@ export default function QuickBarcodeModal({ product, onClose }) {
             )}
           </div>
         ))}
-      </div>
+      </BarcodePrintPortal>
 
       {/* MODAL EN PANTALLA */}
       <div style={{
