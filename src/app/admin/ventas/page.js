@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { Image as ImageIcon, Printer, Maximize } from 'lucide-react';
+import { Image as ImageIcon, Printer, Maximize, Wallet } from 'lucide-react';
 import SalesHistoryModal from '@/components/admin/SalesHistoryModal';
+import CashRegisterModal from '@/components/admin/CashRegisterModal';
 import { connectPrinter, isPrinterConnected, printReceipt, autoConnectPrinter } from '@/utils/WebUSBPrinter';
 
 export default function VentasPage() {
@@ -34,9 +35,26 @@ export default function VentasPage() {
   const [printVoucher, setPrintVoucher] = useState(true);
   const [usbPrinterLinked, setUsbPrinterLinked] = useState(false);
 
+  // Cash Register / Arqueo states
+  const [isCashRegisterModalOpen, setIsCashRegisterModalOpen] = useState(false);
+  const [expectedCashInDrawer, setExpectedCashInDrawer] = useState(0);
+
+  const fetchCashBalance = async () => {
+    try {
+      const res = await fetch('/api/cash-withdrawals');
+      const json = await res.json();
+      if (json.success && json.registerSummary) {
+        setExpectedCashInDrawer(json.registerSummary.expectedCashInDrawer || 0);
+      }
+    } catch (err) {
+      console.error('Error fetching cash balance:', err);
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
     fetchActiveOrders();
+    fetchCashBalance();
     // Intentar auto-conectar si ya tiene permisos previos
     autoConnectPrinter().then(success => {
       if (success) setUsbPrinterLinked(true);
@@ -299,6 +317,7 @@ export default function VentasPage() {
         setCashReceived('');
         setTransactionRef('');
         fetchProducts();
+        fetchCashBalance();
       } else {
         alert('Error: ' + data.error);
       }
@@ -338,6 +357,17 @@ export default function VentasPage() {
                 style={{ padding: '8px 16px', backgroundColor: '#e0e7ff', color: '#4f46e5', border: '1px solid #c7d2fe', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
               >
                 + Servicio Express
+              </button>
+              <button 
+                onClick={() => setIsCashRegisterModalOpen(true)}
+                style={{ padding: '8px 16px', backgroundColor: '#fff1f2', color: '#e11d48', border: '1px solid #fecdd3', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}
+                title="Registrar retiro de efectivo o consultar cuadre de caja"
+              >
+                <Wallet size={16} />
+                <span>Retiro de Caja</span>
+                <span style={{ fontSize: '0.75rem', backgroundColor: '#e11d48', color: '#ffffff', padding: '2px 8px', borderRadius: '10px', fontWeight: 800 }}>
+                  ${expectedCashInDrawer.toLocaleString('es-CO')}
+                </span>
               </button>
               <button 
                 onClick={() => setIsHistoryModalOpen(true)}
@@ -716,6 +746,13 @@ export default function VentasPage() {
 
       {isHistoryModalOpen && (
         <SalesHistoryModal onClose={() => setIsHistoryModalOpen(false)} />
+      )}
+
+      {isCashRegisterModalOpen && (
+        <CashRegisterModal
+          onClose={() => setIsCashRegisterModalOpen(false)}
+          onWithdrawalAdded={() => fetchCashBalance()}
+        />
       )}
     </div>
   );
