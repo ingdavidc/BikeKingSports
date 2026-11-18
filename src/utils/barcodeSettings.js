@@ -2,7 +2,7 @@
 
 export const DEFAULT_LABEL_SETTINGS = {
   rollType: 'double', // 'double' = 108mm x 25mm (2 columnas), 'single' = 50mm x 25mm (1 columna)
-  showBrandName: true, // "BIKEKING SPORTS"
+  showBrandName: true, // "BIKE KING SPORTS"
   showLogo: false, // Logo oficial (/logo.png)
   showProductName: true, // Nombre del producto
   showBarcode: true, // Gráfico de barras SVG + SKU

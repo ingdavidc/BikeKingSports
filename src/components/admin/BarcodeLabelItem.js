@@ -153,7 +153,7 @@ export default function BarcodeLabelItem({ product, settings = {}, isPreview = f
         position: 'relative'
       }}
     >
-      {/* 1. Header: Logo y/o Marca corporativa BIKEKING SPORTS y/o Marca del Producto */}
+      {/* 1. Header: Logo y/o Marca corporativa BIKE KING SPORTS y/o Marca del Producto */}
       {hasHeader && (
         <div
           style={{
@@ -189,7 +189,7 @@ export default function BarcodeLabelItem({ product, settings = {}, isPreview = f
                     whiteSpace: 'nowrap'
                   }}
                 >
-                  BIKEKING SPORTS
+                  BIKE KING SPORTS
                 </span>
               )}
             </div>
