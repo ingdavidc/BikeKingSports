@@ -74,7 +74,8 @@ export default function BarcodeLabelItem({ product, settings = {}, isPreview = f
 
   // 2. DIMENSIONES Y ALTURAS DINÁMICAS (Llenado inteligente sin desperdiciar espacio)
   let barcodeHeight = 22;
-  let barcodeFontSize = 8.5;
+  let skuFontSize = '10px';
+  let skuLetterSpacing = '0.5px';
   let brandNameSize = '8.5px';
   let brandNameLetterSpacing = '0.3px';
   let productNameSize = '8px';
@@ -109,8 +110,9 @@ export default function BarcodeLabelItem({ product, settings = {}, isPreview = f
     // CASO SIN NOMBRE DE PRODUCTO (¡Espacio vertical disponible para llenado óptimo!)
     if (hasHeader && hasFooter) {
       // Caso exacto: BIKE KING SPORTS + CÓDIGO + PVP
-      barcodeHeight = 36;
-      barcodeFontSize = 9.5;
+      barcodeHeight = 32;
+      skuFontSize = '12px';
+      skuLetterSpacing = '0.8px';
       brandNameSize = '11.5px';
       brandNameLetterSpacing = '0.5px';
       priceSize = '13.5px';
@@ -123,8 +125,9 @@ export default function BarcodeLabelItem({ product, settings = {}, isPreview = f
       containerJustify = 'space-between';
     } else if (hasHeader && !hasFooter) {
       // Solo Marca corporativa + Código
-      barcodeHeight = 46;
-      barcodeFontSize = 10;
+      barcodeHeight = 40;
+      skuFontSize = '13px';
+      skuLetterSpacing = '1px';
       barcodeWidth = skuLength <= 9 ? 1.32 : barcodeWidth;
       brandNameSize = '12px';
       brandNameLetterSpacing = '0.8px';
@@ -135,8 +138,9 @@ export default function BarcodeLabelItem({ product, settings = {}, isPreview = f
       containerJustify = 'space-around';
     } else if (!hasHeader && hasFooter) {
       // Solo Código + PVP
-      barcodeHeight = 44;
-      barcodeFontSize = 10;
+      barcodeHeight = 40;
+      skuFontSize = '13px';
+      skuLetterSpacing = '1px';
       barcodeWidth = skuLength <= 9 ? 1.32 : barcodeWidth;
       priceSize = '14.5px';
       locationSize = '9.5px';
@@ -144,8 +148,9 @@ export default function BarcodeLabelItem({ product, settings = {}, isPreview = f
       containerJustify = 'space-around';
     } else {
       // Solo Código de barras absoluto
-      barcodeHeight = 56;
-      barcodeFontSize = 11;
+      barcodeHeight = 48;
+      skuFontSize = '14px';
+      skuLetterSpacing = '1.2px';
       barcodeWidth = skuLength <= 9 ? 1.38 : (skuLength <= 12 ? 1.22 : 1.05);
       containerPadding = '1mm 1.5mm';
       containerJustify = 'center';
@@ -154,8 +159,9 @@ export default function BarcodeLabelItem({ product, settings = {}, isPreview = f
     // CASO CON NOMBRE DE PRODUCTO (Distribución compacta y equilibrada)
     if (hasHeader && hasFooter) {
       // Todo activo (Header + Nombre + Código + PVP)
-      barcodeHeight = isLongName ? 20 : 24;
-      barcodeFontSize = 8;
+      barcodeHeight = isLongName ? 18 : 22;
+      skuFontSize = isLongName ? '9.5px' : '10px';
+      skuLetterSpacing = '0.4px';
       barcodeWidth = skuLength > 12 ? 0.95 : (skuLength > 9 ? 1.02 : 1.08);
       brandNameSize = '8px';
       brandNameLetterSpacing = '0.2px';
@@ -172,8 +178,9 @@ export default function BarcodeLabelItem({ product, settings = {}, isPreview = f
       containerJustify = 'space-between';
     } else if (hasHeader && !hasFooter) {
       // Header + Nombre + Código (sin precio)
-      barcodeHeight = isLongName ? 26 : 30;
-      barcodeFontSize = 8.5;
+      barcodeHeight = isLongName ? 24 : 28;
+      skuFontSize = '10.5px';
+      skuLetterSpacing = '0.5px';
       barcodeWidth = skuLength > 12 ? 1.0 : (skuLength > 9 ? 1.1 : 1.16);
       brandNameSize = '9px';
       brandNameLetterSpacing = '0.3px';
@@ -188,8 +195,9 @@ export default function BarcodeLabelItem({ product, settings = {}, isPreview = f
       containerJustify = 'space-between';
     } else if (!hasHeader && hasFooter) {
       // Nombre + Código + PVP (sin header corporativo)
-      barcodeHeight = isLongName ? 26 : 30;
-      barcodeFontSize = 8.5;
+      barcodeHeight = isLongName ? 24 : 28;
+      skuFontSize = '11px';
+      skuLetterSpacing = '0.6px';
       barcodeWidth = skuLength > 12 ? 1.0 : (skuLength > 9 ? 1.1 : 1.16);
       productNameSize = isLongName ? '8.5px' : '9.5px';
       productNameMaxHeight = isLongName ? '5.5mm' : '4.5mm';
@@ -201,8 +209,9 @@ export default function BarcodeLabelItem({ product, settings = {}, isPreview = f
       containerJustify = 'space-between';
     } else {
       // Solo Nombre + Código
-      barcodeHeight = isLongName ? 34 : 40;
-      barcodeFontSize = 9;
+      barcodeHeight = isLongName ? 30 : 34;
+      skuFontSize = '12px';
+      skuLetterSpacing = '0.8px';
       barcodeWidth = skuLength > 12 ? 1.08 : (skuLength > 9 ? 1.18 : 1.25);
       productNameSize = isLongName ? '9.5px' : '10.5px';
       productNameMaxHeight = isLongName ? '7mm' : '5.5mm';
@@ -322,29 +331,44 @@ export default function BarcodeLabelItem({ product, settings = {}, isPreview = f
         </div>
       )}
 
-      {/* 3. Código de Barras (react-barcode) */}
+      {/* 3. Código de Barras (react-barcode) + Texto SKU en negrita destacada */}
       {hasBarcode && (
         <div
           style={{
             width: '100%',
             display: 'flex',
+            flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
             overflow: 'hidden',
-            flexShrink: 0
+            flexShrink: 0,
+            lineHeight: 1
           }}
         >
           <Barcode
             value={sku}
             width={barcodeWidth}
             height={barcodeHeight}
-            fontSize={barcodeFontSize}
             margin={0}
-            displayValue={true}
-            textMargin={1}
+            displayValue={false}
             background="transparent"
             lineColor="#000000"
           />
+          <div
+            style={{
+              fontSize: skuFontSize,
+              fontWeight: '900',
+              fontFamily: 'Arial, Helvetica, sans-serif',
+              letterSpacing: skuLetterSpacing,
+              color: '#000000',
+              textAlign: 'center',
+              lineHeight: 1,
+              marginTop: '1.5px',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            {sku}
+          </div>
         </div>
       )}
 
